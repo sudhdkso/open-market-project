@@ -36,16 +36,18 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-sonar {
-	properties {
-		property "sonar.projectKey", "sudhdkso_open-market-project"
-		property "sonar.organization", "qwewww01234543210"
-		property "sonar.host.url", "https://sonarcloud.io"
-	}
-}
-
 jacocoTestReport {
 	reports {
 		xml.required = true
 	}
 }
+
+sonar {
+	properties {
+		property "sonar.projectKey", "sudhdkso_open-market-project"
+		property "sonar.organization", "qwewww01234543210"
+		property "sonar.host.url", "https://sonarcloud.io"
+		property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+	}
+}
+
