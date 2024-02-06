@@ -1,8 +1,10 @@
 package com.project.openmarket.domain.user.entity;
 
 import jakarta.persistence.Column;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @NoArgsConstructor
 public class User {
 
@@ -14,6 +16,7 @@ public class User {
 	@Column(name = "cache", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
 	private Long cache;
 
+	@Getter
 	@Column(name = "email", unique = true, updatable = false, nullable = false)
 	private String phoneNumber;
 
@@ -27,23 +30,4 @@ public class User {
 		this.password = password;
 	}
 
-	public String getEmail(){
-		return email;
-	}
-
-	public Long getCache() {
-		return cache;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	public String getPassword() {
-		return password;
-	}
 }
