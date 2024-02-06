@@ -1,7 +1,5 @@
 package com.project.openmarket.domain.user.entity;
 
-import java.util.Objects;
-
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 
 import jakarta.persistence.Column;
