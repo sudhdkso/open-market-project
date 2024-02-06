@@ -1,7 +1,5 @@
 package com.project.openmarket.domain.user.entity;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
 
 import jakarta.persistence.Column;

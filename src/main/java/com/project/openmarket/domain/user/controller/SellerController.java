@@ -26,14 +26,4 @@ public class SellerController {
 		return ResponseEntity.ok().body(reponseDto);
 	}
 
-	@GetMapping("/seller/{id}")
-	public ResponseEntity<?> findSellerById(@PathVariable("id") Long id){
-		return ResponseEntity.ok().body(null);
-	}
-
-	@GetMapping("/seller")
-	public ResponseEntity<?> findAll(){
-		return ResponseEntity.ok().body(null);
-	}
-
 }

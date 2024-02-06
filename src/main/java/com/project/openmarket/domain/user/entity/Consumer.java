@@ -37,26 +37,4 @@ public class Consumer extends User{
 		return new Consumer(dto.email(), dto.name(), dto.phoneNumber(), dto.address(), dto.password());
 	}
 
-	public Long getPoint() {
-		return point;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		Consumer consumer = (Consumer)o;
-		return Objects.equals(id, consumer.id) && Objects.equals(address, consumer.address);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, address);
-	}
 }

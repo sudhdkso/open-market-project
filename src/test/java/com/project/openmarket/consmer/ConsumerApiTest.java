@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 
 import com.project.openmarket.ApiTest;
 
-public class ConsumerApiTest extends ApiTest {
+class ConsumerApiTest extends ApiTest {
 
 	@Test
 	@DisplayName("고객등록요청_api_테스트")
