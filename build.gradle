@@ -26,22 +26,20 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.jetbrains:annotations:24.0.0'
+	implementation 'com.google.guava:guava:31.1-jre'
+
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
+	implementation 'com.h2database:h2:1.4.200'
+
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.rest-assured:rest-assured:5.1.1'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-sonar {
-	properties {
-		property "sonar.projectKey", "sudhdkso_open-market-project"
-		property "sonar.organization", "qwewww01234543210"
-		property "sonar.host.url", "https://sonarcloud.io"
-	}
+	finalizedBy 'jacocoTestReport'
 }
 
 jacocoTestReport {
@@ -49,3 +47,13 @@ jacocoTestReport {
 		xml.required = true
 	}
 }
+
+sonar {
+	properties {
+		property "sonar.projectKey", "sudhdkso_open-market-project"
+		property "sonar.organization", "qwewww01234543210"
+		property "sonar.host.url", "https://sonarcloud.io"
+		property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+	}
+}
+
