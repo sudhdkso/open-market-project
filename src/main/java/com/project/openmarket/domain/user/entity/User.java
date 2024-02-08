@@ -19,7 +19,7 @@ public abstract class User {
 	private Long id;
 
 	@Column(name = "email", updatable = false, nullable = false)
-	private final String email;
+	private String email;
 
 	@Column(name = "name", nullable = false)
 	private String name;
