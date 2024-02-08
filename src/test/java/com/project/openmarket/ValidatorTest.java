@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.project.openmarket.validator.Validator;
 
-public class ValidatorTest {
+class ValidatorTest {
 	@Test
 	@DisplayName("이메일_형식_테스트")
 	void wrongEmailPattern(){

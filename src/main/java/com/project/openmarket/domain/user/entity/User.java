@@ -33,7 +33,7 @@ public abstract class User {
 	@Column(name = "password", updatable = false, nullable = false)
 	private String password;
 
-	public User(String email, String name, String phoneNumber, String password) {
+	protected User(String email, String name, String phoneNumber, String password) {
 		this.email = email;
 		this.name = name;
 		this.cache = 0L;

@@ -16,7 +16,7 @@ import com.project.openmarket.domain.user.service.ConsumerService;
 
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ConsumerServiceTest {
+class ConsumerServiceTest {
 	@Autowired
 	private ConsumerService consumerService;
 
