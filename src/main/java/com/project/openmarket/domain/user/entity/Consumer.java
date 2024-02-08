@@ -4,21 +4,13 @@ import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
 @Table(name = "consumers")
-public class Consumer extends User{
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", unique = true, nullable = false, updatable = false, columnDefinition = "BIGINT")
-	private Long id;
-
+public class Consumer extends User {
 	@Column(name = "address")
 	private String address;
 
