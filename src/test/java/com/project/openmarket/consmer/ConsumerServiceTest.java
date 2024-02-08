@@ -5,13 +5,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import com.project.openmarket.domain.user.dto.reposne.UserCreateResponseDto;
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 import com.project.openmarket.domain.user.service.ConsumerService;
 
-@SpringBootTest
 public class ConsumerServiceTest {
 	@Autowired
 	private ConsumerService consumerService;
