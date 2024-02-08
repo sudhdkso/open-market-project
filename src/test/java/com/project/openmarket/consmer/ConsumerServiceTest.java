@@ -33,9 +33,10 @@ public class ConsumerServiceTest {
 	@Test
 	@DisplayName("고객등록_이메일중복_테스트")
 	void 이메일_중복_테스트(){
-		ConsumerCreateReqestDto request = new ConsumerCreateReqestDto("asdf1@example.com","dd","010-0000-0000","1234","");
+		ConsumerCreateReqestDto request = new ConsumerCreateReqestDto("asdf3@example.com","dd","010-0000-0000","1234","");
 
 		// when
+		consumerService.saveConumser(request);
 		Throwable thrown = catchThrowable(() -> consumerService.saveConumser(request));
 
 		//then
