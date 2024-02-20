@@ -50,6 +50,32 @@ class ConsumerServiceTest {
 	}
 
 	@Test
+	@Order(2)
+	@DisplayName("고객등록_이메일_없이_테스트")
+	void sinupByEmptyEmail(){
+		//given
+		String email = "";
+		// when
+		Throwable thrown = catchThrowable(() -> new ConsumerCreateReqestDto(email,"dd","010-0000-0000","1234",""));
+
+		//then
+		assertThat(thrown)
+			.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	@Order(2)
+	@DisplayName("고객등록_모두_빈값_테스트")
+	void sinupByAllEmptyInfo(){
+		// when
+		Throwable thrown = catchThrowable(() -> new ConsumerCreateReqestDto("","","","",""));
+
+		//then
+		assertThat(thrown)
+			.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	@Order(3)
 	@DisplayName("고객_로그인_성공_테스트")
 	void consumerLogin(){
