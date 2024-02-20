@@ -33,15 +33,12 @@ public class ConsumerService {
 
 	@Transactional
 	public ConsumerResponseDto login(ConsumerLoginRequestDto request){
+		return ConsumerResponseDto.of(login(request.email(),request.password()));
+	}
 
-		Consumer consumer = consumerRepository.findByEmail(request.email())
+	private Consumer login(String email, String password){
+		return consumerRepository.findByEmail(email)
+			.filter(m -> m.isSamePassword(password))
 			.orElseThrow(() -> new IllegalArgumentException());
-
-		System.out.println(request.email() + " "+request.password()+" "+consumer.toString());
-		if(!request.password().equals(consumer.getPassword())){
-			throw new IllegalArgumentException();
-		}
-
-		return ConsumerResponseDto.of(consumer);
 	}
 }

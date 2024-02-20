@@ -40,4 +40,8 @@ public abstract class User {
 		this.phoneNumber = phoneNumber;
 		this.password = password;
 	}
+
+	public boolean isSamePassword(String another){
+		return password.equals(another);
+	}
 }
