@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.openmarket.domain.user.dto.reposne.UserCreateResponseDto;
+import com.project.openmarket.domain.user.dto.reposne.UserResponseDto;
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
 import com.project.openmarket.domain.user.service.SellerService;
 
@@ -19,8 +19,8 @@ public class SellerController {
 	private final SellerService sellerService;
 
 	@PostMapping("/seller")
-	public ResponseEntity<UserCreateResponseDto> saveSeller(@RequestBody SellerCreateRequestDto requestDto){
-		UserCreateResponseDto reponseDto = sellerService.save(requestDto);
+	public ResponseEntity<UserResponseDto> saveSeller(@RequestBody SellerCreateRequestDto requestDto){
+		UserResponseDto reponseDto = sellerService.save(requestDto);
 		return ResponseEntity.ok().body(reponseDto);
 	}
 
