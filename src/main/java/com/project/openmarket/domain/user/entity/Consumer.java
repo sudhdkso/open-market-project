@@ -27,4 +27,11 @@ public class Consumer extends User {
 		return new Consumer(dto.email(), dto.name(), dto.phoneNumber(), dto.address(), dto.password());
 	}
 
+	public String getAddress() {
+		return address;
+	}
+
+	public Long getPoint() {
+		return point;
+	}
 }

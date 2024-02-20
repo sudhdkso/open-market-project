@@ -3,7 +3,14 @@ package com.project.openmarket.domain.user.dto.request;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.validator.Validator;
 
-public record ConsumerCreateReqestDto(String email, String name,  String phoneNumber, String password, String address){
+import jakarta.validation.constraints.NotEmpty;
+
+public record ConsumerCreateReqestDto(
+	@NotEmpty String email,
+	@NotEmpty String name,
+	@NotEmpty String phoneNumber,
+	@NotEmpty String password,
+	@NotEmpty String address){
 	public ConsumerCreateReqestDto {
 		Validator.validateEmail(email);
 		Validator.validatePhoneNumber(phoneNumber);

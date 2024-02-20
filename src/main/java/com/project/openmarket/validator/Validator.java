@@ -8,6 +8,7 @@ public class Validator {
 	private Validator(){
 
 	}
+
 	public static void validateEmail(final String email){
 		if(!EMAIL.matcher(email).matches()){
 			throw new IllegalArgumentException();
