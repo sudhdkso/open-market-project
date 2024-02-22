@@ -4,10 +4,10 @@ import com.project.openmarket.validator.Validator;
 
 import jakarta.validation.constraints.NotEmpty;
 
-public record ConsumerLoginRequestDto(
+public record LoginRequestDto(
 	@NotEmpty String email,
 	@NotEmpty String password) {
-	public ConsumerLoginRequestDto {
+	public LoginRequestDto {
 		Validator.validateEmail(email);
 	}
 }

@@ -1,15 +1,24 @@
 package com.project.openmarket.consmer;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
-import com.project.openmarket.domain.user.dto.request.ConsumerLoginRequestDto;
+import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
 public class ConsumerStep {
+
+	private MockHttpSession session;
+	@BeforeEach
+	void setUp() {
+		session = new MockHttpSession();
+	}
+
 	public static ExtractableResponse<Response> 고객생성요청(final ConsumerCreateReqestDto request) {
 		return RestAssured
 			.given().log().all()
@@ -30,20 +39,20 @@ public class ConsumerStep {
 		return new ConsumerCreateReqestDto(email, name, phoneNumber, password, address);
 	}
 
-	public static ExtractableResponse<Response> 로그인요청(final ConsumerLoginRequestDto request) {
+	public static ExtractableResponse<Response> 로그인요청(final LoginRequestDto request) {
 		return RestAssured
 			.given().log().all()
 			.contentType(MediaType.APPLICATION_JSON_VALUE)
 			.body(request)
 			.when()
-			.post("/api/v1/consumer/login")
+			.post("/api/v1/login?role=consumer")
 			.then()
 			.log().all().extract();
 	}
 
-	public static ConsumerLoginRequestDto 로그인요청_생성() {
+	public static LoginRequestDto 로그인요청_생성() {
 		String email = "asdf@example.com";
 		String password = "1234";
-		return new ConsumerLoginRequestDto(email, password);
+		return new LoginRequestDto(email, password);
 	}
 }
