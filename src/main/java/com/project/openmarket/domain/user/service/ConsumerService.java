@@ -3,10 +3,9 @@ package com.project.openmarket.domain.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.project.openmarket.domain.user.dto.reposne.ConsumerResponseDto;
 import com.project.openmarket.domain.user.dto.reposne.UserResponseDto;
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
-import com.project.openmarket.domain.user.dto.request.ConsumerLoginRequestDto;
+import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.repository.ConsumerRepository;
 
@@ -18,7 +17,7 @@ public class ConsumerService {
 	private final ConsumerRepository consumerRepository;
 
 	@Transactional
-	public UserResponseDto saveConumser(ConsumerCreateReqestDto request){
+	public UserResponseDto signup(ConsumerCreateReqestDto request){
 		Consumer consumer = request.toEntity();
 		duplicatedEmail(consumer.getEmail());
 		return UserResponseDto.of(consumerRepository.save(consumer));
@@ -32,8 +31,8 @@ public class ConsumerService {
 	}
 
 	@Transactional
-	public ConsumerResponseDto login(ConsumerLoginRequestDto request){
-		return ConsumerResponseDto.of(login(request.email(),request.password()));
+	public UserResponseDto login(LoginRequestDto request){
+		return UserResponseDto.of(login(request.email(),request.password()));
 	}
 
 	private Consumer login(String email, String password){
