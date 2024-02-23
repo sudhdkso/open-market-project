@@ -1,7 +1,7 @@
 package com.project.openmarket.domain.user.dto.request;
 
 import com.project.openmarket.domain.user.entity.Consumer;
-import com.project.openmarket.validator.Validator;
+import com.project.openmarket.global.validator.Validator;
 
 import jakarta.validation.constraints.NotEmpty;
 

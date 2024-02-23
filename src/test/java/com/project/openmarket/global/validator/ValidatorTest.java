@@ -1,11 +1,11 @@
-package com.project.openmarket;
+package com.project.openmarket.global.validator;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.project.openmarket.validator.Validator;
+import com.project.openmarket.global.validator.Validator;
 
 class ValidatorTest {
 	@Test

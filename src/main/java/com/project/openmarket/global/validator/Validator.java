@@ -1,4 +1,4 @@
-package com.project.openmarket.validator;
+package com.project.openmarket.global.validator;
 
 import java.util.regex.Pattern;
 
