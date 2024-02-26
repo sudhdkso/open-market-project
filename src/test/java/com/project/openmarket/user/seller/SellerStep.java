@@ -1,4 +1,4 @@
-package com.project.openmarket.seller;
+package com.project.openmarket.user.seller;
 
 import org.springframework.http.MediaType;
 
@@ -8,7 +8,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
-public class SellerStep {
+class SellerStep {
 	public static ExtractableResponse<Response> 판매자생성요청(final SellerCreateRequestDto request) {
 		return RestAssured
 			.given().log().all()
@@ -22,7 +22,7 @@ public class SellerStep {
 
 	public static SellerCreateRequestDto 판매자생성요청_생성() {
 		String name = "가명";
-		String email = "asdf1@example.com";
+		String email = "asdf4@example.com";
 		String phoneNumber = "010-0000-0000";
 		String password = "1234";
 		return new SellerCreateRequestDto(email, name, phoneNumber, password);

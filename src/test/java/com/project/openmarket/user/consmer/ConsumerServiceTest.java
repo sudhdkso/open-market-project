@@ -1,7 +1,7 @@
-package com.project.openmarket.consmer;
+package com.project.openmarket.user.consmer;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
@@ -10,32 +10,29 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.entity.Consumer;
-import com.project.openmarket.domain.user.repository.ConsumerRepository;
 import com.project.openmarket.domain.user.service.ConsumerService;
+import com.project.openmarket.user.ServiceTestMock;
 
-@ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class ConsumerServiceTest {
+class ConsumerServiceTest extends ServiceTestMock {
 	@InjectMocks
 	private ConsumerService consumerService;
-	@Mock
-	private ConsumerRepository consumerRepository;
 
 	@Test
 	@Order(1)
-	@DisplayName("고객등록_테스트")
+	@DisplayName("고객 등록에서 등록에 성공할 경우 request와 response가 같은 email을 반환한다.")
 	void signupConsumer(){
 		//given
 		final var request = createConsumer();
- 		//when
+
+		//when
+		given(consumerRepository.existsByEmail(anyString())).willReturn(false);
+
 		when(consumerRepository.save(any(Consumer.class))).thenReturn(request.toEntity());
 		final var response = consumerService.signup(request);
 
@@ -46,36 +43,33 @@ class ConsumerServiceTest {
 
 	@Test
 	@Order(2)
-	@DisplayName("고객등록_이메일중복_테스트시_예외가_발생한다")
+	@DisplayName("고객 등록에서 이미 고객이 있는 이메일로 등록을 요청할 경우 예외가 발생한다.")
 	void sinupByDuplicatedEmail(){
 		final var request = new ConsumerCreateReqestDto("asdf3@example.com","dd","010-0000-0000","1234","");
 
-		// when
-		when(consumerRepository.existsByEmail(request.email())).thenReturn(true);
-		Throwable thrown = catchThrowable(() -> consumerService.signup(request));
+		given(consumerRepository.existsByEmail(anyString())).willReturn(true);
 
-		//then
-		assertThat(thrown)
+		assertThatThrownBy(() -> consumerService.signup(request))
 			.isInstanceOf(IllegalArgumentException.class);
+
+
 	}
 
 	@Test
 	@Order(2)
-	@DisplayName("고객등록_이메일_없이_테스트시_예외가_발생한다")
+	@DisplayName("고객 등록에서 이메일을 빈값으로 등록 요청할 경우 예외가 발생한다.")
 	void sinupByEmptyEmail(){
 		//given
 		String email = "";
-		// when
-		Throwable thrown = catchThrowable(() -> new ConsumerCreateReqestDto(email,"dd","010-0000-0000","1234",""));
 
-		//then
-		assertThat(thrown)
+		assertThatThrownBy(() -> new ConsumerCreateReqestDto(email,"dd","010-0000-0000","1234",""))
 			.isInstanceOf(IllegalArgumentException.class);
+
 	}
 
 	@Test
 	@Order(2)
-	@DisplayName("고객등록_모두_빈값_테스트시_예외가_발생한다")
+	@DisplayName("고객 등록에서 모두 빈값으로 등록을 요청할 경우 예외가 발생한다.")
 	void sinupByAllEmptyInfo(){
 		// when
 		Throwable thrown = catchThrowable(() -> new ConsumerCreateReqestDto("","","","",""));
@@ -87,13 +81,13 @@ class ConsumerServiceTest {
 
 	@Test
 	@Order(3)
-	@DisplayName("고객_로그인_성공_테스트")
+	@DisplayName("고객 로그인이 성공할 경우 request와 resopnse이 같은 이메일을 반환한다.")
 	void consumerLogin(){
 		//given
 		final var request = createLogin();
 
 		//when
-		when(consumerRepository.findByEmail(request.email())).thenReturn(Optional.of(createConsumer().toEntity()));
+		given(consumerRepository.findByEmail(request.email())).willReturn((Optional.of(createConsumer().toEntity())));
 		final var response = consumerService.login(request);
 
 		//then
@@ -103,35 +97,34 @@ class ConsumerServiceTest {
 
 	@Test
 	@Order(4)
-	@DisplayName("고객_없는_이메일_로그인_테스트시_예외가_발생한다")
-	void loginByWrongEmail(){
+	@DisplayName("고객 로그인에서 없는 이메일로 로그인 할 경우 예외가 발생한다.")
+	void loginByInvalidEmail(){
 		//given
 		final var request = new LoginRequestDto("test@example.com", "1234");
 
 		// when
-		when(consumerRepository.findByEmail(any(String.class))).thenReturn(Optional.empty());
-		Throwable thrown = catchThrowable(() -> consumerService.login(request));
+		given(consumerRepository.findByEmail(anyString())).willReturn(Optional.empty());
 
 		//then
-		assertThat(thrown)
+		assertThatThrownBy(() -> consumerService.login(request))
 			.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-	@DisplayName("고객_로그인_틀린_패스워드_테스트시_예외가_발생한다")
+	@Order(4)
+	@DisplayName("고객 로그인에서 틀린 비밀번호로 로그인 할 경우 예외가 발생한다.")
 	void loginByWrongPassword(){
 		//given
 		final var request = new LoginRequestDto("asdf3@example.com", "12345");
 
 		// when
-		Throwable thrown = catchThrowable(() -> consumerService.login(request));
+		given(consumerRepository.findByEmail(anyString())).willReturn(Optional.of(createConsumer().toEntity()));
 
 		//then
-		assertThat(thrown)
+		assertThatThrownBy(() -> consumerService.login(request))
 			.isInstanceOf(IllegalArgumentException.class);
-
 	}
-	
+
 	private ConsumerCreateReqestDto createConsumer(){
 		String email = "asdf3@example.com";
 		String name = "김하얀";

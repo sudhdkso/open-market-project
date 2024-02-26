@@ -1,8 +1,6 @@
-package com.project.openmarket.consmer;
+package com.project.openmarket.user.consmer;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
@@ -12,12 +10,6 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
 public class ConsumerStep {
-
-	private MockHttpSession session;
-	@BeforeEach
-	void setUp() {
-		session = new MockHttpSession();
-	}
 
 	public static ExtractableResponse<Response> 고객생성요청(final ConsumerCreateReqestDto request) {
 		return RestAssured
@@ -51,7 +43,7 @@ public class ConsumerStep {
 	}
 
 	public static LoginRequestDto 로그인요청_생성() {
-		String email = "asdf@example.com";
+		String email = "asdf1@example.com";
 		String password = "1234";
 		return new LoginRequestDto(email, password);
 	}

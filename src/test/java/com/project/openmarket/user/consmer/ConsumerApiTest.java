@@ -1,4 +1,4 @@
-package com.project.openmarket.consmer;
+package com.project.openmarket.user.consmer;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import com.project.openmarket.ApiTest;
-
 class ConsumerApiTest extends ApiTest {
 
 	@Test
@@ -20,7 +19,6 @@ class ConsumerApiTest extends ApiTest {
 	@Test
 	@DisplayName("로그인_api_테스트")
 	void loginApi(){
-
 		ConsumerStep.고객생성요청(ConsumerStep.고객생성요청_생성());
 
 		final var response = ConsumerStep.로그인요청(ConsumerStep.로그인요청_생성());
