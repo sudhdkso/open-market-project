@@ -14,6 +14,7 @@ import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.service.ConsumerService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @RestController

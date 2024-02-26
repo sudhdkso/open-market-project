@@ -1,4 +1,4 @@
-package com.project.openmarket.consmer;
+package com.project.openmarket.user.consmer;
 
 import static org.assertj.core.api.Assertions.*;
 

@@ -1,4 +1,4 @@
-package com.project.openmarket.consmer;
+package com.project.openmarket.user.consmer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.http.MediaType;

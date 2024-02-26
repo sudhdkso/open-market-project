@@ -1,4 +1,4 @@
-package com.project.openmarket.seller;
+package com.project.openmarket.user.seller;
 
 import static org.assertj.core.api.Assertions.*;
 
