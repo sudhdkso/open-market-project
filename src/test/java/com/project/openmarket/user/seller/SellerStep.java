@@ -15,7 +15,7 @@ class SellerStep {
 			.contentType(MediaType.APPLICATION_JSON_VALUE)
 			.body(request)
 			.when()
-			.post("/api/v1/seller")
+			.post("/api/v1/signup?role=seller")
 			.then()
 			.log().all().extract();
 	}

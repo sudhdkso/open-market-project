@@ -34,7 +34,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 		given(consumerRepository.existsByEmail(anyString())).willReturn(false);
 
 		when(consumerRepository.save(any(Consumer.class))).thenReturn(request.toEntity());
-		final var response = consumerService.signup(request);
+		final var response = consumerService.save(request);
 
 		//then
 		assertThat(request.email())
@@ -49,7 +49,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 		given(consumerRepository.existsByEmail(anyString())).willReturn(true);
 
-		assertThatThrownBy(() -> consumerService.signup(request))
+		assertThatThrownBy(() -> consumerService.save(request))
 			.isInstanceOf(IllegalArgumentException.class);
 
 
