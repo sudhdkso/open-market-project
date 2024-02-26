@@ -17,7 +17,7 @@ public class ConsumerStep {
 			.contentType(MediaType.APPLICATION_JSON_VALUE)
 			.body(request)
 			.when()
-			.post("/api/v1/consumer")
+			.post("/api/v1/signup?role=consumer")
 			.then()
 			.log().all().extract();
 	}
