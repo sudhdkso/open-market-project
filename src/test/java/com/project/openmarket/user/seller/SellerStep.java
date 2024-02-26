@@ -8,7 +8,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 
-public class SellerStep {
+class SellerStep {
 	public static ExtractableResponse<Response> 판매자생성요청(final SellerCreateRequestDto request) {
 		return RestAssured
 			.given().log().all()

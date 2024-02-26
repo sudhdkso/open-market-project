@@ -30,7 +30,7 @@ public class ConsumerInterceptor implements HandlerInterceptor {
 		Optional<Consumer> consumer = consumerRepository.findByEmail(email);
 
 		if (!consumer.isPresent()) {
-			//response.sendRedirect("/login");
+			response.sendRedirect("/login");
 			return false;
 		}
 

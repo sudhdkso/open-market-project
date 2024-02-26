@@ -3,17 +3,20 @@ package com.project.openmarket.global.auth;
 import com.project.openmarket.domain.user.entity.Consumer;
 
 public class ConsumerThreadLocal {
-	private static final ThreadLocal<Consumer> consumerThreadLocal = new ThreadLocal<>();
+	private static final ThreadLocal<Consumer> CONSUMER_THREAD_LOCAL = new ThreadLocal<>();
 
+	private ConsumerThreadLocal(){
+
+	}
 	public static void set(Consumer consumer) {
-		consumerThreadLocal.set(consumer);
+		CONSUMER_THREAD_LOCAL.set(consumer);
 	}
 
 	public static Consumer get() {
-		return consumerThreadLocal.get();
+		return CONSUMER_THREAD_LOCAL.get();
 	}
 
 	public static void remove() {
-		consumerThreadLocal.remove();
+		CONSUMER_THREAD_LOCAL.remove();
 	}
 }

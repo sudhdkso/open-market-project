@@ -39,9 +39,7 @@ public class ConsumerService {
 
 	private Consumer login(String email, String password){
 		Optional<Consumer> consumer = consumerRepository.findByEmail(email);
-		System.out.println(consumerRepository.findAll().size());
-		consumerRepository.findAll()
-			.forEach(x -> System.out.println(x.getEmail()));
+		
 		if(!consumer.isPresent()){
 			throw new IllegalArgumentException();
 		}

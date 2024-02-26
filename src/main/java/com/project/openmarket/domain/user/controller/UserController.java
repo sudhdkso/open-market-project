@@ -36,7 +36,7 @@ public class UserController {
 			userResponseDto = consumerService.login(requestDto);
 		}
 
-		if(userResponseDto.email() != null){
+		if(userResponseDto != null && userResponseDto.email() != null){
 			HttpSession session = request.getSession();
 			session.setAttribute(SessionConst.SESSION_KEY, userResponseDto.email());
 			session.setMaxInactiveInterval(60 * 30);
