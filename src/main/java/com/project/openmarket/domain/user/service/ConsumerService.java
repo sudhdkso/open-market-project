@@ -1,5 +1,7 @@
 package com.project.openmarket.domain.user.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,13 @@ public class ConsumerService {
 	}
 
 	private Consumer login(String email, String password){
-		return consumerRepository.findByEmail(email)
+		Optional<Consumer> consumer = consumerRepository.findByEmail(email);
+
+		if(!consumer.isPresent()){
+			throw new IllegalArgumentException();
+		}
+
+		return consumer
 			.filter(m -> m.isSamePassword(password))
 			.orElseThrow(() -> new IllegalArgumentException());
 	}

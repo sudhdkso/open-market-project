@@ -34,6 +34,12 @@ public class UserController {
 		if(rl.equals(Role.CONSUMER)){
 			userResponseDto = consumerService.login(requestDto);
 		}
+
+		if(userResponseDto.email() != null){
+			HttpSession session = request.getSession();
+			session.setAttribute(SessionConst.SESSION_KEY, userResponseDto.email());
+			session.setMaxInactiveInterval(60 * 30);
+		}
 		return ResponseEntity.ok().body(userResponseDto);
 	}
 }
