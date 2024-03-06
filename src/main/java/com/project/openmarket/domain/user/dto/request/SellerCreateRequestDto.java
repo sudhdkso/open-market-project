@@ -11,7 +11,9 @@ public record SellerCreateRequestDto(
 	String phoneNumber,
 	@NotEmpty String password){
 	public SellerCreateRequestDto{
-		Validator.validateEmail(email);
+		if(!Validator.validateEmail(email)){
+			throw new IllegalArgumentException();
+		}
 	}
 	public Seller toEntity(){
 		return Seller.of(this);

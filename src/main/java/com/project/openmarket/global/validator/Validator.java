@@ -9,10 +9,11 @@ public class Validator {
 
 	}
 
-	public static void validateEmail(final String email){
+	public static boolean validateEmail(final String email){
 		if(email == null || email.isBlank() || !EMAIL.matcher(email).matches()){
-			throw new IllegalArgumentException();
+			return false;
 		}
+		return true;
 	}
 
 	public static void validatePhoneNumber(final String phoneNumber){

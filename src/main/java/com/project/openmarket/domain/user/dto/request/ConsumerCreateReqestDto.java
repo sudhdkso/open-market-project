@@ -12,7 +12,9 @@ public record ConsumerCreateReqestDto(
 	@NotEmpty String password,
 	@NotEmpty String address){
 	public ConsumerCreateReqestDto {
-		Validator.validateEmail(email);
+		if(!Validator.validateEmail(email)){
+			throw new IllegalArgumentException();
+		}
 	}
 
 	public Consumer toEntity(){
