@@ -10,17 +10,11 @@ public class Validator {
 	}
 
 	public static boolean validateEmail(final String email){
-		if(email == null || email.isBlank() || !EMAIL.matcher(email).matches()){
-			return false;
-		}
-		else return true;
+		return !(email == null || email.isBlank() || !EMAIL.matcher(email).matches());
+
 	}
 
 	public static boolean validatePhoneNumber(final String phoneNumber){
-		if(!PHONENUMBER.matcher(phoneNumber).matches()){
-			return false;
-		}
-		else return true;
-
+		return PHONENUMBER.matcher(phoneNumber).matches();
 	}
 }
