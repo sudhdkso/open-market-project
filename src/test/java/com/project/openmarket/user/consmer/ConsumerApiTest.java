@@ -19,9 +19,7 @@ class ConsumerApiTest extends ApiTest {
 	@Test
 	@DisplayName("로그인_api_테스트")
 	void loginApi(){
-		ConsumerStep.고객생성요청(ConsumerStep.고객생성요청_생성());
-
-		final var response = ConsumerStep.로그인요청(ConsumerStep.로그인요청_생성());
+		final var response = ConsumerStep.고객로그인요청(ConsumerStep.고객로그인요청_생성());
 	    assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
 
 	}

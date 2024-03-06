@@ -19,7 +19,7 @@ public class ConsumerService {
 	private final ConsumerRepository consumerRepository;
 
 	@Transactional
-	public UserResponseDto signup(ConsumerCreateReqestDto request){
+	public UserResponseDto save(ConsumerCreateReqestDto request){
 		Consumer consumer = request.toEntity();
 		duplicatedEmail(consumer.getEmail());
 		return UserResponseDto.of(consumerRepository.save(consumer));

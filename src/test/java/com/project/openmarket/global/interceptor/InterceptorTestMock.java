@@ -10,7 +10,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.project.openmarket.domain.user.entity.Consumer;
-
+import com.project.openmarket.domain.user.entity.Seller;
 
 @ExtendWith(MockitoExtension.class)
 public abstract class InterceptorTestMock {
@@ -22,4 +22,6 @@ public abstract class InterceptorTestMock {
 	protected ModelAndView modelAndView;
 	@Mock
 	protected Consumer consumer;
+	@Mock
+	protected Seller seller;
 }

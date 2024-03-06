@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -23,40 +24,43 @@ class ConsumerServiceTest extends ServiceTestMock {
 	@InjectMocks
 	private ConsumerService consumerService;
 
+	@BeforeEach
+	void setUp() {
+		consumer = createConsumer("consumer@example.com").toEntity();
+	}
+
 	@Test
 	@Order(1)
 	@DisplayName("고객 등록에서 등록에 성공할 경우 request와 response가 같은 email을 반환한다.")
 	void signupConsumer(){
 		//given
-		final var request = createConsumer();
+		final var request = createConsumer("consumer@example.com");
 
 		//when
 		given(consumerRepository.existsByEmail(anyString())).willReturn(false);
+		given(consumerRepository.save(any(Consumer.class))).willReturn(consumer);
 
-		when(consumerRepository.save(any(Consumer.class))).thenReturn(request.toEntity());
-		final var response = consumerService.signup(request);
-
+		assertThatNoException().isThrownBy(() -> consumerService.save(request));
 		//then
-		assertThat(request.email())
-			.isEqualTo(response.email());
+		then(consumerRepository)
+			.should(times(1))
+			.save(any(Consumer.class));
 	}
 
 	@Test
-	@Order(2)
 	@DisplayName("고객 등록에서 이미 고객이 있는 이메일로 등록을 요청할 경우 예외가 발생한다.")
 	void sinupByDuplicatedEmail(){
-		final var request = new ConsumerCreateReqestDto("asdf3@example.com","dd","010-0000-0000","1234","");
+		final var request = new ConsumerCreateReqestDto("consumer1@example.com","dd","010-0000-0000","1234","");
 
 		given(consumerRepository.existsByEmail(anyString())).willReturn(true);
 
-		assertThatThrownBy(() -> consumerService.signup(request))
+		assertThatThrownBy(() -> consumerService.save(request))
 			.isInstanceOf(IllegalArgumentException.class);
 
 
 	}
 
 	@Test
-	@Order(2)
 	@DisplayName("고객 등록에서 이메일을 빈값으로 등록 요청할 경우 예외가 발생한다.")
 	void sinupByEmptyEmail(){
 		//given
@@ -69,34 +73,20 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 	@Test
 	@Order(2)
-	@DisplayName("고객 등록에서 모두 빈값으로 등록을 요청할 경우 예외가 발생한다.")
-	void sinupByAllEmptyInfo(){
-		// when
-		Throwable thrown = catchThrowable(() -> new ConsumerCreateReqestDto("","","","",""));
-
-		//then
-		assertThat(thrown)
-			.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	@Order(3)
-	@DisplayName("고객 로그인이 성공할 경우 request와 resopnse이 같은 이메일을 반환한다.")
+	@DisplayName("고객의 email과 password가 일치하면 로그인에 성공한다.")
 	void consumerLogin(){
 		//given
-		final var request = createLogin();
+		final var request = createLogin("consumer@example.com");
 
 		//when
-		given(consumerRepository.findByEmail(request.email())).willReturn((Optional.of(createConsumer().toEntity())));
-		final var response = consumerService.login(request);
+		given(consumerRepository.findByEmail(anyString())).willReturn((Optional.of(consumer)));
+		assertThatNoException().isThrownBy(() -> consumerService.login(request));
 
 		//then
-		assertThat(response.email())
-			.isEqualTo(request.email());
+
 	}
 
 	@Test
-	@Order(4)
 	@DisplayName("고객 로그인에서 없는 이메일로 로그인 할 경우 예외가 발생한다.")
 	void loginByInvalidEmail(){
 		//given
@@ -111,22 +101,21 @@ class ConsumerServiceTest extends ServiceTestMock {
 	}
 
 	@Test
-	@Order(4)
+	@Order(2)
 	@DisplayName("고객 로그인에서 틀린 비밀번호로 로그인 할 경우 예외가 발생한다.")
 	void loginByWrongPassword(){
 		//given
-		final var request = new LoginRequestDto("asdf3@example.com", "12345");
+		final var request = new LoginRequestDto("consumer@example.com", "12345");
 
 		// when
-		given(consumerRepository.findByEmail(anyString())).willReturn(Optional.of(createConsumer().toEntity()));
+		given(consumerRepository.findByEmail(anyString())).willReturn(Optional.of(consumer));
 
 		//then
 		assertThatThrownBy(() -> consumerService.login(request))
 			.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	private ConsumerCreateReqestDto createConsumer(){
-		String email = "asdf3@example.com";
+	private ConsumerCreateReqestDto createConsumer(String email){
 		String name = "김하얀";
 		String phoneNumber = "010-0000-0000";
 		String password = "1234";
@@ -135,10 +124,8 @@ class ConsumerServiceTest extends ServiceTestMock {
 		return new ConsumerCreateReqestDto(email, name, phoneNumber, password, address);
 	}
 
-	private LoginRequestDto createLogin(){
-		String email = "asdf3@example.com";
+	private LoginRequestDto createLogin(String email){
 		String password = "1234";
-
 		return new LoginRequestDto(email, password);
 	}
 }

@@ -7,13 +7,17 @@ import jakarta.validation.constraints.NotEmpty;
 
 public record ConsumerCreateReqestDto(
 	@NotEmpty String email,
-	@NotEmpty String name,
-	@NotEmpty String phoneNumber,
+	String name,
+	String phoneNumber,
 	@NotEmpty String password,
 	@NotEmpty String address){
 	public ConsumerCreateReqestDto {
-		Validator.validateEmail(email);
-		Validator.validatePhoneNumber(phoneNumber);
+		if(!Validator.validateEmail(email)){
+			throw new IllegalArgumentException();
+		}
+		if(phoneNumber!= null && !Validator.validatePhoneNumber(phoneNumber)){
+			throw new IllegalArgumentException();
+		}
 	}
 
 	public Consumer toEntity(){

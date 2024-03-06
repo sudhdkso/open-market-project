@@ -9,15 +9,12 @@ public class Validator {
 
 	}
 
-	public static void validateEmail(final String email){
-		if(!EMAIL.matcher(email).matches()){
-			throw new IllegalArgumentException();
-		}
+	public static boolean validateEmail(final String email){
+		return !(email == null || email.isBlank() || !EMAIL.matcher(email).matches());
+
 	}
 
-	public static void validatePhoneNumber(final String phoneNumber){
-		if(!PHONENUMBER.matcher(phoneNumber).matches()){
-			throw new IllegalArgumentException();
-		}
+	public static boolean validatePhoneNumber(final String phoneNumber){
+		return PHONENUMBER.matcher(phoneNumber).matches();
 	}
 }
