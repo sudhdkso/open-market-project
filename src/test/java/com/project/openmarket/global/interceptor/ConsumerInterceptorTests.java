@@ -20,7 +20,7 @@ import com.project.openmarket.domain.user.repository.ConsumerRepository;
 import com.project.openmarket.global.auth.ConsumerThreadLocal;
 import com.project.openmarket.global.auth.enums.SessionConst;
 
-public class ConsumerInterceptorTests extends InterceptorTestMock {
+class ConsumerInterceptorTests extends InterceptorTestMock {
 	@InjectMocks
 	private ConsumerInterceptor consumerInterceptor;
 	@Mock

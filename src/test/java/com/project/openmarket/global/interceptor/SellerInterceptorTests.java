@@ -21,7 +21,7 @@ import com.project.openmarket.global.auth.ConsumerThreadLocal;
 import com.project.openmarket.global.auth.SellerThreadLocal;
 import com.project.openmarket.global.auth.enums.SessionConst;
 
-public class SellerInterceptorTests extends InterceptorTestMock {
+class SellerInterceptorTests extends InterceptorTestMock {
 	@InjectMocks
 	private SellerInterceptor sellerInterceptor;
 	@Mock

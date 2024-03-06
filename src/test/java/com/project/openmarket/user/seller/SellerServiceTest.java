@@ -23,7 +23,7 @@ import com.project.openmarket.domain.user.service.SellerService;
 import com.project.openmarket.user.ServiceTestMock;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SellerServiceTest  extends ServiceTestMock {
+class SellerServiceTest  extends ServiceTestMock {
 	@InjectMocks
 	private SellerService sellerService;
 
