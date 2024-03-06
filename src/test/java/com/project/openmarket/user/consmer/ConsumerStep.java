@@ -24,14 +24,14 @@ public class ConsumerStep {
 
 	public static ConsumerCreateReqestDto 고객생성요청_생성() {
 		String name = "가명";
-		String email = "asdf@example.com";
+		String email = "asdf1@example.com";
 		String phoneNumber = "010-0000-0000";
 		String address = "";
 		String password = "1234";
 		return new ConsumerCreateReqestDto(email, name, phoneNumber, password, address);
 	}
 
-	public static ExtractableResponse<Response> 로그인요청(final LoginRequestDto request) {
+	public static ExtractableResponse<Response> 고객로그인요청(final LoginRequestDto request) {
 		return RestAssured
 			.given().log().all()
 			.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -42,8 +42,8 @@ public class ConsumerStep {
 			.log().all().extract();
 	}
 
-	public static LoginRequestDto 로그인요청_생성() {
-		String email = "asdf1@example.com";
+	public static LoginRequestDto 고객로그인요청_생성() {
+		String email = "consumer1@example.com";
 		String password = "1234";
 		return new LoginRequestDto(email, password);
 	}
