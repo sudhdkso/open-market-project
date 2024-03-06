@@ -44,6 +44,6 @@ public class SellerService {
 
 		return seller
 			.filter(m -> m.isSamePassword(password))
-			.orElseThrow(IllegalCallerException::new);
+			.orElseThrow(IllegalArgumentException::new);
 	}
 }

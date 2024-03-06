@@ -19,6 +19,7 @@ import com.project.openmarket.domain.user.service.ConsumerService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,7 +33,7 @@ public class UserController {
 	@PostMapping("/signup")
 	public <T>ResponseEntity<UserResponseDto> signup(
 		@RequestParam("role") String role,
-		@RequestBody T requestDto){
+		@RequestBody @Valid T requestDto){
 		UserResponseDto responseDto = null;
 
 		switch (Role.findRoleByKey(role)){

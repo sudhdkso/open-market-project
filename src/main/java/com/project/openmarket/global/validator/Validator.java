@@ -10,7 +10,7 @@ public class Validator {
 	}
 
 	public static void validateEmail(final String email){
-		if(!EMAIL.matcher(email).matches()){
+		if(email == null || email.isBlank() || !EMAIL.matcher(email).matches()){
 			throw new IllegalArgumentException();
 		}
 	}
