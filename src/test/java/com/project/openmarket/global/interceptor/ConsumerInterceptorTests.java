@@ -2,7 +2,7 @@ package com.project.openmarket.global.interceptor;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
@@ -20,24 +20,24 @@ import com.project.openmarket.domain.user.repository.ConsumerRepository;
 import com.project.openmarket.global.auth.ConsumerThreadLocal;
 import com.project.openmarket.global.auth.enums.SessionConst;
 
-public class ConsumerInterceptorTestsTest extends InterceptorTestMock {
+public class ConsumerInterceptorTests extends InterceptorTestMock {
 	@InjectMocks
 	private ConsumerInterceptor consumerInterceptor;
 	@Mock
 	private ConsumerRepository consumerRepository;
-
 	private static MockHttpSession session;
+
 	@BeforeEach
 	void setUp() {
 		//고객 생성
 		consumer = createConsumer();
 
-		when(consumerRepository.save(any(Consumer.class))).thenReturn(consumer);
+		given(consumerRepository.save(any(Consumer.class))).willReturn(consumer);
 		consumerRepository.save(consumer);
 
 		//세션 생성
 		session = new MockHttpSession();
-		session.setAttribute(SessionConst.SESSION_KEY, "asdf1@example.com");
+		session.setAttribute(SessionConst.SESSION_KEY, "consumer1@example.com");
 
 		request.setSession(session);
 	}
@@ -49,8 +49,8 @@ public class ConsumerInterceptorTestsTest extends InterceptorTestMock {
 		@Test
 		void preHandleTestByValidEmail() throws Exception {
 
-			when(request.getSession(true)).thenReturn(session);
-			when(consumerRepository.findByEmail(anyString())).thenReturn(Optional.of(consumer));
+			given(request.getSession(true)).willReturn(session);
+			given(consumerRepository.findByEmail(anyString())).willReturn(Optional.of(consumer));
 
 
 			assertThat(consumerInterceptor.preHandle(request, response, handler)).isTrue();
@@ -59,8 +59,8 @@ public class ConsumerInterceptorTestsTest extends InterceptorTestMock {
 		@DisplayName("세션에 이메일이 존재하지만, 이메일에 해당하는 consumer를 조회할 수 없으면 false를 반환한다.")
 		@Test
 		void preHandleTestByInvalidEmail() throws Exception {
-			when(request.getSession(true)).thenReturn(session);
-			when(consumerRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+			given(request.getSession(true)).willReturn(session);
+			given(consumerRepository.findByEmail(anyString())).willReturn(Optional.empty());
 
 			assertThat(consumerInterceptor.preHandle(request, response, handler)).isFalse();
 		}
@@ -68,8 +68,8 @@ public class ConsumerInterceptorTestsTest extends InterceptorTestMock {
 		@DisplayName("세션에 이메일이 존재하지 않으면 false를 반환한다.")
 		@Test
 		void preHandleTestByEmptyEmail() throws Exception{
-			when(request.getSession(true)).thenReturn(new MockHttpSession());
-			when(consumerRepository.findByEmail(any())).thenReturn(Optional.empty());
+			given(request.getSession(true)).willReturn(new MockHttpSession());
+			given(consumerRepository.findByEmail(any())).willReturn(Optional.empty());
 
 			assertThat(consumerInterceptor.preHandle(request, response, handler)).isFalse();
 		}
@@ -77,16 +77,16 @@ public class ConsumerInterceptorTestsTest extends InterceptorTestMock {
 
 	@DisplayName("postHandle에서 ConsumerThreadLocal이 삭제되어 null을 반환한다.")
 	@Test
-	void test() throws Exception{
+	void postHandelClearConsumerThreadLocal() throws Exception{
 		ConsumerThreadLocal.set(consumer);
 
-		when(request.getSession(true)).thenReturn(session);
+		given(request.getSession(true)).willReturn(session);
 		consumerInterceptor.postHandle(request,response,handler,modelAndView);
 
 		assertThat(ConsumerThreadLocal.get()).isNull();
 	}
 
 	Consumer createConsumer(){
-		return Consumer.of(new ConsumerCreateReqestDto("asdf1@example.com","1111","010-0000-0000","1234","dd"));
+		return Consumer.of(new ConsumerCreateReqestDto("consumer1@example.com","1111","010-0000-0000","1234","dd"));
 	}
 }
