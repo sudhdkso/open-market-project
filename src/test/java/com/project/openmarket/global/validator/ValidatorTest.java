@@ -27,10 +27,9 @@ class ValidatorTest {
 		//given
 
 		// when
-		Throwable thrown = catchThrowable(() -> Validator.validatePhoneNumber(input));
-
+		boolean result = Validator.validatePhoneNumber(input);
 		//then
-		assertThat(thrown)
-			.isInstanceOf(IllegalArgumentException.class);
+		assertThat(result)
+			.isFalse();
 	}
 }
