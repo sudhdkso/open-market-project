@@ -3,49 +3,34 @@ package com.project.openmarket.global.validator;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import com.project.openmarket.global.validator.Validator;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class ValidatorTest {
-	@Test
+	@ParameterizedTest
+	@ValueSource(strings = {"asdf3@example","asd","@example.com"})
 	@DisplayName("이메일_형식_테스트")
-	void wrongEmailPattern(){
+	void wrongEmailPattern(String input){
 		//given
-		String email = "asdf3@example";
 
 		//when
-		Throwable thrown = catchThrowable(() -> Validator.validateEmail(email));
-
+		boolean result = Validator.validateEmail(input);
 		//then
-		assertThat(thrown)
-			.isInstanceOf(IllegalArgumentException.class);
+		assertThat(result)
+			.isFalse();
 	}
 
-	@Test
+	@ParameterizedTest
+	@ValueSource(strings = {"010-1234-56","01000000000","010","010-23-","xcvd"})
 	@DisplayName("틀린_휴대전화_형식_테스트")
-	void wrongPhoneNumberPattern(){
+	void wrongPhoneNumberPattern(String input){
 		//given
-		String phoneNumber = "010-1234-56";
+
 		// when
-		Throwable thrown = catchThrowable(() -> Validator.validatePhoneNumber(phoneNumber));
+		Throwable thrown = catchThrowable(() -> Validator.validatePhoneNumber(input));
 
 		//then
 		assertThat(thrown)
 			.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	@DisplayName("휴대전화_형식_문자포함")
-	void phoneNumberIncludeChar(){
-		//given
-		String phoneNumber = "010-0000-xxxx";
-		// when
-		Throwable thrown = catchThrowable(() -> Validator.validatePhoneNumber(phoneNumber));
-
-		//then
-		assertThat(thrown)
-			.isInstanceOf(IllegalArgumentException.class);
-
 	}
 }
