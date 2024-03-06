@@ -13,12 +13,14 @@ public class Validator {
 		if(email == null || email.isBlank() || !EMAIL.matcher(email).matches()){
 			return false;
 		}
-		return true;
+		else return true;
 	}
 
-	public static void validatePhoneNumber(final String phoneNumber){
+	public static boolean validatePhoneNumber(final String phoneNumber){
 		if(!PHONENUMBER.matcher(phoneNumber).matches()){
-			throw new IllegalArgumentException();
+			return false;
 		}
+		else return true;
+
 	}
 }

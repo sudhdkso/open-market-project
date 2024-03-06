@@ -14,6 +14,9 @@ public record SellerCreateRequestDto(
 		if(!Validator.validateEmail(email)){
 			throw new IllegalArgumentException();
 		}
+		if(phoneNumber!= null && !Validator.validatePhoneNumber(phoneNumber)){
+			throw new IllegalArgumentException();
+		}
 	}
 	public Seller toEntity(){
 		return Seller.of(this);
