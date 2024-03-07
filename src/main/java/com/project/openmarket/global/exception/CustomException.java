@@ -8,15 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Slf4j
 public class CustomException extends IllegalArgumentException {
-	private ExceptionConstants error;
-
-	public CustomException(String message){
-		super(message);
-		log.error("message = {}",message);
-	}
+	private final ExceptionConstants error;
 
 	public CustomException(ExceptionConstants e) {
 		super(e.getMessage());
+		this.error = e;
 		log.error("error code = {}, message = {}",e.getCode(), e.getMessage());
 
 	}
