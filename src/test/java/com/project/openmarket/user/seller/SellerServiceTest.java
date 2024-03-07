@@ -1,5 +1,6 @@
 package com.project.openmarket.user.seller;
 
+import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
@@ -55,13 +56,14 @@ class SellerServiceTest  extends ServiceTestMock {
 	@DisplayName("판매자 등록을 할 때 email이 null이 아니지만, 이미 존재하는 이메일일 경우 예외가 발생한다.")
 	void signupSellerEmailIsDuplicated (){
 		//given
-		final var request = createSeller("seller@example.com");
+		final var request = createSeller("seller1@example.com");
 
 		given(sellerRepository.existsByEmail(anyString())).willReturn(true);
 
 		//when
 		assertThatThrownBy(() -> sellerService.save(request))
-			.isInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(ALREADY_EXISTS_EMAIL.getMessage());
 
 		//then
 
@@ -75,7 +77,19 @@ class SellerServiceTest  extends ServiceTestMock {
 	void signupSellerEmailIsNull(String input){
 
 		assertThatThrownBy(() -> createSeller(input))
-			.isInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(INVALID_DATA_INPUT.getMessage());
+
+	}
+
+	@DisplayName("판매자 등록 할 때 phoneNumber가 null이 아니지만, 잘못된 형태의 phoneNumber가 들어오면 예외가 발생한다.")
+	@ParameterizedTest
+	@ValueSource(strings = {"010-1234024"," ","111111111111111111111"})
+	void signupSellerWithWrongPhoneNumber(String input){
+
+		assertThatThrownBy(() -> createSeller("seller@example.com",input))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(INVALID_DATA_INPUT.getMessage());
 
 	}
 
@@ -102,7 +116,8 @@ class SellerServiceTest  extends ServiceTestMock {
 		given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
 
 		assertThatThrownBy(() -> sellerService.login(request))
-			.isInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(NOT_MATCH_PASSWORD.getMessage());
 
 	}
 
@@ -117,11 +132,18 @@ class SellerServiceTest  extends ServiceTestMock {
 
 		//then
 	    assertThatThrownBy(() -> sellerService.login(request))
-			.isInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(NOT_FOUND_USER.getMessage());
 	}
 	SellerCreateRequestDto createSeller(String email){
 		String name = "판매자";
 		String phoneNumber = "010-0000-0000";
+		String password = "1234";
+		return new SellerCreateRequestDto(email, name, phoneNumber, password);
+	}
+
+	SellerCreateRequestDto createSeller(String email, String phoneNumber){
+		String name = "판매자";
 		String password = "1234";
 		return new SellerCreateRequestDto(email, name, phoneNumber, password);
 	}

@@ -1,5 +1,6 @@
 package com.project.openmarket.user.consmer;
 
+import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
@@ -11,6 +12,9 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
@@ -55,19 +59,32 @@ class ConsumerServiceTest extends ServiceTestMock {
 		given(consumerRepository.existsByEmail(anyString())).willReturn(true);
 
 		assertThatThrownBy(() -> consumerService.save(request))
-			.isInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(ALREADY_EXISTS_EMAIL.getMessage());
 
 
 	}
 
-	@Test
+	@ParameterizedTest
 	@DisplayName("고객 등록에서 이메일을 빈값으로 등록 요청할 경우 예외가 발생한다.")
-	void sinupByEmptyEmail(){
-		//given
-		String email = "";
+	@NullSource
+	@ValueSource(strings = {""})
+	void sinupByEmptyEmail(String email){
 
 		assertThatThrownBy(() -> new ConsumerCreateReqestDto(email,"dd","010-0000-0000","1234",""))
-			.isInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(INVALID_DATA_INPUT.getMessage());
+
+	}
+
+	@DisplayName("고객 등록 할 때 phoneNumber가 null이 아니지만, 잘못된 형태의 phoneNumber가 들어오면 예외가 발생한다.")
+	@ParameterizedTest
+	@ValueSource(strings = {"010-1234024"," ","2234023-2321"})
+	void signupConsumerWithWrongPhoneNumber(String input){
+
+		assertThatThrownBy(() -> createConsumer("consumer@example.com",input))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(INVALID_DATA_INPUT.getMessage());
 
 	}
 
@@ -97,7 +114,8 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 		//then
 		assertThatThrownBy(() -> consumerService.login(request))
-			.isInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(NOT_FOUND_USER.getMessage());
 	}
 
 	@Test
@@ -112,10 +130,11 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 		//then
 		assertThatThrownBy(() -> consumerService.login(request))
-			.isInstanceOf(IllegalArgumentException.class);
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(NOT_MATCH_PASSWORD.getMessage());
 	}
 
-	private ConsumerCreateReqestDto createConsumer(String email){
+	ConsumerCreateReqestDto createConsumer(String email){
 		String name = "김하얀";
 		String phoneNumber = "010-0000-0000";
 		String password = "1234";
@@ -124,7 +143,15 @@ class ConsumerServiceTest extends ServiceTestMock {
 		return new ConsumerCreateReqestDto(email, name, phoneNumber, password, address);
 	}
 
-	private LoginRequestDto createLogin(String email){
+	ConsumerCreateReqestDto createConsumer(String email, String phoneNumber){
+		String name = "판매자";
+		String password = "1234";
+		String address = "어디지";
+		return new ConsumerCreateReqestDto(email, name, phoneNumber, password, address);
+	}
+
+
+	LoginRequestDto createLogin(String email){
 		String password = "1234";
 		return new LoginRequestDto(email, password);
 	}

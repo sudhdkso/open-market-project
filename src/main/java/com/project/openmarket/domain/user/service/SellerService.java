@@ -1,5 +1,7 @@
 package com.project.openmarket.domain.user.service;
 
+import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +12,7 @@ import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.repository.SellerRepository;
+import com.project.openmarket.global.exception.CustomException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +30,7 @@ public class SellerService {
 
 	private void duplicatedEmail(final String email){
 		if(sellerRepository.existsByEmail(email)){
-			throw new IllegalArgumentException();
+			throw new CustomException(ALREADY_EXISTS_EMAIL);
 		}
 	}
 
@@ -39,11 +42,11 @@ public class SellerService {
 	public Seller login(String email, String password){
 		Optional<Seller> seller = sellerRepository.findByEmail(email);
 		if(!seller.isPresent()){
-			throw new IllegalArgumentException();
+			throw new CustomException(NOT_FOUND_USER);
 		}
 
 		return seller
 			.filter(m -> m.isSamePassword(password))
-			.orElseThrow(IllegalArgumentException::new);
+			.orElseThrow(() -> new CustomException(NOT_MATCH_PASSWORD));
 	}
 }
