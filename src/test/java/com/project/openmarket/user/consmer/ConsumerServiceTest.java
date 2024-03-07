@@ -77,6 +77,17 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 	}
 
+	@DisplayName("고객 등록 할 때 phoneNumber가 null이 아니지만, 잘못된 형태의 phoneNumber가 들어오면 예외가 발생한다.")
+	@ParameterizedTest
+	@ValueSource(strings = {"010-1234024"," ","2234023-2321"})
+	void signupConsumerWithWrongPhoneNumber(String input){
+
+		assertThatThrownBy(() -> createConsumer("consumer@example.com",input))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(INVALID_DATA_INPUT.getMessage());
+
+	}
+
 	@Test
 	@Order(2)
 	@DisplayName("고객의 email과 password가 일치하면 로그인에 성공한다.")
@@ -123,7 +134,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 			.hasMessage(NOT_MATCH_PASSWORD.getMessage());
 	}
 
-	private ConsumerCreateReqestDto createConsumer(String email){
+	ConsumerCreateReqestDto createConsumer(String email){
 		String name = "김하얀";
 		String phoneNumber = "010-0000-0000";
 		String password = "1234";
@@ -132,7 +143,15 @@ class ConsumerServiceTest extends ServiceTestMock {
 		return new ConsumerCreateReqestDto(email, name, phoneNumber, password, address);
 	}
 
-	private LoginRequestDto createLogin(String email){
+	ConsumerCreateReqestDto createConsumer(String email, String phoneNumber){
+		String name = "판매자";
+		String password = "1234";
+		String address = "어디지";
+		return new ConsumerCreateReqestDto(email, name, phoneNumber, password, address);
+	}
+
+
+	LoginRequestDto createLogin(String email){
 		String password = "1234";
 		return new LoginRequestDto(email, password);
 	}

@@ -82,6 +82,17 @@ class SellerServiceTest  extends ServiceTestMock {
 
 	}
 
+	@DisplayName("판매자 등록 할 때 phoneNumber가 null이 아니지만, 잘못된 형태의 phoneNumber가 들어오면 예외가 발생한다.")
+	@ParameterizedTest
+	@ValueSource(strings = {"010-1234024"," ","111111111111111111111"})
+	void signupSellerWithWrongPhoneNumber(String input){
+
+		assertThatThrownBy(() -> createSeller("seller@example.com",input))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(INVALID_DATA_INPUT.getMessage());
+
+	}
+
 	@Test
 	@Order(2)
 	@DisplayName("판매자의 email과 password가 일치하면 로그인에 성공한다.")
@@ -127,6 +138,12 @@ class SellerServiceTest  extends ServiceTestMock {
 	SellerCreateRequestDto createSeller(String email){
 		String name = "판매자";
 		String phoneNumber = "010-0000-0000";
+		String password = "1234";
+		return new SellerCreateRequestDto(email, name, phoneNumber, password);
+	}
+
+	SellerCreateRequestDto createSeller(String email, String phoneNumber){
+		String name = "판매자";
 		String password = "1234";
 		return new SellerCreateRequestDto(email, name, phoneNumber, password);
 	}
