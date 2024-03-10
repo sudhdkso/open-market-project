@@ -19,6 +19,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
+import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
@@ -192,19 +193,16 @@ class SellerServiceTest  extends ServiceTestMock {
 	}
 
 	@Test
-	@DisplayName("판매자에게 없는 상품 이름과 판매자가 존재하면 상품 등록에 성공한다.")
+	@DisplayName("판매자에게 없는 상품 이름과 판매자가 존재하면 상품 업데이트에 성공한다.")
 	void updateProductByNameAndSeller(){
-		final var request = createProduct("상품");
+		final var request = updateProduct("일품", 900);
 
-		given(productRepository.save(any(Product.class))).willReturn(Product.of(request, seller));
 		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class))).willReturn(false);
+		given(productRepository.findById(anyLong())).willReturn(Optional.of(Product.of(createProduct("상품"),seller)));
 
 		assertThatNoException()
-			.isThrownBy(() -> productService.create(request, seller));
+			.isThrownBy(() -> productService.update(request, seller));
 
-		then(productRepository)
-			.should(times(1))
-			.save(any(Product.class));
 	}
 
 	SellerCreateRequestDto createSeller(String email){
@@ -227,5 +225,9 @@ class SellerServiceTest  extends ServiceTestMock {
 
 	ProductRequestDto createProduct(String name){
 		return new ProductRequestDto(name, 1000, 10);
+	}
+
+	ProductUpdateReqeustDto updateProduct(String name, int price){
+		return new ProductUpdateReqeustDto(1L, name, price, 10);
 	}
 }

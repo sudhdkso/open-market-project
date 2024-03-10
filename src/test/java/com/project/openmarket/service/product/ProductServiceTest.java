@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
+import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Seller;
@@ -32,12 +33,12 @@ public class ProductServiceTest extends ServiceTestMock {
 	}
 
 	@Test
-	@DisplayName("상품의 내용을 업데이트하려는데 이름과 판매자로 상품을 찾을 수 없으면 예외가 발생한다.")
+	@DisplayName("상품의 내용을 업데이트하려는데 상품의 id로 상품을 찾을 수 없으면 예외가 발생한다.")
 	void notFoundWillUpdateProduct(){
-		given(productRepository.findByNameAndSeller(anyString(), any(Seller.class)))
+		given(productRepository.findById(anyLong()))
 			.willReturn(Optional.empty());
 
-		assertThatThrownBy(() -> productService.update(createProduct(""),seller))
+		assertThatThrownBy(() -> productService.update(updateProduct("일품"),seller))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage(NOT_FOUND_PRODUCT.getMessage());
 	}
@@ -45,12 +46,12 @@ public class ProductServiceTest extends ServiceTestMock {
 	@Test
 	@DisplayName("상품의 이름을 업데이트하려는데 판매자에게 이미 존재하는 상품명이면 예외가 발생한다.")
 	void existsByUpdateNameAndSeller(){
-		given(productRepository.findByNameAndSeller(anyString(), any(Seller.class)))
+		given(productRepository.findById(anyLong()))
 			.willReturn(Optional.of(Product.of(createProduct("상품"), seller)));
 		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class)))
 			.willReturn(true);
 
-		assertThatThrownBy(() -> productService.update(createProduct(""),seller))
+		assertThatThrownBy(() -> productService.update(updateProduct("일품"),seller))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage(ALREADY_EXISTS_PRODUCT.getMessage());
 	}
@@ -68,5 +69,9 @@ public class ProductServiceTest extends ServiceTestMock {
 
 	ProductRequestDto createProduct(String name){
 		return new ProductRequestDto(name, 1000, 10);
+	}
+
+	ProductUpdateReqeustDto updateProduct(String name){
+		return new ProductUpdateReqeustDto(1L, name, 1000, 10);
 	}
 }
