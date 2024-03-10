@@ -1,4 +1,4 @@
-package com.project.openmarket.user.seller;
+package com.project.openmarket.service.seller;
 
 import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -17,16 +18,21 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 
+import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
+import com.project.openmarket.domain.product.entity.Product;
+import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.service.SellerService;
-import com.project.openmarket.user.ServiceTestMock;
+import com.project.openmarket.service.ServiceTestMock;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SellerServiceTest  extends ServiceTestMock {
 	@InjectMocks
 	private SellerService sellerService;
+	@InjectMocks
+	private ProductService productService;
 
 	@BeforeEach
 	void setUp() {

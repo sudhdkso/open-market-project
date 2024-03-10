@@ -1,4 +1,4 @@
-package com.project.openmarket;
+package com.project.openmarket.api;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;

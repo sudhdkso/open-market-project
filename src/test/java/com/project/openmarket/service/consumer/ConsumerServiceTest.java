@@ -1,4 +1,4 @@
-package com.project.openmarket.user.consmer;
+package com.project.openmarket.service.consumer;
 
 import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
@@ -21,7 +21,7 @@ import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.service.ConsumerService;
-import com.project.openmarket.user.ServiceTestMock;
+import com.project.openmarket.service.ServiceTestMock;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ConsumerServiceTest extends ServiceTestMock {
