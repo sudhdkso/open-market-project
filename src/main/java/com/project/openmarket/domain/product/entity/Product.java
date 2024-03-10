@@ -1,6 +1,7 @@
 package com.project.openmarket.domain.product.entity;
 
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
+import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.user.entity.Seller;
 
 import jakarta.persistence.Column;
@@ -48,7 +49,7 @@ public class Product {
 		return new Product(dto.name(), dto.price(), dto.stock(), seller);
 	}
 
-	public void update(ProductRequestDto dto){
+	public void update(ProductUpdateReqeustDto dto){
 		this.name = dto.name();
 		this.price = dto.price();
 		this.stock = dto.stock();

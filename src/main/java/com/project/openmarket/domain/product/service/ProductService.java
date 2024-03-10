@@ -5,6 +5,7 @@ import static com.project.openmarket.global.exception.enums.ExceptionConstants.*
 import org.springframework.stereotype.Service;
 
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
+import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.product.dto.response.ProductResponseDto;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.repository.ProductRepository;
@@ -37,19 +38,12 @@ public class ProductService {
 	 * @param seller 상품을 업데이터하려는 판매자
 	 * @return 업데이트된 상품의 정보
 	 */
-	public ProductResponseDto update(ProductRequestDto request, Seller seller){
+	public ProductResponseDto update(ProductUpdateReqeustDto request, Seller seller){
 		return ProductResponseDto.of(updateProduct(request, seller));
 	}
 
 	public ProductResponseDto findById(Long productId){
 		Product product = productRepository.findById(productId)
-			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
-		return ProductResponseDto.of(product);
-	}
-
-	public ProductResponseDto findByNameAndSeller(String productName, Long sellerId){
-		Seller seller = sellerService.findById(sellerId);
-		Product product = productRepository.findByNameAndSeller(productName, seller)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 		return ProductResponseDto.of(product);
 	}
@@ -60,16 +54,20 @@ public class ProductService {
 		return productRepository.save(Product.of(request,seller));
 	}
 
-	private Product updateProduct(ProductRequestDto request, Seller seller){
-		Product product = productRepository.findByNameAndSeller(request.name(),seller)
+	private Product updateProduct(ProductUpdateReqeustDto request, Seller seller){
+		Product product = productRepository.findById(request.id())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 		//기존 상품의 이름과 수정하려는 상품의 이름이 다른 경우에만 확인
-		if(!product.getName().equals(request.name())){
+		if(!isSameProductName(product.getName(), request.name())){
 			duplicateProduct(request.name(), seller);
 		}
 		product.update(request);
 		
 		return product;
+	}
+
+	public boolean isSameProductName(String currentName, String updateName){
+		return currentName.equals(updateName);
 	}
 
 	private void duplicateProduct(String name, Seller seller){
