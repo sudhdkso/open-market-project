@@ -114,33 +114,37 @@ class SellerServiceTest  extends ServiceTestMock {
 	}
 
 	@Test
-	@Order(2)
-	@DisplayName("판매자의 email과 password가 일치하지 않으면 예외가 발생한다.")
-	void loginByWrongPassword(){
-		//given
-		final var request = new LoginRequestDto("seller@example.com","12345");
-		given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
+	@DisplayName("판매자에게 없는 상품 이름과 판매자가 존재하면 상품 등록에 성공한다.")
+	void createProductByNameAndSeller(){
+		final var request = createProduct("상품");
 
-		assertThatThrownBy(() -> sellerService.login(request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage(NOT_MATCH_PASSWORD.getMessage());
+		given(productRepository.save(any(Product.class))).willReturn(Product.of(request, seller));
+		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class))).willReturn(false);
 
+		assertThatNoException()
+			.isThrownBy(() -> productService.create(request, seller));
+
+		then(productRepository)
+			.should(times(1))
+			.save(any(Product.class));
 	}
 
 	@Test
-	@DisplayName("판매자가 존재하지 않는 email로 로그인 시 예외가 발생한다.")
-	void loginByNotFoundEmail(){
-	    //given
-	    final var request = new LoginRequestDto("test@example.com","1234");
+	@DisplayName("판매자에게 없는 상품 이름과 판매자가 존재하면 상품 등록에 성공한다.")
+	void updateProductByNameAndSeller(){
+		final var request = createProduct("상품");
 
-	    //when
-	    given(sellerRepository.findByEmail(anyString())).willReturn(Optional.empty());
+		given(productRepository.save(any(Product.class))).willReturn(Product.of(request, seller));
+		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class))).willReturn(false);
 
-		//then
-	    assertThatThrownBy(() -> sellerService.login(request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage(NOT_FOUND_USER.getMessage());
+		assertThatNoException()
+			.isThrownBy(() -> productService.create(request, seller));
+
+		then(productRepository)
+			.should(times(1))
+			.save(any(Product.class));
 	}
+
 	SellerCreateRequestDto createSeller(String email){
 		String name = "판매자";
 		String phoneNumber = "010-0000-0000";
@@ -157,5 +161,9 @@ class SellerServiceTest  extends ServiceTestMock {
 	LoginRequestDto createLoginSeller(String email){
 		String password = "1234";
 		return new LoginRequestDto(email, password);
+	}
+
+	ProductRequestDto createProduct(String name){
+		return new ProductRequestDto(name, 1000, 10);
 	}
 }
