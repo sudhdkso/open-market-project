@@ -1,4 +1,4 @@
-package com.project.openmarket.user.seller;
+package com.project.openmarket.api.seller;
 
 import org.springframework.http.MediaType;
 

@@ -3,3 +3,6 @@ insert into consumers (email, name, cache, phone_number, password, address, poin
 
 insert into sellers (email, name, cache, phone_number, password) values ('seller1@example.com', '판매자1', 0, '010-0000-0000', '1234');
 insert into sellers (email, name, cache, phone_number, password) values ('seller2@example.com', '판매자2', 0, '010-0000-0000', '1234');
+
+
+insert into products (name, price, stock, seller_id) values ('상품1', 1000, 10, 1);

@@ -28,6 +28,11 @@ public class SellerService {
 		return UserResponseDto.of(sellerRepository.save(seller));
 	}
 
+	public Seller findById(Long sellerId){
+		return sellerRepository.findById(sellerId)
+			.orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+	}
+
 	private void duplicatedEmail(final String email){
 		if(sellerRepository.existsByEmail(email)){
 			throw new CustomException(ALREADY_EXISTS_EMAIL);

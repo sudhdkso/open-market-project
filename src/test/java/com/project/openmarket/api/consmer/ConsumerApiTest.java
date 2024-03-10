@@ -1,4 +1,4 @@
-package com.project.openmarket.user.consmer;
+package com.project.openmarket.api.consmer;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
-import com.project.openmarket.ApiTest;
+import com.project.openmarket.api.ApiTest;
 class ConsumerApiTest extends ApiTest {
 
 	@Test
