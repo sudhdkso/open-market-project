@@ -36,80 +36,142 @@ class SellerServiceTest  extends ServiceTestMock {
 
 	@BeforeEach
 	void setUp() {
-		seller = createSeller("seller@example.com").toEntity();
+		seller = createSeller("seller1@example.com").toEntity();
+	}
+
+	@Nested
+	@DisplayName("판매자 등록을 할 떄")
+	class signup{
+		@Test
+		@Order(1)
+		@DisplayName("email이 null이 아니고 이미 존재하는 이메일이 아니면 판매자 등록에 성공한다.")
+		void signupSeller (){
+			//given
+			final var request = createSeller("seller@example.com");
+
+			given(sellerRepository.existsByEmail(anyString())).willReturn(false);
+			given(sellerRepository.save(any(Seller.class))).willReturn(request.toEntity());
+
+			//when
+			assertThatNoException().isThrownBy(() -> sellerService.save(request));
+
+			//then
+			then(sellerRepository)
+				.should(times(1))
+				.save(any(Seller.class));
+		}
+
+		@Test
+		@DisplayName("email이 null이 아니지만, 이미 존재하는 이메일일 경우 예외가 발생한다.")
+		void signupSellerEmailIsDuplicated (){
+			//given
+			final var request = createSeller("seller1@example.com");
+
+			given(sellerRepository.existsByEmail(anyString())).willReturn(true);
+
+			//when
+			assertThatThrownBy(() -> sellerService.save(request))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(ALREADY_EXISTS_EMAIL.getMessage());
+
+			//then
+
+		}
+
+		@DisplayName("email이 null이면 예외가 발생한다.")
+		@ParameterizedTest
+		@NullSource
+		@ValueSource(strings = {""})
+		void signupSellerEmailIsNull(String input){
+
+			assertThatThrownBy(() -> createSeller(input))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(INVALID_DATA_INPUT.getMessage());
+
+		}
+
+		@DisplayName("phoneNumber가 null이 아니지만, 잘못된 형태의 phoneNumber가 들어오면 예외가 발생한다.")
+		@ParameterizedTest
+		@ValueSource(strings = {"010-1234024"," ","111111111111111111111"})
+		void signupSellerWithWrongPhoneNumber(String input){
+
+			assertThatThrownBy(() -> createSeller("seller@example.com",input))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(INVALID_DATA_INPUT.getMessage());
+
+		}
+	}
+
+	@Nested
+	@DisplayName("판매자 로그인 할 때")
+	class sellerLogin{
+		@Test
+		@Order(2)
+		@DisplayName("판매자의 email과 password가 일치하면 로그인에 성공한다.")
+		void loginSuccess(){
+			//given
+			final var request = createLoginSeller("seller1@example.com");
+
+			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
+
+			assertThatNoException().isThrownBy(() -> sellerService.login(request));
+
+
+		}
+
+		@Test
+		@Order(2)
+		@DisplayName("판매자의 email과 password가 일치하지 않으면 예외가 발생한다.")
+		void loginByWrongPassword(){
+			//given
+			final var request = new LoginRequestDto("seller1@example.com","12345");
+			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
+
+			assertThatThrownBy(() -> sellerService.login(request))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(NOT_MATCH_PASSWORD.getMessage());
+
+		}
+
+		@Test
+		@DisplayName("판매자가 존재하지 않는 email로 로그인 시 예외가 발생한다.")
+		void loginByNotFoundEmail(){
+			//given
+			final var request = new LoginRequestDto("test@example.com","1234");
+
+			//when
+			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.empty());
+
+			//then
+			assertThatThrownBy(() -> sellerService.login(request))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(NOT_FOUND_USER.getMessage());
+		}
 	}
 
 	@Test
-	@Order(1)
-	@DisplayName("판매자 등록을 할 때 email이 null이 아니고 이미 존재하는 이메일이 아니면 판매자 등록에 성공한다.")
-	void signupSeller (){
-	    //given
-		final var request = createSeller("seller@example.com");
+	@DisplayName("올바르지 않은 판매자 id로 판매자를 요청하면 예외가 발생한다.")
+	void findSellerByInvalidId(){
+		given(sellerRepository.findById(anyLong()))
+			.willReturn(Optional.empty());
 
-		given(sellerRepository.existsByEmail(anyString())).willReturn(false);
-		given(sellerRepository.save(any(Seller.class))).willReturn(request.toEntity());
+		assertThatThrownBy(() -> sellerService.findById(1L))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(NOT_FOUND_USER.getMessage());
+	}
 
-		//when
-		assertThatNoException().isThrownBy(() -> sellerService.save(request));
+	@Test
+	@DisplayName("올바른 판매자 id로 판매자를 요청하면 성공한다.")
+	void findSellerByValidId(){
+		given(sellerRepository.findById(anyLong()))
+			.willReturn(Optional.of(seller));
 
-		//then
+		assertThatNoException()
+			.isThrownBy(() -> sellerService.findById(1L));
+
 		then(sellerRepository)
 			.should(times(1))
-			.save(any(Seller.class));
-	}
-
-	@Test
-	@DisplayName("판매자 등록을 할 때 email이 null이 아니지만, 이미 존재하는 이메일일 경우 예외가 발생한다.")
-	void signupSellerEmailIsDuplicated (){
-		//given
-		final var request = createSeller("seller1@example.com");
-
-		given(sellerRepository.existsByEmail(anyString())).willReturn(true);
-
-		//when
-		assertThatThrownBy(() -> sellerService.save(request))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage(ALREADY_EXISTS_EMAIL.getMessage());
-
-		//then
-
-	}
-
-
-	@DisplayName("판매자 등록 할 때 email이 null이면 예외가 발생한다.")
-	@ParameterizedTest
-	@NullSource
-	@ValueSource(strings = {""})
-	void signupSellerEmailIsNull(String input){
-
-		assertThatThrownBy(() -> createSeller(input))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage(INVALID_DATA_INPUT.getMessage());
-
-	}
-
-	@DisplayName("판매자 등록 할 때 phoneNumber가 null이 아니지만, 잘못된 형태의 phoneNumber가 들어오면 예외가 발생한다.")
-	@ParameterizedTest
-	@ValueSource(strings = {"010-1234024"," ","111111111111111111111"})
-	void signupSellerWithWrongPhoneNumber(String input){
-
-		assertThatThrownBy(() -> createSeller("seller@example.com",input))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage(INVALID_DATA_INPUT.getMessage());
-
-	}
-
-	@Test
-	@Order(2)
-	@DisplayName("판매자의 email과 password가 일치하면 로그인에 성공한다.")
-	void sellerLogin(){
-		//given
-		final var request = createLoginSeller("seller@example.com");
-
-		given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
-
-		assertThatNoException().isThrownBy(() -> sellerService.login(request));
-
+			.findById(anyLong());
 
 	}
 
