@@ -42,6 +42,11 @@ public class ProductService {
 		return ProductResponseDto.of(updateProduct(request, seller));
 	}
 
+	/**
+	 * 상품을 조회하는 메소드
+	 * @param productId 조회하려는 상품의 id
+	 * @return 조회한 상품의 정보
+	 */
 	public ProductResponseDto findById(Long productId){
 		Product product = productRepository.findById(productId)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
@@ -58,16 +63,12 @@ public class ProductService {
 		Product product = productRepository.findById(request.id())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 		//기존 상품의 이름과 수정하려는 상품의 이름이 다른 경우에만 확인
-		if(!isSameProductName(product.getName(), request.name())){
+		if(!product.isSameName(request.name())){
 			duplicateProduct(request.name(), seller);
 		}
 		product.update(request);
 		
 		return product;
-	}
-
-	public boolean isSameProductName(String currentName, String updateName){
-		return currentName.equals(updateName);
 	}
 
 	private void duplicateProduct(String name, Seller seller){

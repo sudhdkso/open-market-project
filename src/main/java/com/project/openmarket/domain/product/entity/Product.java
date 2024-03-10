@@ -54,4 +54,8 @@ public class Product {
 		this.price = dto.price();
 		this.stock = dto.stock();
 	}
+
+	public boolean isSameName(String another){
+		return this.name.equals(another);
+	}
 }
