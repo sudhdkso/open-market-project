@@ -6,11 +6,9 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,16 +33,10 @@ class SellerServiceTest  extends ServiceTestMock {
 	@InjectMocks
 	private ProductService productService;
 
-	@BeforeEach
-	void setUp() {
-		seller = createSeller("seller1@example.com").toEntity();
-	}
-
 	@Nested
 	@DisplayName("판매자 등록을 할 떄")
 	class signup{
 		@Test
-		@Order(1)
 		@DisplayName("email이 null이 아니고 이미 존재하는 이메일이 아니면 판매자 등록에 성공한다.")
 		void signupSeller (){
 			//given
@@ -107,13 +99,13 @@ class SellerServiceTest  extends ServiceTestMock {
 	@DisplayName("판매자 로그인 할 때")
 	class sellerLogin{
 		@Test
-		@Order(2)
 		@DisplayName("판매자의 email과 password가 일치하면 로그인에 성공한다.")
 		void loginSuccess(){
 			//given
 			final var request = createLoginSeller("seller1@example.com");
 
 			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
+			given(seller.isSamePassword(anyString())).willReturn(true);
 
 			assertThatNoException().isThrownBy(() -> sellerService.login(request));
 
@@ -121,7 +113,6 @@ class SellerServiceTest  extends ServiceTestMock {
 		}
 
 		@Test
-		@Order(2)
 		@DisplayName("판매자의 email과 password가 일치하지 않으면 예외가 발생한다.")
 		void loginByWrongPassword(){
 			//given
@@ -173,7 +164,6 @@ class SellerServiceTest  extends ServiceTestMock {
 		then(sellerRepository)
 			.should(times(1))
 			.findById(anyLong());
-
 	}
 
 	@Test
@@ -197,12 +187,14 @@ class SellerServiceTest  extends ServiceTestMock {
 	void updateProductByNameAndSeller(){
 		final var request = updateProduct("일품", 900);
 
+		given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
+		given(product.isSameName(anyString())).willReturn(false);
 		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class))).willReturn(false);
-		given(productRepository.findById(anyLong())).willReturn(Optional.of(Product.of(createProduct("상품"),seller)));
 
 		assertThatNoException()
 			.isThrownBy(() -> productService.update(request, seller));
 
+		verify(product, times(1)).update(request);
 	}
 
 	SellerCreateRequestDto createSeller(String email){
