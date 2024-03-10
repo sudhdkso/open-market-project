@@ -17,7 +17,7 @@ import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.service.ServiceTestMock;
 
-public class ProductServiceTest extends ServiceTestMock {
+class ProductServiceTest extends ServiceTestMock {
 	@InjectMocks
 	ProductService productService;
 
