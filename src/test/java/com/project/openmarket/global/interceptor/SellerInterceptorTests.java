@@ -17,9 +17,9 @@ import org.springframework.mock.web.MockHttpSession;
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.repository.SellerRepository;
-import com.project.openmarket.global.auth.ConsumerThreadLocal;
-import com.project.openmarket.global.auth.SellerThreadLocal;
-import com.project.openmarket.global.auth.enums.SessionConst;
+import com.project.openmarket.domain.auth.ConsumerThreadLocal;
+import com.project.openmarket.domain.auth.SellerThreadLocal;
+import com.project.openmarket.domain.auth.enums.SessionConst;
 
 class SellerInterceptorTests extends InterceptorTestMock {
 	@InjectMocks

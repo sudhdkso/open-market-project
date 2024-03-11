@@ -8,8 +8,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.repository.SellerRepository;
-import com.project.openmarket.global.auth.SellerThreadLocal;
-import com.project.openmarket.global.auth.enums.SessionConst;
+import com.project.openmarket.domain.auth.SellerThreadLocal;
+import com.project.openmarket.domain.auth.enums.SessionConst;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

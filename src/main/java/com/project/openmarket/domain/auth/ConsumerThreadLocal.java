@@ -1,4 +1,4 @@
-package com.project.openmarket.global.auth;
+package com.project.openmarket.domain.auth;
 
 import com.project.openmarket.domain.user.entity.Consumer;
 

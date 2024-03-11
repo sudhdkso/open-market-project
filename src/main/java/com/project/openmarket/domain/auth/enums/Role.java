@@ -1,4 +1,4 @@
-package com.project.openmarket.global.auth.enums;
+package com.project.openmarket.domain.auth.enums;
 
 import java.util.Arrays;
 
