@@ -1,5 +1,7 @@
 package com.project.openmarket.domain.user.entity;
 
+import com.project.openmarket.domain.base.entity.BaseTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @MappedSuperclass
-public abstract class User {
+public abstract class User extends BaseTime {
 
 	@Id
 	@Column(name = "id", unique = true, nullable = false, updatable = false, columnDefinition = "BIGINT")
