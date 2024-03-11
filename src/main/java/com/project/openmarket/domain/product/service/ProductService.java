@@ -53,22 +53,14 @@ public class ProductService {
 		return ProductResponseDto.of(product);
 	}
 
-	private Product createProduct(ProductRequestDto request, Seller seller){
-		//상품 이름과 판매자로 일치하는 상품이 있는 경우 예외 발생
-		duplicateProduct(request.name(), seller);
-		return productRepository.save(Product.of(request,seller));
-	}
-
-	private Product updateProduct(ProductUpdateReqeustDto request, Seller seller){
-		Product product = productRepository.findById(request.id())
+	/**
+	 * 상품을 삭제하는 메소드
+	 * @param productId 삭제하려는 상품의 id
+	 */
+	public void delete(Long productId){
+		Product product = productRepository.findById(productId)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
-		//기존 상품의 이름과 수정하려는 상품의 이름이 다른 경우에만 확인
-		if(!product.isSameName(request.name())){
-			duplicateProduct(request.name(), seller);
-		}
-		product.update(request);
-		
-		return product;
+		productRepository.delete(product);
 	}
 
 	private void duplicateProduct(String name, Seller seller){
