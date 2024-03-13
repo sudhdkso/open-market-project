@@ -194,7 +194,9 @@ class SellerServiceTest  extends ServiceTestMock {
 		assertThatNoException()
 			.isThrownBy(() -> productService.update(request, seller));
 
-		verify(product, times(1)).update(request);
+		then(product)
+			.should(times(1))
+			.update(request);
 	}
 
 	SellerCreateRequestDto createSeller(String email){
