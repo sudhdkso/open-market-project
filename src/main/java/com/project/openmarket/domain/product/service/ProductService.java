@@ -29,7 +29,10 @@ public class ProductService {
 	 * @return 등록된 상품의 정보
 	 */
 	public ProductResponseDto create(ProductRequestDto request, Seller seller){
-		return ProductResponseDto.of(createProduct(request, seller));
+		//상품 이름과 판매자로 일치하는 상품이 있는 경우 예외 발생
+		duplicateProduct(request.name(), seller);
+		Product product = productRepository.save(Product.of(request, seller));
+		return ProductResponseDto.of(product);
 	}
 
 	/**
@@ -39,35 +42,36 @@ public class ProductService {
 	 * @return 업데이트된 상품의 정보
 	 */
 	public ProductResponseDto update(ProductUpdateReqeustDto request, Seller seller){
-		return ProductResponseDto.of(updateProduct(request, seller));
+		Product product = productRepository.findById(request.id())
+			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+		//기존 상품의 이름과 수정하려는 상품의 이름이 다른 경우에만 확인
+		if(!product.isSameName(request.name())){
+			duplicateProduct(request.name(), seller);
+		}
+		product.update(request);
+
+		return ProductResponseDto.of(product);
 	}
 
+	/**
+	 * 상품을 조회하는 메소드
+	 * @param productId 조회하려는 상품의 id
+	 * @return 조회한 상품의 정보
+	 */
 	public ProductResponseDto findById(Long productId){
 		Product product = productRepository.findById(productId)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 		return ProductResponseDto.of(product);
 	}
 
-	private Product createProduct(ProductRequestDto request, Seller seller){
-		//상품 이름과 판매자로 일치하는 상품이 있는 경우 예외 발생
-		duplicateProduct(request.name(), seller);
-		return productRepository.save(Product.of(request,seller));
-	}
-
-	private Product updateProduct(ProductUpdateReqeustDto request, Seller seller){
-		Product product = productRepository.findById(request.id())
+	/**
+	 * 상품을 삭제하는 메소드
+	 * @param productId 삭제하려는 상품의 id
+	 */
+	public void delete(Long productId){
+		Product product = productRepository.findById(productId)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
-		//기존 상품의 이름과 수정하려는 상품의 이름이 다른 경우에만 확인
-		if(!isSameProductName(product.getName(), request.name())){
-			duplicateProduct(request.name(), seller);
-		}
-		product.update(request);
-		
-		return product;
-	}
-
-	public boolean isSameProductName(String currentName, String updateName){
-		return currentName.equals(updateName);
+		productRepository.delete(product);
 	}
 
 	private void duplicateProduct(String name, Seller seller){

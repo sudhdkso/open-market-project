@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -27,11 +26,6 @@ import com.project.openmarket.service.ServiceTestMock;
 class ConsumerServiceTest extends ServiceTestMock {
 	@InjectMocks
 	private ConsumerService consumerService;
-
-	@BeforeEach
-	void setUp() {
-		consumer = createConsumer("consumer@example.com").toEntity();
-	}
 
 	@Test
 	@Order(1)
@@ -97,10 +91,10 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 		//when
 		given(consumerRepository.findByEmail(anyString())).willReturn((Optional.of(consumer)));
-		assertThatNoException().isThrownBy(() -> consumerService.login(request));
+		given(consumer.isSamePassword(anyString())).willReturn(true);
 
 		//then
-
+		assertThatNoException().isThrownBy(() -> consumerService.login(request));
 	}
 
 	@Test
@@ -127,6 +121,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 		// when
 		given(consumerRepository.findByEmail(anyString())).willReturn(Optional.of(consumer));
+		given(consumer.isSamePassword(anyString())).willReturn(false);
 
 		//then
 		assertThatThrownBy(() -> consumerService.login(request))

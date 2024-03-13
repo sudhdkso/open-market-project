@@ -1,5 +1,6 @@
 package com.project.openmarket.domain.product.entity;
 
+import com.project.openmarket.domain.base.entity.BaseTime;
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.user.entity.Seller;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Table(name = "products")
-public class Product {
+public class Product extends BaseTime {
 	@Id
 	@Column(name = "id", unique = true, nullable = false, updatable = false, columnDefinition = "BIGINT")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,5 +54,9 @@ public class Product {
 		this.name = dto.name();
 		this.price = dto.price();
 		this.stock = dto.stock();
+	}
+
+	public boolean isSameName(String another){
+		return this.name.equals(another);
 	}
 }
