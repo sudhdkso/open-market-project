@@ -43,7 +43,7 @@ class SellerServiceTest  extends ServiceTestMock {
 			final var request = createSeller("seller@example.com");
 
 			given(sellerRepository.existsByEmail(anyString())).willReturn(false);
-			given(sellerRepository.save(any(Seller.class))).willReturn(request.toEntity());
+			given(sellerRepository.save(any(Seller.class))).willReturn(seller);
 
 			//when
 			assertThatNoException().isThrownBy(() -> sellerService.save(request));
