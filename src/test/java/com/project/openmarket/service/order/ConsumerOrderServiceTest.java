@@ -112,6 +112,29 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 
 
 	}
+
+	@Test
+	@DisplayName("유효한 주문 id를 가지고 주문을 조회하면 성공한다.")
+	void findByValidOrderId(){
+	    given(orderRepository.findById(anyLong())).willReturn(Optional.of(order));
+
+	    assertThatNoException()
+			.isThrownBy(() -> consumerOrderService.findByOrderId(1L));
+
+	}
+
+	@Test
+	@DisplayName("유효하지 않은 주문 id를 가지고 주문을 조회하면 오류가 발생한다..")
+	void findByInvalidOrderId(){
+		given(orderRepository.findById(anyLong())).willReturn(Optional.empty());
+
+		assertThatThrownBy(() -> consumerOrderService.findByOrderId(1L))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(NOT_FOUND_ORDER.getMessage());
+
+
+	}
+
 	OrderRequestDto createOrder(int count){
 		return new OrderRequestDto(1L, "주문 완료", 1000L, 0L, count);
 	}
