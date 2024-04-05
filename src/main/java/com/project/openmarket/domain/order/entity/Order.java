@@ -34,25 +34,22 @@ public class Order extends BaseTime {
 
 	private int count;
 
-	private Long amount;
+	private Amount amount;
 
 	@ManyToOne
 	@JoinColumn(name = "consumer_id")
 	private Consumer consumer;
 
-	private Order(Product product, OrderStatus status, int count, Consumer consumer){
+	private Order(Product product, OrderStatus status, Amount amount, int count, Consumer consumer){
 		this.product = product;
 		this.status = status;
 		this.count = count;
-		this.amount = getTotalAmount(count, product.getPrice());
+		this.amount = amount;
 		this.consumer = consumer;
 	}
 
 	public static Order of(Product product, OrderRequestDto dto, Consumer consumer){
-		return new Order(product, OrderStatus.getOrderStatus(dto.status()), dto.count(), consumer);
-	}
-	private Long getTotalAmount(int count, int price){
-		return (long)count* (long)price;
+		return new Order(product, OrderStatus.getOrderStatus(dto.status()), new Amount(dto.cache(), dto.point()), dto.count(), consumer);
 	}
 
 	public void updateOrderStatus(OrderStatus orderStatus){

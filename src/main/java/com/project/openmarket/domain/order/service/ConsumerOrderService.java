@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
 import com.project.openmarket.domain.order.dto.response.OrderResponseDto;
+import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.order.repository.OrderRepository;
@@ -41,16 +42,16 @@ public class ConsumerOrderService {
 		Product product = productRepository.findById(request.productId())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 
-		Long amount = (long)product.getPrice()* (long)request.count();
+		Amount amount = new Amount(request.cache(), request.point());
 		int count = request.count();
 
 		checkEnoughStock(product, count);
-		checkEnoughCache(consumer, amount);
+		checkEnoughTotalCache(consumer, amount);
 
 		product.decreaseStock(count);
 		productRepository.save(product);
 
-		consumer.decreaseCache(amount);
+		consumer.decreaseAmount(amount);
 		consumerRepository.save(consumer);
 	}
 
@@ -60,7 +61,7 @@ public class ConsumerOrderService {
 		}
 	}
 
-	private void checkEnoughCache(Consumer consumer, Long amount){
+	private void checkEnoughTotalCache(Consumer consumer, Amount amount){
 		if(!consumer.canBuy(amount)){
 			throw new CustomException(NOT_ENOUTH_CACHE);
 		}
@@ -79,9 +80,13 @@ public class ConsumerOrderService {
 			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
 		Product product = productRepository.findById(order.getProduct().getId())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+		Consumer consumer = order.getConsumer();
 
 		product.increaseStock(order.getCount());
 		productRepository.save(product);
+
+		consumer.increaseAmount(order.getAmount());
+		consumerRepository.save(consumer);
 
 		order.updateOrderStatus(OrderStatus.CANCEL);
 		orderRepository.save(order);

@@ -1,5 +1,6 @@
 package com.project.openmarket.domain.user.entity;
 
+import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 
 import jakarta.persistence.Column;
@@ -35,7 +36,25 @@ public class Consumer extends User {
 		return point;
 	}
 
-	public boolean canBuy(Long amount){
-		return this.getCache() + this.point >= amount;
+	public boolean canBuy(Amount amount){
+		return this.getCache() >= amount.getCache() && this.point >= amount.getPoint();
+	}
+
+	public void increaseAmount(Amount amount){
+		increaseCache(amount.getCache());
+		increasePoint(amount.getPoint());
+	}
+
+	public void increasePoint(Long point){
+		this.point += point;
+	}
+
+	public void decreaseAmount(Amount amount){
+		decreaseCache(amount.getCache());
+		decreasePoint(amount.getPoint());
+	}
+
+	public void decreasePoint(Long point){
+		this.point -= point;
 	}
 }

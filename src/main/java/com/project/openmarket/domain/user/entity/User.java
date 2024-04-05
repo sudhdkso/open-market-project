@@ -47,6 +47,10 @@ public abstract class User extends BaseTime {
 		return password.equals(another);
 	}
 
+	public void increaseCache(Long amount){
+		this.cache += amount;
+	}
+
 	public void decreaseCache(Long amount){
 		this.cache -= amount;
 	}
