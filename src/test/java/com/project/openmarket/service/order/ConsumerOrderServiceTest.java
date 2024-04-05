@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
+import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.service.ConsumerOrderService;
 import com.project.openmarket.service.ServiceTestMock;
@@ -20,7 +21,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	private ConsumerOrderService consumerOrderService;
 
 	@Test
-	@DisplayName("상품의 재고가 충분하면 성공적으로 주문이 생성된다.")
+	@DisplayName("상품의 재고와 소지금이 충분하면 성공적으로 주문이 생성된다.")
 	void createOrderWithEnoughStock(){
 	    //given
 	    var request = createOrder(1);
@@ -28,6 +29,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	    //when
 	    given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
 		given(product.canBuy(anyInt())).willReturn(true);
+		given(consumer.canBuy(any(Amount.class))).willReturn(true);
 
 	    //then
 		assertThatNoException()
@@ -39,7 +41,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	}
 
 	@Test
-	@DisplayName("상품의 재고가 충분하지 않으면 오류가 발생한다.")
+	@DisplayName("소지금은 충분해도 상품의 재고가 충분하지 않으면 오류가 발생한다.")
 	void createOrderWithNotEnoughStock(){
 		//given
 		var request = createOrder(1);
@@ -52,6 +54,23 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 		assertThatThrownBy(() -> consumerOrderService.create(request, consumer))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage(NOT_ENOUGH_STOCK.getMessage());
+	}
+
+	@Test
+	@DisplayName("상품의 재고가 충분해도 소지금이 충분하지 않으면 오류가 발생한다.")
+	void createOrderWithNotEnoughCache(){
+		//given
+		var request = createOrder(1);
+
+		//when
+		given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
+		given(product.canBuy(anyInt())).willReturn(true);
+		given(consumer.canBuy(any(Amount.class))).willReturn(false);
+
+		//then
+		assertThatThrownBy(() -> consumerOrderService.create(request, consumer))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(NOT_ENOUTH_CACHE.getMessage());
 
 	}
 
@@ -70,6 +89,6 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	}
 
 	OrderRequestDto createOrder(int count){
-		return new OrderRequestDto(1L, "주문 완료", count);
+		return new OrderRequestDto(1L, "주문 완료", 1000L, 0L, count);
 	}
 }
