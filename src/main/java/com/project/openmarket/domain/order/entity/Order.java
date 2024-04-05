@@ -7,6 +7,7 @@ import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.user.entity.Consumer;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,10 +31,13 @@ public class Order extends BaseTime {
 	@JoinColumn(name = "product_id")
 	private Product product;
 
+	@Column(name = "status", nullable = false)
 	private OrderStatus status;
 
+	@Column(name = "count", nullable = false)
 	private int count;
 
+	@Embedded
 	private Amount amount;
 
 	@ManyToOne
