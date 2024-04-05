@@ -80,7 +80,8 @@ public class ConsumerOrderService {
 			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
 		Product product = productRepository.findById(order.getProduct().getId())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
-		Consumer consumer = order.getConsumer();
+		Consumer consumer = consumerRepository.findById(order.getConsumer().getId())
+				.orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
 		product.increaseStock(order.getCount());
 		productRepository.save(product);

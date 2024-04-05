@@ -88,6 +88,30 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			.hasMessage(NOT_FOUND_PRODUCT.getMessage());
 	}
 
+	@Test
+	@DisplayName("주문, 상품, 고객이 모두 존재하면 주문이 성공적으로 취소된다.")
+	void cancelOrder(){
+	    //given
+		Long orderId = 1L;
+
+		given(orderRepository.findById(anyLong())).willReturn(Optional.of(order));
+
+		given(order.getProduct()).willReturn(product);
+		given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
+
+		given(order.getConsumer()).willReturn(consumer);
+		given(consumerRepository.findById(anyLong())).willReturn(Optional.of(consumer));
+	    //when
+	    assertThatNoException()
+			.isThrownBy(() -> consumerOrderService.cancelOrder(orderId));
+
+	    //then
+		then(orderRepository)
+			.should(times(1))
+			.save(any(Order.class));
+
+
+	}
 	OrderRequestDto createOrder(int count){
 		return new OrderRequestDto(1L, "주문 완료", 1000L, 0L, count);
 	}
