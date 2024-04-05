@@ -13,9 +13,11 @@ public enum ExceptionConstants {
 	NOT_MATCH_PASSWORD("CE0004","비밀번호가 일치하지 않습니다"),
 	INVALID_DATA_INPUT("CE0005","잘못된 입력입니다"),
 	ALREADY_EXISTS_PRODUCT("CE0006","판매자에게 중복된 상품이 존재합니다"),
+
 	NOT_FOUND_PRODUCT("CE0007","상품을 찾을 수 없습니다"),
 	NOT_FOUND_ORDER("CE0008", "주문을 찾을 수 없습니다"),
-	NOT_ENOUGH_STOCK("CE0009","재고가 부족합니다");
+	NOT_ENOUGH_STOCK("CE0009","재고가 부족합니다"),
+	NOT_ENOUTH_CACHE("CE0010","소지금이 부족합니다");
 
 	private final String code;
 	private String message;

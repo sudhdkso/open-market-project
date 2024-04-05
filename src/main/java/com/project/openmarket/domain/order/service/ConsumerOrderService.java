@@ -13,6 +13,7 @@ import com.project.openmarket.domain.order.repository.OrderRepository;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.repository.ProductRepository;
 import com.project.openmarket.domain.user.entity.Consumer;
+import com.project.openmarket.domain.user.repository.ConsumerRepository;
 import com.project.openmarket.global.exception.CustomException;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ import lombok.AllArgsConstructor;
 public class ConsumerOrderService {
 	private final OrderRepository orderRepository;
 	private final ProductRepository productRepository;
+	private final ConsumerRepository consumerRepository;
 
 	//1. 주문 생성
 	@Transactional
@@ -29,14 +31,39 @@ public class ConsumerOrderService {
 		Product product = productRepository.findById(request.productId())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 
-		if(!product.canBuy(request.count())){
-			throw new CustomException(NOT_ENOUGH_STOCK);
-		}
-		product.decreaseStock(request.count());
-		productRepository.save(product);
+		purchase(request, consumer);
 
 		Order order = orderRepository.save(Order.of(product, request, consumer));
 		return new OrderResponseDto(order);
+	}
+
+	private void purchase(OrderRequestDto request, Consumer consumer){
+		Product product = productRepository.findById(request.productId())
+			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+
+		Long amount = (long)product.getPrice()* (long)request.count();
+		int count = request.count();
+
+		checkEnoughStock(product, count);
+		checkEnoughCache(consumer, amount);
+
+		product.decreaseStock(count);
+		productRepository.save(product);
+
+		consumer.decreaseCache(amount);
+		consumerRepository.save(consumer);
+	}
+
+	private void checkEnoughStock( Product product, int count){
+		if(!product.canBuy(count)){
+			throw new CustomException(NOT_ENOUGH_STOCK);
+		}
+	}
+
+	private void checkEnoughCache(Consumer consumer, Long amount){
+		if(!consumer.canBuy(amount)){
+			throw new CustomException(NOT_ENOUTH_CACHE);
+		}
 	}
 
 	//2. 주문 확인

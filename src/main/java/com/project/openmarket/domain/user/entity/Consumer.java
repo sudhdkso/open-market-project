@@ -34,4 +34,8 @@ public class Consumer extends User {
 	public Long getPoint() {
 		return point;
 	}
+
+	public boolean canBuy(Long amount){
+		return this.getCache() + this.point >= amount;
+	}
 }

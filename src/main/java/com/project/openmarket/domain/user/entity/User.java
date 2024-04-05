@@ -46,4 +46,8 @@ public abstract class User extends BaseTime {
 	public boolean isSamePassword(String another){
 		return password.equals(another);
 	}
+
+	public void decreaseCache(Long amount){
+		this.cache -= amount;
+	}
 }
