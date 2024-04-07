@@ -17,7 +17,8 @@ public enum ExceptionConstants {
 	NOT_FOUND_PRODUCT("CE0007","상품을 찾을 수 없습니다"),
 	NOT_FOUND_ORDER("CE0008", "주문을 찾을 수 없습니다"),
 	NOT_ENOUGH_STOCK("CE0009","재고가 부족합니다"),
-	NOT_ENOUTH_CACHE("CE0010","소지금이 부족합니다");
+	NOT_ENOUTH_CACHE("CE0010","소지금이 부족합니다"),
+	NOT_POSITIVE_NUMBER("CE0011","숫자가 양수가 아닙니다.");
 
 	private final String code;
 	private String message;
