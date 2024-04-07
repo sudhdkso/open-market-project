@@ -56,6 +56,18 @@ public class Product extends BaseTime {
 		this.stock = dto.stock();
 	}
 
+	public void increaseStock(int count){
+		this.stock += count;
+	}
+
+	public void decreaseStock(int count){
+		this.stock -= count;
+	}
+
+	public boolean canBuy(int count){
+		return this.stock >= count;
+	}
+
 	public boolean isSameName(String another){
 		return this.name.equals(another);
 	}
