@@ -15,7 +15,7 @@ import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.user.entity.Consumer;
 
-public class OrderTest {
+class OrderTest {
 	@Mock
 	Product product;
 	@Mock
