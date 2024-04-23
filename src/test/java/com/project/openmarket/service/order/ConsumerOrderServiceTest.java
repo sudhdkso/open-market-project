@@ -9,16 +9,20 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
 import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.service.ConsumerOrderService;
+import com.project.openmarket.domain.order.service.OrderService;
 import com.project.openmarket.service.ServiceTestMock;
 
 class ConsumerOrderServiceTest extends ServiceTestMock {
 	@InjectMocks
 	private ConsumerOrderService consumerOrderService;
+	@Mock
+	private OrderService orderService;
 
 	@Test
 	@DisplayName("상품의 재고와 소지금이 충분하면 성공적으로 주문이 생성된다.")
@@ -99,17 +103,37 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 		given(order.getProduct()).willReturn(product);
 		given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
 
-		given(order.getConsumer()).willReturn(consumer);
-		given(consumerRepository.findById(anyLong())).willReturn(Optional.of(consumer));
+		given(order.isBeforeDeliveryStart()).willReturn(true);
+		//orderService.cancelOrder(order, product,  consumer);
 	    //when
 	    assertThatNoException()
-			.isThrownBy(() -> consumerOrderService.cancelOrder(orderId));
+			.isThrownBy(() -> consumerOrderService.cancelOrder(orderId, consumer));
 
 	    //then
 		then(orderRepository)
 			.should(times(1))
 			.save(any(Order.class));
 
+
+	}
+
+	@Test
+	@DisplayName("주문 상태가 배달 시작 이상이면 주문을 취소할 수 없다.")
+	void cannotCancelOrderByOrderStatus(){
+		//given
+		Long orderId = 1L;
+
+		given(orderRepository.findById(anyLong())).willReturn(Optional.of(order));
+
+		given(order.getProduct()).willReturn(product);
+		given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
+
+		given(order.isBeforeDeliveryStart()).willReturn(false);
+
+		//when
+		assertThatThrownBy(() -> consumerOrderService.cancelOrder(orderId, consumer))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(CANNOT_CANCLED_ORDER.getMessage());
 
 	}
 
