@@ -75,4 +75,5 @@ public class Product extends BaseTime {
 	public boolean isSameName(String another){
 		return this.name.equals(another);
 	}
+
 }

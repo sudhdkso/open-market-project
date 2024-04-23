@@ -5,6 +5,7 @@ import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.user.entity.Consumer;
+import com.project.openmarket.domain.user.entity.Seller;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -60,7 +61,19 @@ public class Order extends BaseTime {
 		this.status = orderStatus;
 	}
 
+	public Long totalAmount(){
+		return amount.getCache() + amount.getPoint();
+	}
+
 	public boolean isBeforeDeliveryStart(){
 		return this.status.isBeforeDeliveryStart();
+	}
+
+	public boolean isDeliveryCompleted(){
+		return this.status.isDeliveryCompleted();
+	}
+
+	public Seller getSeller(){
+		return this.product.getSeller();
 	}
 }

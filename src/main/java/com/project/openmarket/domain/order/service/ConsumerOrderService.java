@@ -55,7 +55,7 @@ public class ConsumerOrderService{
 		consumerRepository.save(consumer);
 	}
 
-	private void checkEnoughStock( Product product, int count){
+	private void checkEnoughStock(Product product, int count){
 		if( product.isSoldOut() || !product.canBuy(count)){
 			throw new CustomException(NOT_ENOUGH_STOCK);
 		}
@@ -87,5 +87,19 @@ public class ConsumerOrderService{
 		orderService.cancelOrder(order, product, consumer);
 	}
 
-	//4. 주문 수정
+	//4. 구매 확정(배송 완료된 주문에 대해서만 변경 가능)
+	//판매자에게 수익의 5%의 수수료를 제외하고 입금, 고객에게 2%의 포인트 제공
+	public void orderConfirmed(Long id, Consumer consumer){
+		Order order = orderRepository.findById(id)
+			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
+
+		//배송이 완료된 주문에서만 구매 확정 가능
+		if(!order.isDeliveryCompleted()){
+			throw new CustomException(CANNOT_CONFIRM_ORDER);
+		}
+
+		orderService.orderConfirmed(order, order.getSeller(), consumer);
+	}
+
+
 }
