@@ -59,4 +59,8 @@ public class Order extends BaseTime {
 	public void updateOrderStatus(OrderStatus orderStatus){
 		this.status = orderStatus;
 	}
+
+	public boolean isBeforeDeliveryStart(){
+		return this.status.isBeforeDeliveryStart();
+	}
 }
