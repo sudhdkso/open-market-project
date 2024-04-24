@@ -20,4 +20,12 @@ public class Seller extends User{
 	}
 
 
+	public void increaseCacheBalance(final Long amount){
+		increaseCache(calcRevenue(amount));
+	}
+
+	//판매자 최종 수익 계산하는 함수
+	private Long calcRevenue(Long amount) {
+		return amount - (long)Math.ceil((double)amount * 0.05);
+	}
 }

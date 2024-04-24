@@ -57,6 +57,10 @@ public class Order extends BaseTime {
 		return new Order(product, OrderStatus.getOrderStatus(dto.status()), new Amount(dto.cache(), dto.point()), dto.count(), consumer);
 	}
 
+	public void confirmPurchase(){
+		updateOrderStatus(OrderStatus.PURCHASE_CONFIRMATION);
+	}
+
 	public void updateOrderStatus(OrderStatus orderStatus){
 		this.status = orderStatus;
 	}

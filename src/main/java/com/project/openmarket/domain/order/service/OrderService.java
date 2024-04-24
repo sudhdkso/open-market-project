@@ -35,7 +35,7 @@ public class OrderService {
 
 	//3. 주문 취소 (주문 상태를 취소로 변경하고 주문 내역은 남겨 놓는다)
 	@Transactional
-	public void cancelOrder(Order order, Product product, Consumer consumer){
+	public void cancelOrder(Order order, Product product, Consumer consumer) {
 
 		product.increaseStock(order.getCount());
 		productRepository.save(product);
@@ -47,7 +47,7 @@ public class OrderService {
 		orderRepository.save(order);
 	}
 
-	public void cancelOrder(Order order, Product product){
+	public void cancelOrder(Order order, Product product) {
 		Consumer consumer = consumerRepository.findById(order.getConsumer().getId())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 
@@ -55,29 +55,18 @@ public class OrderService {
 	}
 
 	@Transactional
-	public void orderConfirmed(Order order, Seller seller, Consumer consumer){
+	public void orderConfirmed(Order order, Seller seller, Consumer consumer) {
 		//주문 상태를 구매 확정 상태로 변경
-		order.updateOrderStatus(OrderStatus.PURCHASE_CONFIRMATION);
+		order.confirmPurchase();
 		orderRepository.save(order);
 
-		//판매자에게 수수료5% 제외한 금액 입..금?
-		seller.increaseCache(calcRevenue(order.totalAmount()));
+		//판매자에게 수수료5% 제외한 금액 입금
+		seller.increaseCacheBalance(order.totalAmount());
 		sellerRepository.save(seller);
 
 		//고객에게 2% 포인트 제공
-		consumer.increasePoint(calcPoint(order.totalAmount()));
+		consumer.increasePurchasePoints(order.totalAmount());
 		consumerRepository.save(consumer);
-
-
 	}
 
-	//판매자 최종 수익 계산하는 함수
-	private Long calcRevenue(Long amount){
-		return amount - (long)Math.ceil((double)amount*0.05);
-	}
-
-	//고객에게 제공될 포인트 계산하는 함수
-	private Long calcPoint(Long amount){
-		return (long)Math.ceil((double)amount*0.02);
-	}
 }
