@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.user.dto.reposne.UserResponseDto;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
@@ -57,8 +56,8 @@ public class SellerService {
 	}
 
 
-	public void processPayment(Order order, Seller seller){
-		seller.increaseCacheBalance(order.totalAmount());
+	public void processPayment(Long amount, Seller seller){
+		seller.increaseCacheBalance(amount);
 		sellerRepository.save(seller);
 	}
 }

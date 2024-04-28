@@ -60,10 +60,10 @@ public class OrderService {
 		orderConfirmed(order);
 
 		//판매자에게 수수료5% 제외한 금액 입금
-		sellerService.processPayment(order, seller);
+		sellerService.processPayment(order.totalAmount(), seller);
 
 		//고객에게 2% 포인트 제공
-		consumerService.processPoints(order, consumer);
+		consumerService.processPoints(order.totalAmount(), consumer);
 	}
 
 }

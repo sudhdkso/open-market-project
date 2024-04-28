@@ -68,7 +68,7 @@ public class ConsumerOrderService{
 	//3. 주문 취소 (주문 상태를 취소로 변경하고 주문 내역은 남겨 놓는다), 배송 출발 전까지만 가능
 	public void cancelOrder(Long id, Consumer consumer){
 		Order order = orderService.getOrderById(id);
-		Product product = productService.getProductById(order.getProduct().getId());
+		Product product = order.getProduct();
 
 		if(!order.isBeforeDeliveryStart()){
 			throw new CustomException(CANNOT_CANCLED_ORDER);
