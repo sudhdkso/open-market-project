@@ -1,5 +1,7 @@
 package com.project.openmarket.domain.order.entity;
 
+import java.time.LocalDateTime;
+
 import com.project.openmarket.domain.base.entity.BaseTime;
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
@@ -10,6 +12,8 @@ import com.project.openmarket.domain.user.entity.Seller;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,6 +36,7 @@ public class Order extends BaseTime {
 	@JoinColumn(name = "product_id")
 	private Product product;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "status", nullable = false)
 	private OrderStatus status;
 
@@ -45,6 +50,8 @@ public class Order extends BaseTime {
 	@JoinColumn(name = "consumer_id")
 	private Consumer consumer;
 
+	@Column(name = "delivery_complete_time")
+	private LocalDateTime deliveryCompleteTime;
 	private Order(Product product, OrderStatus status, Amount amount, int count, Consumer consumer){
 		this.product = product;
 		this.status = status;
@@ -74,10 +81,23 @@ public class Order extends BaseTime {
 	}
 
 	public boolean isDeliveryCompleted(){
-		return this.status.isDeliveryCompleted();
+		return this.status.equals(OrderStatus.DELIVERT_COMPLETED);
+	}
+
+	public boolean isPurchaseConfirmed(){
+		return this.status.equals(OrderStatus.PURCHASE_CONFIRMATION);
 	}
 
 	public Seller getSeller(){
-		return this.product.getSeller();
+		return this.getProduct().getSeller();
+	}
+
+	public void completeOrderDelivery(){
+		completeOrderDelivery(LocalDateTime.now());
+	}
+
+	public void completeOrderDelivery(LocalDateTime dateTime){
+		this.deliveryCompleteTime = dateTime;
+		updateOrderStatus(OrderStatus.DELIVERT_COMPLETED);
 	}
 }

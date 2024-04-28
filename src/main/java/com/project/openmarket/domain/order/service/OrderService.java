@@ -49,26 +49,21 @@ public class OrderService {
 		cancelOrderStatus(order);
 	}
 
-	public void cancelOrder(Order order, Product product) {
-		Consumer consumer = consumerRepository.findById(order.getConsumer().getId())
-			.orElseThrow(() -> new CustomException(NOT_FOUND_USER));
-
-		cancelOrder(order, product, consumer);
+	private void orderConfirmed(Order order){
+		order.confirmPurchase();
+		orderRepository.save(order);
 	}
 
 	@Transactional
-	public void orderConfirmed(Order order, Seller seller, Consumer consumer) {
+	public void processConfirmedOrder(Order order, Seller seller, Consumer consumer) {
 		//주문 상태를 구매 확정 상태로 변경
-		order.confirmPurchase();
-		orderRepository.save(order);
+		orderConfirmed(order);
 
 		//판매자에게 수수료5% 제외한 금액 입금
-		seller.increaseCacheBalance(order.totalAmount());
-		sellerRepository.save(seller);
+		sellerService.processPayment(order, seller);
 
 		//고객에게 2% 포인트 제공
-		consumer.increasePurchasePoints(order.totalAmount());
-		consumerRepository.save(consumer);
+		consumerService.processPoints(order, consumer);
 	}
 
 }

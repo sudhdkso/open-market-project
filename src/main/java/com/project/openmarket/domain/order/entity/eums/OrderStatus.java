@@ -39,8 +39,4 @@ public enum OrderStatus {
 		if(this.equals(EMPTY)) return false;
 		return this.compareTo(DELIVERY_START) < 0;
 	}
-
-	public boolean isDeliveryCompleted(){
-		return this.equals(DELIVERT_COMPLETED);
-	}
 }
