@@ -11,9 +11,9 @@ import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.repository.OrderRepository;
 import com.project.openmarket.domain.product.entity.Product;
-import com.project.openmarket.domain.product.repository.ProductRepository;
+import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Consumer;
-import com.project.openmarket.domain.user.repository.ConsumerRepository;
+import com.project.openmarket.domain.user.service.ConsumerService;
 import com.project.openmarket.global.exception.CustomException;
 
 import lombok.AllArgsConstructor;
@@ -23,13 +23,13 @@ import lombok.AllArgsConstructor;
 public class ConsumerOrderService{
 	private final OrderService orderService;
 	private final OrderRepository orderRepository;
-	private final ProductRepository productRepository;
-	private final ConsumerRepository consumerRepository;
+	private final ProductService productService;
+	private final ConsumerService consumerService;
+
 	//1. 주문 생성
 	@Transactional
 	public OrderResponseDto create(OrderRequestDto request, Consumer consumer){
-		Product product = productRepository.findById(request.productId())
-			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+		Product product = productService.getProductById(request.productId());
 
 		purchase(request, consumer);
 
@@ -39,8 +39,7 @@ public class ConsumerOrderService{
 
 	@Transactional
 	private void purchase(OrderRequestDto request, Consumer consumer){
-		Product product = productRepository.findById(request.productId())
-			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+		Product product = productService.getProductById(request.productId());
 
 		Amount amount = new Amount(request.cache(), request.point());
 		int count = request.count();
@@ -48,11 +47,10 @@ public class ConsumerOrderService{
 		checkEnoughStock(product, count);
 		checkEnoughTotalCache(consumer, amount);
 		//1. 재고 감소
-		product.decreaseStock(count);
-		productRepository.save(product);
+		productService.decreaseProductStock(count, product);
+
 		//2.고객 소지금 감소
-		consumer.decreaseAmount(amount);
-		consumerRepository.save(consumer);
+		consumerService.decreaseAmount(amount, consumer);
 	}
 
 	private void checkEnoughStock(Product product, int count){
@@ -67,38 +65,29 @@ public class ConsumerOrderService{
 		}
 	}
 
-	//2. 주문 확인
-	//2-1 개별 주문 확인 (order id)
-	public Order findByOrderId(Long id){
-		return orderRepository.findById(id)
-			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
-	}
-
 	//3. 주문 취소 (주문 상태를 취소로 변경하고 주문 내역은 남겨 놓는다), 배송 출발 전까지만 가능
 	public void cancelOrder(Long id, Consumer consumer){
-		Order order = orderRepository.findById(id)
-			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
-		Product product = productRepository.findById(order.getProduct().getId())
-			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+		Order order = orderService.getOrderById(id);
+		Product product = productService.getProductById(order.getProduct().getId());
 
 		if(!order.isBeforeDeliveryStart()){
 			throw new CustomException(CANNOT_CANCLED_ORDER);
 		}
-		orderService.cancelOrder(order, product, consumer);
+
+		orderService.processOrderCancel(order, product, consumer);
 	}
 
 	//4. 구매 확정(배송 완료된 주문에 대해서만 변경 가능)
 	//판매자에게 수익의 5%의 수수료를 제외하고 입금, 고객에게 2%의 포인트 제공
 	public void orderConfirmed(Long id, Consumer consumer){
-		Order order = orderRepository.findById(id)
-			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
+		Order order = orderService.getOrderById(id);
 
 		//배송이 완료된 주문에서만 구매 확정 가능
 		if(!order.isDeliveryCompleted()){
 			throw new CustomException(CANNOT_CONFIRM_ORDER);
 		}
 
-		orderService.orderConfirmed(order, order.getSeller(), consumer);
+		orderService.processConfirmedOrder(order, order.getSeller(), consumer);
 	}
 
 

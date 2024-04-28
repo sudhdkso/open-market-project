@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.user.dto.reposne.UserResponseDto;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
@@ -53,5 +54,11 @@ public class SellerService {
 		return seller
 			.filter(m -> m.isSamePassword(password))
 			.orElseThrow(() -> new CustomException(NOT_MATCH_PASSWORD));
+	}
+
+
+	public void processPayment(Order order, Seller seller){
+		seller.increaseCacheBalance(order.totalAmount());
+		sellerRepository.save(seller);
 	}
 }

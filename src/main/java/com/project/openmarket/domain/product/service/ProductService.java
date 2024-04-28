@@ -79,4 +79,19 @@ public class ProductService {
 			throw new CustomException(ALREADY_EXISTS_PRODUCT);
 		}
 	}
+	public void increaseProductStock(int count, Product product){
+		product.increaseStock(count);
+		productRepository.save(product);
+	}
+
+	public void decreaseProductStock(int count, Product product){
+		product.decreaseStock(count);
+		productRepository.save(product);
+	}
+
+	public Product getProductById(Long id){
+		return productRepository.findById(id)
+			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+	}
+
 }
