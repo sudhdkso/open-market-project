@@ -14,6 +14,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
@@ -127,6 +128,23 @@ class ConsumerServiceTest extends ServiceTestMock {
 		assertThatThrownBy(() -> consumerService.login(request))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage(NOT_MATCH_PASSWORD.getMessage());
+	}
+
+	@ParameterizedTest
+	@DisplayName("고객의 포인트가 증가한다.")
+	@ValueSource(longs = {20000, 3000000, 10000000})
+	void testIncreasePoint(Long amount){
+		Long expectedPoints = (long)Math.ceil((double)amount*(0.02));
+
+		assertThatNoException()
+			.isThrownBy(() -> consumerService.processPoints(amount, consumer));
+
+		ArgumentCaptor<Long> pointsCaptor = ArgumentCaptor.forClass(Long.class);
+		verify(consumer).increasePoint(pointsCaptor.capture());
+		Long actualPointsIncrease = pointsCaptor.getValue();
+
+		// 실제 포인트 증가량이 예상 포인트 증가량과 일치하는지 확인
+		assertThat(actualPointsIncrease).isEqualTo(expectedPoints);
 	}
 
 	ConsumerCreateReqestDto createConsumer(String email){
