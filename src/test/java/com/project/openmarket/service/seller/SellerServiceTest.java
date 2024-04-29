@@ -199,6 +199,20 @@ class SellerServiceTest  extends ServiceTestMock {
 			.update(request);
 	}
 
+	@Test
+	@DisplayName("증가시킬 금액과 판매자가 들어오면 성공한다.")
+	void SuccessProcessPaymentTest(){
+
+		doNothing().when(seller).increaseCache(anyLong());
+
+		assertThatNoException()
+			.isThrownBy(() -> sellerService.processPayment(anyLong(), seller));
+
+		then(sellerRepository)
+			.should(times(1))
+			.save(any(Seller.class));
+	}
+
 	SellerCreateRequestDto createSeller(String email){
 		String name = "판매자";
 		String phoneNumber = "010-0000-0000";
