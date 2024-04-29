@@ -18,10 +18,4 @@ public class Seller extends User{
 	public static Seller of(SellerCreateRequestDto dto){
 		return new Seller(dto.email(), dto.name(), dto.phoneNumber(), dto.password());
 	}
-
-	public void increaseCacheBalance(final Long cache){
-		increaseCache(cache);
-	}
-
-
 }

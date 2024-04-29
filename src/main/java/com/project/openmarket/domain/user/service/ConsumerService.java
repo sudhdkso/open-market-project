@@ -68,7 +68,7 @@ public class ConsumerService {
 	}
 
 	public void processPoints(Long amount, Consumer consumer){
-		consumer.increasePurchasePoints(amount);
+		consumer.increasePoint(amount);
 		consumerRepository.save(consumer);
 	}
 }

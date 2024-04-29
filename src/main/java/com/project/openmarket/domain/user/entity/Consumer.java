@@ -44,11 +44,7 @@ public class Consumer extends User {
 		increaseCache(amount.getCache());
 		increasePoint(amount.getPoint());
 	}
-
-	public void increasePurchasePoints(final Long point){
-		increasePoint(point);
-	}
-
+	
 	public void increasePoint(final Long point){
 		this.point += point;
 	}

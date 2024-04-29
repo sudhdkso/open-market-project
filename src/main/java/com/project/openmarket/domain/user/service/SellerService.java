@@ -57,7 +57,7 @@ public class SellerService {
 
 
 	public void processPayment(Long amount, Seller seller){
-		seller.increaseCacheBalance(amount);
+		seller.increaseCache(amount);
 		sellerRepository.save(seller);
 	}
 }
