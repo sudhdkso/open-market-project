@@ -15,6 +15,7 @@ import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.service.ConsumerService;
 import com.project.openmarket.domain.user.service.SellerService;
 import com.project.openmarket.global.exception.CustomException;
+import com.project.openmarket.global.util.Calculator;
 
 import lombok.AllArgsConstructor;
 
@@ -59,11 +60,13 @@ public class OrderService {
 		//주문 상태를 구매 확정 상태로 변경
 		orderConfirmed(order);
 
+		Long revenue = Calculator.getRevenue(order.totalAmount());
 		//판매자에게 수수료5% 제외한 금액 입금
-		sellerService.processPayment(order.totalAmount(), seller);
+		sellerService.processPayment(revenue, seller);
 
+		Long points = Calculator.getPoint(order.totalAmount());
 		//고객에게 2% 포인트 제공
-		consumerService.processPoints(order.totalAmount(), consumer);
+		consumerService.processPoints(points, consumer);
 	}
 
 }

@@ -45,12 +45,8 @@ public class Consumer extends User {
 		increasePoint(amount.getPoint());
 	}
 
-	public void increasePurchasePoints(final Long amount){
-		increasePoint(calcGetPoint(amount));
-	}
-
-	private long calcGetPoint(final Long amount){
-		return (long)Math.ceil((double)amount * (0.02));
+	public void increasePurchasePoints(final Long point){
+		increasePoint(point);
 	}
 
 	public void increasePoint(final Long point){

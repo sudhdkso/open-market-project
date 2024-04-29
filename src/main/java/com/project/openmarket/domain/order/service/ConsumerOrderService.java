@@ -89,6 +89,4 @@ public class ConsumerOrderService{
 
 		orderService.processConfirmedOrder(order, order.getSeller(), consumer);
 	}
-
-
 }

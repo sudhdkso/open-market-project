@@ -19,13 +19,9 @@ public class Seller extends User{
 		return new Seller(dto.email(), dto.name(), dto.phoneNumber(), dto.password());
 	}
 
-
-	public void increaseCacheBalance(final Long amount){
-		increaseCache(calcRevenue(amount));
+	public void increaseCacheBalance(final Long cache){
+		increaseCache(cache);
 	}
 
-	//판매자 최종 수익 계산하는 함수
-	private Long calcRevenue(Long amount) {
-		return amount - (long)Math.ceil((double)amount * 0.05);
-	}
+
 }
