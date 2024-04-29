@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import com.project.openmarket.domain.order.service.OrderService;
 import com.project.openmarket.domain.user.service.ConsumerService;
 import com.project.openmarket.domain.user.service.SellerService;
+import com.project.openmarket.global.util.Calculator;
 import com.project.openmarket.service.ServiceTestMock;
 
 class OrderServiceTests extends ServiceTestMock {
@@ -28,12 +29,15 @@ class OrderServiceTests extends ServiceTestMock {
 		Long amount = 10000L;
 		given(order.totalAmount()).willReturn(amount);
 
+		Long expectedPoint = Calculator.getPoint(amount);
+		Long expectedRevenue = Calculator.getRevenue(amount);
+
 		assertThatNoException()
 			.isThrownBy(() -> orderService.processConfirmedOrder(order, seller, consumer));
 
 
-		verify(consumerService,times(1)).processPoints(amount,consumer);
-		verify(sellerService,times(1)).processPayment(amount, seller);
+		verify(consumerService,times(1)).processPoints(expectedPoint,consumer);
+		verify(sellerService,times(1)).processPayment(expectedRevenue, seller);
 	}
 
 }
