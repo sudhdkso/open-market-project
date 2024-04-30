@@ -37,7 +37,6 @@ public class ConsumerOrderService{
 		return new OrderResponseDto(order);
 	}
 
-	@Transactional
 	private void purchase(OrderRequestDto request, Consumer consumer){
 		Product product = productService.getProductById(request.productId());
 
