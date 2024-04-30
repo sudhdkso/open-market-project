@@ -59,9 +59,7 @@ public class ProductService {
 	 * @return 조회한 상품의 정보
 	 */
 	public ProductResponseDto findById(Long productId){
-		Product product = productRepository.findById(productId)
-			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
-		return ProductResponseDto.of(product);
+		return ProductResponseDto.of(getProductById(productId));
 	}
 
 	/**
@@ -79,4 +77,19 @@ public class ProductService {
 			throw new CustomException(ALREADY_EXISTS_PRODUCT);
 		}
 	}
+	public void increaseProductStock(int count, Product product){
+		product.increaseStock(count);
+		productRepository.save(product);
+	}
+
+	public void decreaseProductStock(int count, Product product){
+		product.decreaseStock(count);
+		productRepository.save(product);
+	}
+
+	public Product getProductById(Long id){
+		return productRepository.findById(id)
+			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+	}
+
 }

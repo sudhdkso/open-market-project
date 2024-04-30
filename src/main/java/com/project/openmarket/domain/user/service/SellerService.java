@@ -54,4 +54,10 @@ public class SellerService {
 			.filter(m -> m.isSamePassword(password))
 			.orElseThrow(() -> new CustomException(NOT_MATCH_PASSWORD));
 	}
+
+
+	public void processPayment(Long amount, Seller seller){
+		seller.increaseCache(amount);
+		sellerRepository.save(seller);
+	}
 }

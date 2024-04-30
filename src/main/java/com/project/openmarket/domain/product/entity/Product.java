@@ -68,7 +68,12 @@ public class Product extends BaseTime {
 		return this.stock >= count;
 	}
 
+	public boolean isSoldOut(){
+		return this.stock <= 0;
+	}
+
 	public boolean isSameName(String another){
 		return this.name.equals(another);
 	}
+
 }

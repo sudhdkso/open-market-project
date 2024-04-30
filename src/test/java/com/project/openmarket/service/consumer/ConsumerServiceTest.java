@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 
+import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.entity.Consumer;
@@ -127,6 +128,71 @@ class ConsumerServiceTest extends ServiceTestMock {
 		assertThatThrownBy(() -> consumerService.login(request))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage(NOT_MATCH_PASSWORD.getMessage());
+	}
+
+	@Test
+	@DisplayName("고객의 id가 존재하는 id이면 고객을 찾을 수 있다.")
+	void successGetConsumerByValidId(){
+
+		given(consumerRepository.findById(anyLong())).willReturn(Optional.of(consumer));
+
+		assertThatNoException()
+			.isThrownBy(() -> consumerService.getConsumerById(1L));
+	}
+
+	@Test
+	@DisplayName("고객의 id가 존재하지 않는 id이면 고객을 찾을 수 없다.")
+	void failGetConsumerByInvalidId(){
+
+		given(consumerRepository.findById(anyLong())).willReturn(Optional.empty());
+
+		assertThatThrownBy(() -> consumerService.getConsumerById(1L))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage(NOT_FOUND_USER.getMessage());
+	}
+
+	@Test
+	@DisplayName("Amount클래스를 매개변수로 받아 고객의 Cache와 Point를 증가시키는데 성공한다.")
+	void increaseAmountTest(){
+		Amount amount = new Amount(1000L,100L);
+
+		doNothing().when(consumer).increaseAmount(any(Amount.class));
+
+		assertThatNoException()
+			.isThrownBy(() -> consumerService.increaseAmount(amount, consumer));
+
+		then(consumerRepository)
+			.should(times(1))
+			.save(any(Consumer.class));
+	}
+
+	@Test
+	@DisplayName("Amount클래스를 매개변수로 받아 고객의 Cache와 Point를 감소시키는데 성공한다.")
+	void decreaseAmountTest(){
+		Amount amount = new Amount(1000L,100L);
+
+		doNothing().when(consumer).decreaseAmount(any(Amount.class));
+
+		assertThatNoException()
+			.isThrownBy(() -> consumerService.decreaseAmount(amount, consumer));
+
+		then(consumerRepository)
+			.should(times(1))
+			.save(any(Consumer.class));
+	}
+
+	@Test
+	@DisplayName("증가 시킬 포인트와 고객이 들어오면 성공한다")
+	void processPointsTest(){
+		doNothing().when(consumer).increasePoint(anyLong());
+
+		assertThatNoException()
+			.isThrownBy(() -> consumerService.processPoints(1000L, consumer));
+
+		then(consumerRepository)
+			.should(times(1))
+			.save(any(Consumer.class));
+
 	}
 
 	ConsumerCreateReqestDto createConsumer(String email){
