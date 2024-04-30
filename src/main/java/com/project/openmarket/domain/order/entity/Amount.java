@@ -18,4 +18,8 @@ public class Amount {
 		this.cache = cache;
 		this.point = point;
 	}
+
+	public Long getTotalAmount(){
+		return this.cache + this.point;
+	}
 }

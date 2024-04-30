@@ -1,6 +1,9 @@
 package com.project.openmarket.global.util;
 
 public class Calculator {
+	private Calculator(){
+
+	}
 
 	public static Long getPoint(Long amount){
 		double percentage = 0.02;

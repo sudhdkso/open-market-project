@@ -59,9 +59,7 @@ public class ProductService {
 	 * @return 조회한 상품의 정보
 	 */
 	public ProductResponseDto findById(Long productId){
-		Product product = productRepository.findById(productId)
-			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
-		return ProductResponseDto.of(product);
+		return ProductResponseDto.of(getProductById(productId));
 	}
 
 	/**

@@ -52,6 +52,7 @@ public class Order extends BaseTime {
 
 	@Column(name = "delivery_complete_time")
 	private LocalDateTime deliveryCompleteTime;
+
 	private Order(Product product, OrderStatus status, Amount amount, int count, Consumer consumer){
 		this.product = product;
 		this.status = status;
@@ -72,8 +73,8 @@ public class Order extends BaseTime {
 		this.status = orderStatus;
 	}
 
-	public Long totalAmount(){
-		return amount.getCache() + amount.getPoint();
+	public Long getTotalAmount(){
+		return amount.getTotalAmount();
 	}
 
 	public boolean isBeforeDeliveryStart(){

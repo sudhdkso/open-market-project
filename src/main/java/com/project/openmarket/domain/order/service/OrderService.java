@@ -60,11 +60,11 @@ public class OrderService {
 		//주문 상태를 구매 확정 상태로 변경
 		orderConfirmed(order);
 
-		Long revenue = Calculator.getRevenue(order.totalAmount());
+		Long revenue = Calculator.getRevenue(order.getTotalAmount());
 		//판매자에게 수수료5% 제외한 금액 입금
 		sellerService.processPayment(revenue, seller);
 
-		Long points = Calculator.getPoint(order.totalAmount());
+		Long points = Calculator.getPoint(order.getTotalAmount());
 		//고객에게 2% 포인트 제공
 		consumerService.processPoints(points, consumer);
 	}
