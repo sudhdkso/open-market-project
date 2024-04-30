@@ -10,21 +10,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Seller;
-import com.project.openmarket.domain.user.service.ConsumerService;
 import com.project.openmarket.service.ServiceTestMock;
 
 class ProductServiceTest extends ServiceTestMock {
 	@InjectMocks
 	ProductService productService;
-	@Mock
-	ConsumerService consumerService;
 
 	@Test
 	@DisplayName("판매자에게 같은 이름의 상품이 존재하면 예외가 발생한다.")
