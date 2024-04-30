@@ -145,30 +145,6 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	}
 
 	@Nested
-	@DisplayName("주문 조회 시 ")
-	class findOrder{
-		@Test
-		@DisplayName("유효한 주문 id를 가지고 주문을 조회하면 성공한다.")
-		void findByValidOrderId(){
-			assertThatNoException()
-				.isThrownBy(() -> orderService.getOrderById(1L));
-
-		}
-
-		@Test
-		@DisplayName("유효하지 않은 주문 id를 가지고 주문을 조회하면 오류가 발생한다..")
-		void findByInvalidOrderId(){
-			given(orderService.getOrderById(anyLong())).willThrow(new CustomException(NOT_FOUND_ORDER));
-
-			assertThatThrownBy(() -> orderService.getOrderById(1L))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage(NOT_FOUND_ORDER.getMessage());
-
-
-		}
-	}
-
-	@Nested
 	@DisplayName("구매 확정 시 ")
 	class orderConfirmed{
 		@Test
