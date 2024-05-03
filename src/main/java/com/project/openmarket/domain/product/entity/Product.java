@@ -35,6 +35,9 @@ public class Product extends BaseTime {
 	@Column(name = "stock")
 	private int stock;
 
+	@Column(name = "avg_score")
+	private double avgScore;
+
 	@ManyToOne
 	@JoinColumn(name = "seller_id")
 	private Seller seller;
@@ -44,6 +47,7 @@ public class Product extends BaseTime {
 		this.price = price;
 		this.stock = stock;
 		this.seller = seller;
+		this.avgScore = 0.0;
 	}
 
 	public static Product of(ProductRequestDto dto, Seller seller){
@@ -54,6 +58,10 @@ public class Product extends BaseTime {
 		this.name = dto.name();
 		this.price = dto.price();
 		this.stock = dto.stock();
+	}
+
+	public void updateAvgScore(double avgScore){
+		this.avgScore = avgScore;
 	}
 
 	public void increaseStock(int count){

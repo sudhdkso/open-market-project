@@ -87,6 +87,11 @@ public class ProductService {
 		productRepository.save(product);
 	}
 
+	public void updateProductAvgScore(double avgScore, Product product){
+		product.updateAvgScore(avgScore);
+		productRepository.save(product);
+	}
+
 	public Product getProductById(Long id){
 		return productRepository.findById(id)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));

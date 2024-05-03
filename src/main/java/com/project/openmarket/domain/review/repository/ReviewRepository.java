@@ -16,5 +16,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 	List<Review> findByConsumer(Consumer consumer);
 
 	@Query(value = "select avg(r.score) from review r where r.product = :product group by r.product", nativeQuery = true)
-	long getAvgScoreByProduct(@Param("product") Product product);
+	double getAvgScoreByProduct(@Param("product") Product product);
 }
