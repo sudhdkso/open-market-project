@@ -4,6 +4,7 @@ import static com.project.openmarket.global.exception.enums.ExceptionConstants.*
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -84,6 +85,19 @@ class ProductServiceTest extends ServiceTestMock {
 
 			assertThatNoException()
 				.isThrownBy(() -> productService.findById(0L));
+		}
+
+		@Test
+		@DisplayName("존재하는 상품명으로 리뷰순으로 상품을 조회할 수 있다.")
+		void findProductByScore(){
+			given(productRepository.findByNameContainsOrderByAvgScoreDesc(anyString()))
+				.willReturn(List.of(product));
+			assertThatNoException()
+				.isThrownBy(() -> productService.findByScoreDesc("상품1"));
+
+			then(productRepository)
+				.should(times(1))
+				.findByNameContainsOrderByAvgScoreDesc(anyString());
 		}
 	}
 
