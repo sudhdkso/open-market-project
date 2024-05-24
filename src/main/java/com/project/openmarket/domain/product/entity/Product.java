@@ -84,15 +84,4 @@ public class Product extends BaseTime {
 	public boolean isSameName(String another){
 		return this.name.equals(another);
 	}
-
-	@Override
-	public String toString() {
-		return "Product{" +
-			"id=" + id +
-			", name='" + name + '\'' +
-			", price=" + price +
-			", stock=" + stock +
-			", avgScore=" + avgScore +
-			'}';
-	}
 }
