@@ -49,6 +49,23 @@ jacocoTestReport {
 	}
 }
 
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'CLASS'
+			limit {
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 0.8
+			}
+			includes = [
+					'**/service/**',
+					'**/domain/**'
+			]
+		}
+	}
+}
+
 sonar {
 	properties {
 		property "sonar.projectKey", "sudhdkso_open-market-project"
