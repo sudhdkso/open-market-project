@@ -150,6 +150,21 @@ class ProductServiceTest extends ServiceTestMock {
 	}
 
 	@Test
+	@DisplayName("상품 리뷰 업데이트 테스트")
+	void updateProductAvgScore(){
+		assertThatNoException()
+			.isThrownBy(() -> productService.updateProductAvgScore(4.0, product));
+
+		then(product)
+			.should(times(1))
+			.updateAvgScore(anyDouble());
+
+		then(productRepository)
+			.should(times(1))
+			.save(any(Product.class));
+	}
+
+	@Test
 	@DisplayName("상품 재고 감소 테스트")
 	void decreaseProductStockTest() {
 		int expectedCount = 1;
