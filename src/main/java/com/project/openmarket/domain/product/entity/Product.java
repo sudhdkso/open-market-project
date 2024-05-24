@@ -42,6 +42,7 @@ public class Product extends BaseTime {
 	@JoinColumn(name = "seller_id")
 	private Seller seller;
 
+	//TODO: 2024.05.10 구매수 컬럼 추가하기
 	private Product(String name, int price, int stock, Seller seller){
 		this.name = name;
 		this.price = price;
@@ -84,4 +85,14 @@ public class Product extends BaseTime {
 		return this.name.equals(another);
 	}
 
+	@Override
+	public String toString() {
+		return "Product{" +
+			"id=" + id +
+			", name='" + name + '\'' +
+			", price=" + price +
+			", stock=" + stock +
+			", avgScore=" + avgScore +
+			'}';
+	}
 }
