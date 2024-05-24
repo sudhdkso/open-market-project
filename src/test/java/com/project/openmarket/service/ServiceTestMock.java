@@ -8,6 +8,8 @@ import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.repository.OrderRepository;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.repository.ProductRepository;
+import com.project.openmarket.domain.review.entity.Review;
+import com.project.openmarket.domain.review.repository.ReviewRepository;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.repository.ConsumerRepository;
@@ -23,7 +25,8 @@ public abstract class ServiceTestMock {
 	protected ProductRepository productRepository;
 	@Mock
 	protected OrderRepository orderRepository;
-
+	@Mock
+	protected ReviewRepository reviewRepository;
 	@Mock
 	protected Consumer consumer;
 	@Mock
@@ -32,4 +35,6 @@ public abstract class ServiceTestMock {
 	protected Product product;
 	@Mock
 	protected Order order;
+	@Mock
+	protected Review review;
 }

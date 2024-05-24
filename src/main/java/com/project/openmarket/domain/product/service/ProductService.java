@@ -2,6 +2,9 @@ package com.project.openmarket.domain.product.service;
 
 import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 
+import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
@@ -10,7 +13,6 @@ import com.project.openmarket.domain.product.dto.response.ProductResponseDto;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.repository.ProductRepository;
 import com.project.openmarket.domain.user.entity.Seller;
-import com.project.openmarket.domain.user.service.SellerService;
 import com.project.openmarket.global.exception.CustomException;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 public class ProductService {
 
 	private final ProductRepository productRepository;
-	private final SellerService sellerService;
 
 	/**
 	 * 상품을 등록하는 메소드
@@ -61,6 +62,15 @@ public class ProductService {
 	public ProductResponseDto findById(Long productId){
 		return ProductResponseDto.of(getProductById(productId));
 	}
+	
+	public List<Product> findByScoreDesc(String name){
+		return productRepository.findByNameContainsOrderByAvgScoreDesc(name);
+	}
+
+	//정렬 리뷰점수순, 구매순
+	public List<Product> findProductByName(String name, Pageable pageable){
+		return productRepository.findByNameContains(name,pageable);
+	}
 
 	/**
 	 * 상품을 삭제하는 메소드
@@ -87,9 +97,16 @@ public class ProductService {
 		productRepository.save(product);
 	}
 
+	public void updateProductAvgScore(double avgScore, Product product){
+		product.updateAvgScore(avgScore);
+		productRepository.save(product);
+	}
+
 	public Product getProductById(Long id){
 		return productRepository.findById(id)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 	}
+
+
 
 }
