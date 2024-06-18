@@ -3,6 +3,7 @@ package com.project.openmarket.domain.product.service;
 import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -68,8 +69,10 @@ public class ProductService {
 	}
 
 	//정렬 리뷰점수순, 구매순
-	public List<Product> findProductByName(String name, Pageable pageable){
-		return productRepository.findByNameContains(name,pageable);
+	public List<ProductResponseDto> findProductByName(String name, Pageable pageable){
+		return productRepository.findByNameContains(name,pageable)
+			.stream().map(p -> ProductResponseDto.of(p))
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -87,6 +90,7 @@ public class ProductService {
 			throw new CustomException(ALREADY_EXISTS_PRODUCT);
 		}
 	}
+
 	public void increaseProductStock(int count, Product product){
 		product.increaseStock(count);
 		productRepository.save(product);
