@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.project.openmarket.domain.product.dto.response.ProductResponseDto;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.repository.ProductRepository;
 import com.project.openmarket.domain.product.service.ProductService;
@@ -52,12 +53,12 @@ class ProductSearchTest {
 		String name = "a";
 		Pageable pageable = PageRequest.of(0,10, Sort.by("avgScore").descending());
 		//when
-		List<Product> productList = productService.findProductByName(name, pageable);
+		List<ProductResponseDto> productList = productService.findProductByName(name, pageable);
 		//then
 		double prvScore = 5.0;
-		for (Product product : productList) {
-			assertTrue(product.getAvgScore() <= prvScore);
-			prvScore = product.getAvgScore();
+		for (ProductResponseDto product : productList) {
+			assertTrue(product.avgScore() <= prvScore);
+			prvScore = product.avgScore();
 		}
 		//2sec 579ms
 		//아마 스프링 부트 동작 시간이 한 2sec 정도

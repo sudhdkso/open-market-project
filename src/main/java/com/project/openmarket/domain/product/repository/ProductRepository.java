@@ -3,6 +3,7 @@ package com.project.openmarket.domain.product.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,5 +18,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 	List<Product> findByNameContainsOrderByAvgScoreDesc(String name);
 	List<Product> findByNameContains(String name,Pageable pageable);
+
+	Page<Product> findAll(Pageable pageable);
 
 }
