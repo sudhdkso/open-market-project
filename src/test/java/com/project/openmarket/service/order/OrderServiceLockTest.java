@@ -50,6 +50,7 @@ class OrderServiceLockTest {
 
 	private Seller seller;
 
+	private Product product;
 	@BeforeEach
 	void setUp() {
 		// 초기화 전에 기존 데이터를 삭제
@@ -58,8 +59,7 @@ class OrderServiceLockTest {
 
 		seller = sellerRepository.findAll().get(0);
 		// 테스트용 제품 생성
-		Product product = Product.of(createRequest(1000), seller);
-		productRepository.save(product);
+		product = productRepository.save(Product.of(createRequest(1000), seller));
 
 		consumer = consumerRepository.findAll().get(0);
 		consumer.increaseCache(1000L);
@@ -70,7 +70,6 @@ class OrderServiceLockTest {
 	@DisplayName("고객이 주문 생성시 가격과 물건 가격이 같으면 주문을 생성할 수 있다.")
 	@Transactional
 	void testCreateOrderWithCorrectPrice() {
-		Product product = productRepository.findAll().get(0);
 		Long orderedPrice = 1000L;
 		var request = createOrder(product.getId());
 
@@ -87,7 +86,6 @@ class OrderServiceLockTest {
 	@Transactional
 	@DisplayName("고객의 주문 생성시 주문한 가격과 다르면 오류가 발생한다.")
 	void testCreateOrderWithIncorrectPrice() {
-		Product product = productRepository.findAll().get(0);
 		int incorrectPrice = 10000;
 
 		product.update(new ProductUpdateReqeustDto(0L,null, incorrectPrice, 1));
@@ -104,7 +102,6 @@ class OrderServiceLockTest {
 	@DisplayName("고객이 주문을 생성하는 과정에서 물건의 가격이 변동되지 않는다.")
 	@Transactional
 	void testCreateOrderAfterProductUpdateWithLock() throws InterruptedException {
-		Product product = productRepository.findAll().get(0);
 		Long productId = product.getId();
 
 		var request = createOrder(productId);
