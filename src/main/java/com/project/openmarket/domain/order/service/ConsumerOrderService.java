@@ -11,6 +11,7 @@ import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.repository.OrderRepository;
 import com.project.openmarket.domain.product.entity.Product;
+import com.project.openmarket.domain.product.repository.ProductRepository;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.service.ConsumerService;
@@ -23,22 +24,25 @@ import lombok.AllArgsConstructor;
 public class ConsumerOrderService{
 	private final OrderService orderService;
 	private final OrderRepository orderRepository;
+	private final ProductRepository productRepository;
 	private final ProductService productService;
 	private final ConsumerService consumerService;
 
 	//1. 주문 생성
 	@Transactional
 	public OrderResponseDto create(OrderRequestDto request, Consumer consumer){
-		Product product = productService.getProductById(request.productId());
+		Product product = productRepository.findByIdWithLock(request.productId())
+			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 
-		purchase(request, consumer);
+		Order order = request.toEntity(product, consumer);
 
-		Order order = orderRepository.save(Order.of(product, request, consumer));
-		return new OrderResponseDto(order);
+		checkPriceMismatch(order, product.getPrice());
+
+		purchase(request, product, consumer);
+		return new OrderResponseDto(orderRepository.save(order));
 	}
 
-	private void purchase(OrderRequestDto request, Consumer consumer){
-		Product product = productService.getProductById(request.productId());
+	private void purchase(OrderRequestDto request, Product product,Consumer consumer){
 
 		Amount amount = new Amount(request.cache(), request.point());
 		int count = request.count();
@@ -50,6 +54,12 @@ public class ConsumerOrderService{
 
 		//2.고객 소지금 감소
 		consumerService.decreaseAmount(amount, consumer);
+	}
+
+	private void checkPriceMismatch(Order order, int productPrice){
+		if(!order.isEqualPriceTo(productPrice)){
+			throw new CustomException(NOT_MATCH_PRICE);
+		}
 	}
 
 	private void checkEnoughStock(Product product, int count){

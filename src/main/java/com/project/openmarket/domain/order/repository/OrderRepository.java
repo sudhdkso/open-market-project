@@ -12,7 +12,8 @@ import com.project.openmarket.domain.user.entity.Consumer;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 	List<Order> findByConsumer(Consumer consumer);
-	@Query("select o from Order o where o.status = 'DELIVERY_COMPLETED' AND o.deliveryCompleteTime <= :threshold")
+	@Query("select o from Order o where o.status = 'DELIVERY_COMPLETED' "
+		+ "AND o.deliveryCompleteTime <= :threshold")
 	List<Order> findOrdersWithDeliveryCompleteTimeExceedingThreshold(@Param("threshold")LocalDateTime threshold);
 
 }

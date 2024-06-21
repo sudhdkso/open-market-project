@@ -3,7 +3,6 @@ package com.project.openmarket.domain.order.entity;
 import java.time.LocalDateTime;
 
 import com.project.openmarket.domain.base.entity.BaseTime;
-import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.user.entity.Consumer;
@@ -20,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 @Getter
@@ -43,6 +43,9 @@ public class Order extends BaseTime {
 	@Column(name = "count", nullable = false)
 	private int count;
 
+	@Column(name = "ordered_price", nullable = false)
+	private int orderedPrice;
+
 	@Embedded
 	private Amount amount;
 
@@ -53,16 +56,14 @@ public class Order extends BaseTime {
 	@Column(name = "delivery_complete_time")
 	private LocalDateTime deliveryCompleteTime;
 
-	private Order(Product product, OrderStatus status, Amount amount, int count, Consumer consumer){
+	@Builder
+	public Order(Product product, OrderStatus status, Amount amount, int count, Consumer consumer){
 		this.product = product;
 		this.status = status;
 		this.count = count;
+		this.orderedPrice = amount.getTotalAmount().intValue();
 		this.amount = amount;
 		this.consumer = consumer;
-	}
-
-	public static Order of(Product product, OrderRequestDto dto, Consumer consumer){
-		return new Order(product, OrderStatus.getOrderStatus(dto.status()), new Amount(dto.cache(), dto.point()), dto.count(), consumer);
 	}
 
 	public void confirmPurchase(){
@@ -95,6 +96,10 @@ public class Order extends BaseTime {
 
 	public void completeOrderDelivery(){
 		completeOrderDelivery(LocalDateTime.now());
+	}
+
+	public boolean isEqualPriceTo(int price){
+		return this.orderedPrice == price;
 	}
 
 	public void completeOrderDelivery(LocalDateTime dateTime){
