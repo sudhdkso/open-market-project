@@ -49,7 +49,7 @@ public class ProductService {
 		Product product = productRepository.findByIdWithLock(request.id())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 		//기존 상품의 이름과 수정하려는 상품의 이름이 다른 경우에만 확인
-		if( !request.name().isBlank() && !product.isSameName(request.name())){
+		if( request.name() != null && !product.isSameName(request.name())){
 			duplicateProduct(request.name(), seller);
 		}
 		product.update(request);
