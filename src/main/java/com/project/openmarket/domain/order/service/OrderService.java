@@ -2,6 +2,10 @@ package com.project.openmarket.domain.order.service;
 
 import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +58,7 @@ public class OrderService {
 		order.confirmPurchase();
 		orderRepository.save(order);
 	}
+
 	//TODO: 구매 확정시 구입수 증가하는 로직 추가
 	@Transactional
 	public void processConfirmedOrder(Order order, Seller seller, Consumer consumer) {
@@ -69,4 +74,14 @@ public class OrderService {
 		consumerService.processPoints(points, consumer);
 	}
 
+	@Scheduled(fixedDelay = 24 * 60 * 60 * 1000)
+	public void autoConfirmPurchase() {
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime cutoffTime = now.minusDays(1);
+		List<Order> orders = orderRepository.findOrdersWithDeliveryCompleteTimeExceedingThreshold(cutoffTime);
+
+		for (Order order : orders) {
+			processConfirmedOrder(order, order.getSeller(), order.getConsumer());
+		}
+	}
 }
