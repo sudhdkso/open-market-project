@@ -40,7 +40,7 @@ class ProductServiceTest extends ServiceTestMock {
 		@Test
 		@DisplayName("상품의 id로 상품을 찾을 수 없으면 예외가 발생한다.")
 		void notFoundWillUpdateProduct(){
-			given(productRepository.findById(anyLong()))
+			given(productRepository.findByIdWithLock(anyLong()))
 				.willReturn(Optional.empty());
 
 			assertThatThrownBy(() -> productService.update(updateProduct("일품"),seller))
@@ -51,7 +51,7 @@ class ProductServiceTest extends ServiceTestMock {
 		@Test
 		@DisplayName("판매자에게 이미 존재하는 상품명이면 예외가 발생한다.")
 		void existsByUpdateNameAndSeller(){
-			given(productRepository.findById(anyLong()))
+			given(productRepository.findByIdWithLock(anyLong()))
 				.willReturn(Optional.of(Product.of(createProduct("상품"), seller)));
 			given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class)))
 				.willReturn(true);
@@ -119,7 +119,7 @@ class ProductServiceTest extends ServiceTestMock {
 		@Test
 		@DisplayName("상품의 id로 삭제를 요청하면 성공한다.")
 		void deleteProductById(){
-			given(productRepository.findById(anyLong()))
+			given(productRepository.findByIdWithLock(anyLong()))
 				.willReturn(Optional.of(product));
 
 			assertThatNoException()

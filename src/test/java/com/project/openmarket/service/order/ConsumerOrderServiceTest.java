@@ -4,6 +4,8 @@ import static com.project.openmarket.global.exception.enums.ExceptionConstants.*
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.service.ConsumerOrderService;
 import com.project.openmarket.domain.order.service.OrderService;
+import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.entity.Seller;
@@ -26,11 +29,12 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	@InjectMocks
 	ConsumerOrderService consumerOrderService;
 	@Mock
-	OrderService orderService;
-	@Mock
 	ProductService productService;
 	@Mock
 	ConsumerService consumerService;
+	@Mock
+	OrderService orderService;
+
 	@Nested
 	@DisplayName("주문 생성 시 ")
 	class createOrder{
@@ -41,7 +45,8 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			var request = createOrder(1);
 
 			//when
-			given(productService.getProductById(anyLong())).willReturn(product);
+			given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
+			given(product.getPrice()).willReturn(request.orderedPrice());
 			given(product.canBuy(anyInt())).willReturn(true);
 			given(consumer.canBuy(any(Amount.class))).willReturn(true);
 
@@ -49,9 +54,9 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			assertThatNoException()
 				.isThrownBy(() -> consumerOrderService.create(request, consumer));
 
-			then(orderRepository)
+			then(productService)
 				.should(times(1))
-				.save(any(Order.class));
+				.decreaseProductStock(anyInt(), any(Product.class));
 		}
 
 		@Test
@@ -61,7 +66,9 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			var request = createOrder(1);
 
 			//when
-			given(productService.getProductById(anyLong())).willReturn(product);
+			given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
+			given(product.getPrice()).willReturn(1000);
+			given(product.isSoldOut()).willReturn(false);
 			given(product.canBuy(anyInt())).willReturn(false);
 
 			//then
@@ -77,7 +84,8 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			var request = createOrder(1);
 
 			//when
-			given(productService.getProductById(anyLong())).willReturn(product);
+			given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
+			given(product.getPrice()).willReturn(request.orderedPrice());
 			given(product.canBuy(anyInt())).willReturn(true);
 			given(consumer.canBuy(any(Amount.class))).willReturn(false);
 
@@ -95,7 +103,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			var request = createOrder(1);
 
 			//when
-			given(productService.getProductById(anyLong())).willThrow(new CustomException(NOT_FOUND_PRODUCT));
+			given(productRepository.findByIdWithLock(anyLong())).willThrow(new CustomException(NOT_FOUND_PRODUCT));
 			assertThatThrownBy(() -> consumerOrderService.create(request, consumer))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage(NOT_FOUND_PRODUCT.getMessage());
@@ -178,6 +186,6 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	}
 
 	OrderRequestDto createOrder(int count){
-		return new OrderRequestDto(1L, "주문 완료", 1000L, 0L, count);
+		return new OrderRequestDto(1L,  1000,1000L, 0L, count);
 	}
 }

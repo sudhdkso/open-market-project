@@ -187,7 +187,7 @@ class SellerServiceTest  extends ServiceTestMock {
 	void updateProductByNameAndSeller(){
 		final var request = updateProduct("일품", 900);
 
-		given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
+		given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
 		given(product.isSameName(anyString())).willReturn(false);
 		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class))).willReturn(false);
 
