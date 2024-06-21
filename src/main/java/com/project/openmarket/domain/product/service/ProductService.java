@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
@@ -43,14 +44,17 @@ public class ProductService {
 	 * @param seller 상품을 업데이터하려는 판매자
 	 * @return 업데이트된 상품의 정보
 	 */
+	@Transactional
 	public ProductResponseDto update(ProductUpdateReqeustDto request, Seller seller){
-		Product product = productRepository.findById(request.id())
+		Product product = productRepository.findByIdWithLock(request.id())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 		//기존 상품의 이름과 수정하려는 상품의 이름이 다른 경우에만 확인
-		if(!product.isSameName(request.name())){
+		if( !request.name().isBlank() && !product.isSameName(request.name())){
 			duplicateProduct(request.name(), seller);
 		}
 		product.update(request);
+
+		productRepository.save(product);
 
 		return ProductResponseDto.of(product);
 	}
@@ -80,7 +84,7 @@ public class ProductService {
 	 * @param productId 삭제하려는 상품의 id
 	 */
 	public void delete(Long productId){
-		Product product = productRepository.findById(productId)
+		Product product = productRepository.findByIdWithLock(productId)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 		productRepository.delete(product);
 	}

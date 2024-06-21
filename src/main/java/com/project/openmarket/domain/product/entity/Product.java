@@ -57,7 +57,9 @@ public class Product extends BaseTime {
 	}
 
 	public void update(ProductUpdateReqeustDto dto){
-		this.name = dto.name();
+		if(dto.name() != null) {
+			this.name = dto.name();
+		}
 		this.price = dto.price();
 		this.stock = dto.stock();
 	}
