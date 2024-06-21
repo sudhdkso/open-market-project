@@ -4,6 +4,9 @@ import static com.project.openmarket.global.exception.enums.ExceptionConstants.*
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -13,9 +16,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import com.project.openmarket.domain.order.entity.Amount;
+import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.order.service.OrderService;
 import com.project.openmarket.domain.product.service.ProductService;
+import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.service.ConsumerService;
 import com.project.openmarket.domain.user.service.SellerService;
 import com.project.openmarket.global.util.Calculator;
@@ -100,6 +105,33 @@ class OrderServiceTests extends ServiceTestMock {
 		then(order)
 			.should(times(1))
 			.updateOrderStatus(any(OrderStatus.class));
+
+	}
+
+	@Test
+	@DisplayName("배송 완료 후 1일 뒤 자동 구매 확정된다.")
+	void testAutoConfirmed(){
+
+		// 테스트 데이터 생성
+		LocalDateTime dateTime = LocalDateTime.now().minusDays(1);
+
+		List<Order> list = new ArrayList<>();
+		list.add(order);
+
+		given(orderRepository.findOrdersWithDeliveryCompleteTimeExceedingThreshold(any(LocalDateTime.class)))
+			.willReturn(list);
+
+		given(order.getSeller()).willReturn(seller);
+		given(order.getConsumer()).willReturn(consumer);
+
+
+		// 주문이 24시간 이전에 배송 완료되었을 때 구매 확정되는지 확인
+		orderService.autoConfirmPurchase();
+
+		// 주문이 자동으로 구매 확정되는지 확인
+		then(consumerService)
+			.should(times(1))
+			.processPoints(anyLong(), any(Consumer.class));
 
 	}
 }
