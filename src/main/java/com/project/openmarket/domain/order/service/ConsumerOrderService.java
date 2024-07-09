@@ -31,7 +31,8 @@ public class ConsumerOrderService{
 	//1. 주문 생성
 	@Transactional
 	public OrderResponseDto create(OrderRequestDto request, Consumer consumer){
-		Product product = productRepository.findByIdWithLock(request.productId())
+		Product product =
+			productRepository.findByIdWithLock(request.productId())
 			.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
 
 		Order order = request.toEntity(product, consumer);
