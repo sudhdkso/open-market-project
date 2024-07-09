@@ -2,6 +2,8 @@ package com.project.openmarket.domain.order.service;
 
 import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,5 +100,19 @@ public class ConsumerOrderService{
 		}
 
 		orderService.processConfirmedOrder(order, order.getSeller(), consumer);
+	}
+
+	public OrderResponseDto findOrderOne(Long id){
+		Order order = orderRepository.findById(id)
+			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
+		return new OrderResponseDto(order);
+	}
+
+	public List<OrderResponseDto> findOrderListByConsumer(Consumer consumer){
+		List<Order> orderList = orderRepository.findByConsumer(consumer);
+
+		return orderList.stream()
+			.map(order -> new OrderResponseDto(order))
+			.toList();
 	}
 }
