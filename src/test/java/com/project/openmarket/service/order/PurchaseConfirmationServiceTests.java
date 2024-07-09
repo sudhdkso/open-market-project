@@ -1,6 +1,8 @@
 package com.project.openmarket.service.order;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.times;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,19 +20,15 @@ import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.service.ServiceTestMock;
 
-class PurchaseConfirmationServiceTests extends ServiceTestMock {
+public class PurchaseConfirmationServiceTests extends ServiceTestMock {
 	@InjectMocks
-	PurchaseConfirmationService purchaseConfirmationService;
+	private PurchaseConfirmationService autoConfirmPurchase;
 	@Mock
-	OrderService orderService;
-
+	private OrderService orderService;
 
 	@Test
 	@DisplayName("배송 완료 후 1일 뒤 자동 구매 확정된다.")
 	void testAutoConfirmed(){
-
-		// 테스트 데이터 생성
-		LocalDateTime dateTime = LocalDateTime.now().minusDays(1);
 
 		List<Order> list = new ArrayList<>();
 		list.add(order);
@@ -43,12 +41,12 @@ class PurchaseConfirmationServiceTests extends ServiceTestMock {
 
 
 		// 주문이 24시간 이전에 배송 완료되었을 때 구매 확정되는지 확인
-		purchaseConfirmationService.autoConfirmPurchase();
+		autoConfirmPurchase.autoConfirmPurchase();
+
 		// 주문이 자동으로 구매 확정되는지 확인
 		then(orderService)
 			.should(times(1))
 			.processConfirmedOrder(any(Order.class), any(Seller.class), any(Consumer.class));
 
 	}
-
 }

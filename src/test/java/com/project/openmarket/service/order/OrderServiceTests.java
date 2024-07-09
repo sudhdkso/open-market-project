@@ -32,6 +32,7 @@ class OrderServiceTests extends ServiceTestMock {
 	@Mock
 	private ProductService productService;
 
+
 	@Test
 	@DisplayName("주문 확정 시 고객의 포인트와 판매자의 캐시가 증가한다.")
 	void consumerGetPoint(){
@@ -102,4 +103,5 @@ class OrderServiceTests extends ServiceTestMock {
 			.updateOrderStatus(any(OrderStatus.class));
 
 	}
+
 }

@@ -49,7 +49,7 @@ class OrderTest {
 	void updateOrderStatus(){
 		//given
 		var request = createOrder(1);
-		Order order = Order.of(product, request, consumer);
+		Order order = request.toEntity(product, consumer);
 		//when
 		order.updateOrderStatus(OrderStatus.CANCEL);
 		//then
@@ -163,6 +163,6 @@ class OrderTest {
 	}
 
 	OrderRequestDto createOrder(int count){
-		return new OrderRequestDto(1L, "주문 완료",1000L, 0L, count);
+		return new OrderRequestDto(1L, 1000,1000L, 0L, count);
 	}
 }

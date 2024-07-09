@@ -54,7 +54,7 @@ public class OrderService {
 		order.confirmPurchase();
 		orderRepository.save(order);
 	}
-	//TODO: 구매 확정시 구입수 증가하는 로직 추가
+
 	@Transactional
 	public void processConfirmedOrder(Order order, Seller seller, Consumer consumer) {
 		//주문 상태를 구매 확정 상태로 변경
@@ -68,5 +68,4 @@ public class OrderService {
 		//고객에게 2% 포인트 제공
 		consumerService.processPoints(points, consumer);
 	}
-
 }
