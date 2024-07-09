@@ -23,8 +23,6 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-      - name: Clear Gradle cache
-        run: rm -rf $HOME/.gradle/caches/
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:
