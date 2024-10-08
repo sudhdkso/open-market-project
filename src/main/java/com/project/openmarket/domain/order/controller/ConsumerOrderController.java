@@ -16,6 +16,7 @@ import com.project.openmarket.domain.auth.ConsumerThreadLocal;
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
 import com.project.openmarket.domain.order.dto.response.OrderResponseDto;
 import com.project.openmarket.domain.order.service.ConsumerOrderService;
+import com.project.openmarket.domain.order.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/consumer")
 public class ConsumerOrderController {
 	private final ConsumerOrderService consumerOrderService;
+	private final OrderService orderService;
 
 	@GetMapping("/order")
 	public ResponseEntity<List<OrderResponseDto>> getOrderList(){

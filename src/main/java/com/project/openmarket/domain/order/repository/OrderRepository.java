@@ -16,4 +16,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 		+ "AND o.deliveryCompleteTime <= :threshold")
 	List<Order> findOrdersWithDeliveryCompleteTimeExceedingThreshold(@Param("threshold")LocalDateTime threshold);
 
+	@Query("SELECT o FROM Order o WHERE o.product.seller.id = :sellerId")
+	List<Order> findOrdersBySellerId(@Param("sellerId") Long sellerId);
+
 }

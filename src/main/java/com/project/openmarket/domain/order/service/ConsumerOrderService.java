@@ -103,15 +103,12 @@ public class ConsumerOrderService{
 	}
 
 	public OrderResponseDto findOrderOne(Long id){
-		Order order = orderRepository.findById(id)
-			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
-		return new OrderResponseDto(order);
+		return new OrderResponseDto(orderService.getOrderById(id));
 	}
 
 	public List<OrderResponseDto> findOrderListByConsumer(Consumer consumer){
-		List<Order> orderList = orderRepository.findByConsumer(consumer);
-
-		return orderList.stream()
+		return orderRepository.findByConsumer(consumer)
+			.stream()
 			.map(order -> new OrderResponseDto(order))
 			.toList();
 	}

@@ -1,13 +1,17 @@
 package com.project.openmarket.domain.order.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
+import com.project.openmarket.domain.order.dto.response.OrderResponseDto;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.order.repository.OrderRepository;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Consumer;
+import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.service.ConsumerService;
 
 import lombok.AllArgsConstructor;
@@ -35,4 +39,12 @@ public class SellerOrderService {
 
 		orderService.processOrderCancel(order, product, consumer);
 	}
+
+	public List<OrderResponseDto> findOrdersBySeller(Seller seller) {
+		return orderRepository.findOrdersBySellerId(seller.getId())
+			.stream()
+			.map(order -> new OrderResponseDto(order))
+			.toList();
+	}
+
 }
