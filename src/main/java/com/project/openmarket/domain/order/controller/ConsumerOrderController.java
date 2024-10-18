@@ -1,8 +1,11 @@
 package com.project.openmarket.domain.order.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +16,7 @@ import com.project.openmarket.domain.auth.ConsumerThreadLocal;
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
 import com.project.openmarket.domain.order.dto.response.OrderResponseDto;
 import com.project.openmarket.domain.order.service.ConsumerOrderService;
+import com.project.openmarket.domain.order.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,8 +25,20 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/consumer")
 public class ConsumerOrderController {
 	private final ConsumerOrderService consumerOrderService;
+	private final OrderService orderService;
 
-	//TODO : 고객 주문 조회
+	@GetMapping("/order")
+	public ResponseEntity<List<OrderResponseDto>> getOrderList(){
+		List<OrderResponseDto> responseDto = consumerOrderService.findOrderListByConsumer(ConsumerThreadLocal.get());
+		return ResponseEntity.ok().body(responseDto);
+	}
+
+	@GetMapping("/order/{orderId}")
+	public ResponseEntity<OrderResponseDto> getOrderOne(@PathVariable("orderId")Long orderId){
+		OrderResponseDto responseDto = consumerOrderService.findOrderOne(orderId);
+		return ResponseEntity.ok().body(responseDto);
+	}
+
 	@PostMapping("/order")
 	public ResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequestDto requestDto) {
 		OrderResponseDto responseDto = consumerOrderService.create(requestDto, ConsumerThreadLocal.get());

@@ -40,8 +40,8 @@ public class ProductController {
 		@RequestParam("name") String productName,
 		@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
 	){
-		List<ProductResponseDto> responseDtoList = productService.findProductByName(productName, pageable);
-		return ResponseEntity.ok().body(responseDtoList);
+		List<ProductResponseDto> responseDtos = productService.findProductByName(productName, pageable);
+		return ResponseEntity.ok().body(responseDtos);
 	}
 
 	@PostMapping("/seller/product")
