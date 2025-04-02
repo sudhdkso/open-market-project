@@ -15,6 +15,4 @@ spring:
 #    password:
   data:
     mongodb:
-     # uri: mongodb://rootuser:rootpass@localhost:27017/open-market?authSource=admin
-      uri: mongodb://user:5kY3iH3NRBvKsT81@mycluster-shard-00-00.ezs9c.mongodb.net:27017,mycluster-shard-00-01.ezs9c.mongodb.net:27017,mycluster-shard-00-02.ezs9c.mongodb.net:27017/open-market?replicaSet=atlas-sgmxdy-shard-0&ssl=true&authSource=admin&retryWrites=true&w=majority&appName=myCluster
-
+      uri: mongodb://rootuser:rootpass@localhost:27017/open-market?authSource=admin
