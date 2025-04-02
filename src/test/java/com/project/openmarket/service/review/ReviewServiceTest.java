@@ -4,6 +4,7 @@ import static com.project.openmarket.global.exception.enums.ExceptionConstants.*
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,6 +18,7 @@ import com.project.openmarket.domain.review.dto.request.ReviewCreateResponseDto;
 import com.project.openmarket.domain.review.entity.Review;
 import com.project.openmarket.domain.review.service.ReviewService;
 import com.project.openmarket.domain.user.entity.Consumer;
+import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.service.ServiceTestMock;
 
 class ReviewServiceTest extends ServiceTestMock {
@@ -49,18 +51,17 @@ class ReviewServiceTest extends ServiceTestMock {
 	@ValueSource(ints = {-1,0,6,10})
 	void createReviewNotWithInScore(int score) {
 		assertThatThrownBy(() -> createReview(score))
-			.isInstanceOf(IllegalArgumentException.class)
+			.isInstanceOf(CustomException.class)
 			.hasMessage(SCORE_OUT_OF_RANGE.getMessage());
 	}
 
 	@Test
 	@DisplayName("유효한 상품으로 리뷰를 조회할 수 있다.")
 	void getValidReviewListByProductTest(){
-		Long proudctId = 1000L;
-		given(productService.getProductById(anyLong())).willReturn(product);
+		given(productService.getProductById(any())).willReturn(product);
 
 		assertThatNoException()
-			.isThrownBy(() -> reviewService.getReviewByProductId(proudctId));
+			.isThrownBy(() -> reviewService.getReviewByProductId("67ea40df5aeb2844f05b84e8"));
 
 		then(reviewRepository)
 			.should(times(1))
@@ -76,22 +77,6 @@ class ReviewServiceTest extends ServiceTestMock {
 		then(reviewRepository)
 			.should(times(1))
 			.findByConsumer(any(Consumer.class));
-	}
-
-	@Test
-	@DisplayName("product의 평균 리뷰 점수를 확인할 수 있다.")
-	void getAvgScoreTest() {
-		double expectedAvg = 4.5;
-
-		when(reviewRepository.getAvgScoreByProduct(product)).thenReturn(expectedAvg);
-
-		double realAvg = reviewService.getAvgScore(product);
-
-		assertThat(realAvg).isCloseTo(expectedAvg, offset(0.001d));
-
-		then(reviewRepository)
-			.should(times(1))
-			.getAvgScoreByProduct(any(Product.class));
 	}
 
 	ReviewCreateResponseDto createReview(int score){

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,6 +19,8 @@ import com.project.openmarket.domain.order.service.OrderService;
 import com.project.openmarket.domain.order.service.PurchaseConfirmationService;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.entity.Seller;
+import com.project.openmarket.domain.user.service.ConsumerService;
+import com.project.openmarket.domain.user.service.SellerService;
 import com.project.openmarket.service.ServiceTestMock;
 
 public class PurchaseConfirmationServiceTests extends ServiceTestMock {
@@ -25,6 +28,11 @@ public class PurchaseConfirmationServiceTests extends ServiceTestMock {
 	private PurchaseConfirmationService autoConfirmPurchase;
 	@Mock
 	private OrderService orderService;
+	@Mock
+	private ConsumerService consumerService;
+	@Mock
+	private SellerService sellerService;
+
 
 	@Test
 	@DisplayName("배송 완료 후 1일 뒤 자동 구매 확정된다.")
@@ -33,11 +41,13 @@ public class PurchaseConfirmationServiceTests extends ServiceTestMock {
 		List<Order> list = new ArrayList<>();
 		list.add(order);
 
-		given(orderRepository.findOrdersWithDeliveryCompleteTimeExceedingThreshold(any(LocalDateTime.class)))
+		given(orderRepository.findByStatusAndDeliveryCompleteTimeBefore(any(LocalDateTime.class)))
 			.willReturn(list);
 
-		given(order.getSeller()).willReturn(seller);
-		given(order.getConsumer()).willReturn(consumer);
+		given(order.getSellerId()).willReturn(new ObjectId("67ea40df5aeb2844f05b84e8"));
+		given(sellerService.findById(any())).willReturn(seller);
+		given(order.getConsumerId()).willReturn(new ObjectId("67ec1324da973979b3723d17"));
+		given(consumerService.getConsumerById(any())).willReturn(consumer);
 
 
 		// 주문이 24시간 이전에 배송 완료되었을 때 구매 확정되는지 확인

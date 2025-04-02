@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -24,6 +25,7 @@ import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.service.SellerService;
+import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.service.ServiceTestMock;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -64,7 +66,7 @@ class SellerServiceTest  extends ServiceTestMock {
 
 			//when
 			assertThatThrownBy(() -> sellerService.save(request))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(ALREADY_EXISTS_EMAIL.getMessage());
 
 			//then
@@ -78,7 +80,7 @@ class SellerServiceTest  extends ServiceTestMock {
 		void signupSellerEmailIsNull(String input){
 
 			assertThatThrownBy(() -> createSeller(input))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(INVALID_DATA_INPUT.getMessage());
 
 		}
@@ -89,7 +91,7 @@ class SellerServiceTest  extends ServiceTestMock {
 		void signupSellerWithWrongPhoneNumber(String input){
 
 			assertThatThrownBy(() -> createSeller("seller@example.com",input))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(INVALID_DATA_INPUT.getMessage());
 
 		}
@@ -120,7 +122,7 @@ class SellerServiceTest  extends ServiceTestMock {
 			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
 
 			assertThatThrownBy(() -> sellerService.login(request))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(NOT_MATCH_PASSWORD.getMessage());
 
 		}
@@ -136,43 +138,37 @@ class SellerServiceTest  extends ServiceTestMock {
 
 			//then
 			assertThatThrownBy(() -> sellerService.login(request))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(NOT_FOUND_USER.getMessage());
 		}
 	}
 
-	@Test
-	@DisplayName("올바르지 않은 판매자 id로 판매자를 요청하면 예외가 발생한다.")
-	void findSellerByInvalidId(){
-		given(sellerRepository.findById(anyLong()))
-			.willReturn(Optional.empty());
-
-		assertThatThrownBy(() -> sellerService.findById(1L))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage(NOT_FOUND_USER.getMessage());
-	}
 
 	@Test
 	@DisplayName("올바른 판매자 id로 판매자를 요청하면 성공한다.")
 	void findSellerByValidId(){
-		given(sellerRepository.findById(anyLong()))
-			.willReturn(Optional.of(seller));
 
+		when(sellerRepository.getById(any())).thenReturn(seller);
+
+		ObjectId id = new ObjectId("67ea40df5aeb2844f05b84e8");
 		assertThatNoException()
-			.isThrownBy(() -> sellerService.findById(1L));
+			.isThrownBy(() -> sellerService.findById(id));
 
 		then(sellerRepository)
 			.should(times(1))
-			.findById(anyLong());
+			.getById(any());
 	}
 
 	@Test
 	@DisplayName("판매자에게 없는 상품 이름과 판매자가 존재하면 상품 등록에 성공한다.")
 	void createProductByNameAndSeller(){
 		final var request = createProduct("상품");
-
-		given(productRepository.save(any(Product.class))).willReturn(Product.of(request, seller));
+		Product savedProduct = spy(Product.of(request, seller));
+		given(productRepository.save(any(Product.class))).willReturn(savedProduct);
 		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class))).willReturn(false);
+
+		ObjectId id = new ObjectId("67ea40df5aeb2844f05b84e8");
+		given(savedProduct.getId()).willReturn(id);
 
 		assertThatNoException()
 			.isThrownBy(() -> productService.create(request, seller));
@@ -190,6 +186,9 @@ class SellerServiceTest  extends ServiceTestMock {
 		given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
 		given(product.isSameName(anyString())).willReturn(false);
 		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class))).willReturn(false);
+
+		ObjectId id = new ObjectId("67ea40df5aeb2844f05b84e8");
+		given(product.getId()).willReturn(id);
 
 		assertThatNoException()
 			.isThrownBy(() -> productService.update(request, seller));

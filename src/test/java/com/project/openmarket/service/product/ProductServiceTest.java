@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Seller;
+import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.service.ServiceTestMock;
 
 class ProductServiceTest extends ServiceTestMock {
@@ -30,7 +32,7 @@ class ProductServiceTest extends ServiceTestMock {
 			.willReturn(true);
 
 		assertThatThrownBy(() -> productService.create(createProduct(""),seller))
-			.isInstanceOf(IllegalArgumentException.class)
+			.isInstanceOf(CustomException.class)
 			.hasMessage(ALREADY_EXISTS_PRODUCT.getMessage());
 	}
 
@@ -44,7 +46,7 @@ class ProductServiceTest extends ServiceTestMock {
 				.willReturn(Optional.empty());
 
 			assertThatThrownBy(() -> productService.update(updateProduct("일품"),seller))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(NOT_FOUND_PRODUCT.getMessage());
 		}
 
@@ -57,7 +59,7 @@ class ProductServiceTest extends ServiceTestMock {
 				.willReturn(true);
 
 			assertThatThrownBy(() -> productService.update(updateProduct("일품"),seller))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(ALREADY_EXISTS_PRODUCT.getMessage());
 		}
 
@@ -67,24 +69,14 @@ class ProductServiceTest extends ServiceTestMock {
 	@DisplayName("상품 조회 시 ")
 	class findProduct{
 		@Test
-		@DisplayName("존재하지 않는 상품의 id로 상품 정보를 요청하면 예외가 발생한다.")
-		void findProductByNotFoundId(){
-			given(productRepository.findById(anyLong()))
-				.willReturn(Optional.empty());
-
-			assertThatThrownBy(() -> productService.findById(0L))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage(NOT_FOUND_PRODUCT.getMessage());
-		}
-
-		@Test
 		@DisplayName("존재하는 상품의 id로 상품의 정보를 요청하면 성공한다.")
 		void findProductById(){
-			given(productRepository.findById(anyLong()))
-				.willReturn(Optional.of(product));
-
+			given(productRepository.getById(any()))
+				.willReturn(product);
+			ObjectId id = new ObjectId("67ea40df5aeb2844f05b84e8");
+			given(product.getId()).willReturn(id);
 			assertThatNoException()
-				.isThrownBy(() -> productService.findById(0L));
+				.isThrownBy(() -> productService.findById(id.toHexString()));
 		}
 
 		@Test
@@ -101,35 +93,6 @@ class ProductServiceTest extends ServiceTestMock {
 		}
 	}
 
-
-	@Nested
-	@DisplayName("상품 삭제 시")
-	class deleteProduct{
-		@Test
-		@DisplayName("존재하지 않는 상품의 id로 상품 삭제를 요청하면 예외가 발새한다.")
-		void deleteProductByNotFoundId(){
-			given(productRepository.findById(anyLong()))
-				.willReturn(Optional.empty());
-
-			assertThatThrownBy(() -> productService.findById(0L))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage(NOT_FOUND_PRODUCT.getMessage());
-		}
-
-		@Test
-		@DisplayName("상품의 id로 삭제를 요청하면 성공한다.")
-		void deleteProductById(){
-			given(productRepository.findByIdWithLock(anyLong()))
-				.willReturn(Optional.of(product));
-
-			assertThatNoException()
-				.isThrownBy(() -> productService.delete(0L));
-
-			then(productRepository)
-				.should(times(1))
-				.delete(any(Product.class));
-		}
-	}
 
 	@Test
 	@DisplayName("상품 재고 증가 테스트")

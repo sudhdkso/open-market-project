@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -21,6 +22,7 @@ import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.service.ConsumerService;
+import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.service.ServiceTestMock;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -54,7 +56,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 		given(consumerRepository.existsByEmail(anyString())).willReturn(true);
 
 		assertThatThrownBy(() -> consumerService.save(request))
-			.isInstanceOf(IllegalArgumentException.class)
+			.isInstanceOf(CustomException.class)
 			.hasMessage(ALREADY_EXISTS_EMAIL.getMessage());
 
 
@@ -67,7 +69,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 	void sinupByEmptyEmail(String email){
 
 		assertThatThrownBy(() -> new ConsumerCreateReqestDto(email,"dd","010-0000-0000","1234",""))
-			.isInstanceOf(IllegalArgumentException.class)
+			.isInstanceOf(CustomException.class)
 			.hasMessage(INVALID_DATA_INPUT.getMessage());
 
 	}
@@ -78,7 +80,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 	void signupConsumerWithWrongPhoneNumber(String input){
 
 		assertThatThrownBy(() -> createConsumer("consumer@example.com",input))
-			.isInstanceOf(IllegalArgumentException.class)
+			.isInstanceOf(CustomException.class)
 			.hasMessage(INVALID_DATA_INPUT.getMessage());
 
 	}
@@ -91,7 +93,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 		final var request = createLogin("consumer@example.com");
 
 		//when
-		given(consumerRepository.findByEmail(anyString())).willReturn((Optional.of(consumer)));
+		given(consumerRepository.getByEmail(anyString())).willReturn(consumer);
 		given(consumer.isSamePassword(anyString())).willReturn(true);
 
 		//then
@@ -105,11 +107,10 @@ class ConsumerServiceTest extends ServiceTestMock {
 		final var request = new LoginRequestDto("test@example.com", "1234");
 
 		// when
-		given(consumerRepository.findByEmail(anyString())).willReturn(Optional.empty());
-
+		doThrow(new CustomException(NOT_FOUND_USER)).when(consumerRepository).getByEmail(any());
 		//then
 		assertThatThrownBy(() -> consumerService.login(request))
-			.isInstanceOf(IllegalArgumentException.class)
+			.isInstanceOf(CustomException.class)
 			.hasMessage(NOT_FOUND_USER.getMessage());
 	}
 
@@ -121,12 +122,12 @@ class ConsumerServiceTest extends ServiceTestMock {
 		final var request = new LoginRequestDto("consumer@example.com", "12345");
 
 		// when
-		given(consumerRepository.findByEmail(anyString())).willReturn(Optional.of(consumer));
+		given(consumerRepository.getByEmail(anyString())).willReturn(consumer);
 		given(consumer.isSamePassword(anyString())).willReturn(false);
 
 		//then
 		assertThatThrownBy(() -> consumerService.login(request))
-			.isInstanceOf(IllegalArgumentException.class)
+			.isInstanceOf(CustomException.class)
 			.hasMessage(NOT_MATCH_PASSWORD.getMessage());
 	}
 
@@ -134,20 +135,19 @@ class ConsumerServiceTest extends ServiceTestMock {
 	@DisplayName("고객의 id가 존재하는 id이면 고객을 찾을 수 있다.")
 	void successGetConsumerByValidId(){
 
-		given(consumerRepository.findById(anyLong())).willReturn(Optional.of(consumer));
+		given(consumerRepository.getById(any())).willReturn(consumer);
 
 		assertThatNoException()
-			.isThrownBy(() -> consumerService.getConsumerById(1L));
+			.isThrownBy(() -> consumerService.getConsumerById(new ObjectId("67ec1324da973979b3723d17")));
 	}
 
 	@Test
 	@DisplayName("고객의 id가 존재하지 않는 id이면 고객을 찾을 수 없다.")
 	void failGetConsumerByInvalidId(){
+		doThrow(new CustomException(NOT_FOUND_USER)).when(consumerRepository).getById(any());
 
-		given(consumerRepository.findById(anyLong())).willReturn(Optional.empty());
-
-		assertThatThrownBy(() -> consumerService.getConsumerById(1L))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> consumerService.getConsumerById(new ObjectId("67ec1324da973979b3723d17")))
+			.isInstanceOf(CustomException.class)
 			.hasMessage(NOT_FOUND_USER.getMessage());
 	}
 

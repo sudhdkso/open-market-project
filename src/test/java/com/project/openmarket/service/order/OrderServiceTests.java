@@ -18,6 +18,7 @@ import com.project.openmarket.domain.order.service.OrderService;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.service.ConsumerService;
 import com.project.openmarket.domain.user.service.SellerService;
+import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.global.util.Calculator;
 import com.project.openmarket.service.ServiceTestMock;
 
@@ -60,19 +61,19 @@ class OrderServiceTests extends ServiceTestMock {
 		@Test
 		@DisplayName("유효한 주문 id를 가지고 주문을 조회하면 성공한다.")
 		void findByValidOrderId(){
-			given(orderRepository.findById(anyLong())).willReturn(Optional.of(order));
+			given(orderRepository.findById(any())).willReturn(Optional.of(order));
 			assertThatNoException()
-				.isThrownBy(() -> orderService.getOrderById(1L));
+				.isThrownBy(() -> orderService.getOrderById("aaa"));
 
 		}
 
 		@Test
 		@DisplayName("유효하지 않은 주문 id를 가지고 주문을 조회하면 오류가 발생한다..")
 		void findByInvalidOrderId(){
-			given(orderRepository.findById(anyLong())).willReturn(Optional.empty());
+			given(orderRepository.findById(any())).willReturn(Optional.empty());
 
-			assertThatThrownBy(() -> orderService.getOrderById(1L))
-				.isInstanceOf(IllegalArgumentException.class)
+			assertThatThrownBy(() -> orderService.getOrderById("aaa"))
+				.isInstanceOf(CustomException.class)
 				.hasMessage(NOT_FOUND_ORDER.getMessage());
 
 

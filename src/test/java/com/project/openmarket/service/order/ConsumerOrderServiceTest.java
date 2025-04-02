@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.service.ConsumerService;
+import com.project.openmarket.domain.user.service.SellerService;
 import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.service.ServiceTestMock;
 
@@ -34,6 +36,8 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	ConsumerService consumerService;
 	@Mock
 	OrderService orderService;
+	@Mock
+	SellerService sellerService;
 
 	@Nested
 	@DisplayName("주문 생성 시 ")
@@ -73,7 +77,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 
 			//then
 			assertThatThrownBy(() -> consumerOrderService.create(request, consumer))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(NOT_ENOUGH_STOCK.getMessage());
 		}
 
@@ -91,7 +95,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 
 			//then
 			assertThatThrownBy(() -> consumerOrderService.create(request, consumer))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(NOT_ENOUTH_CACHE.getMessage());
 
 		}
@@ -105,7 +109,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			//when
 			given(productRepository.findByIdWithLock(anyLong())).willThrow(new CustomException(NOT_FOUND_PRODUCT));
 			assertThatThrownBy(() -> consumerOrderService.create(request, consumer))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(NOT_FOUND_PRODUCT.getMessage());
 		}
 	}
@@ -117,9 +121,9 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 		@DisplayName("주문, 상품, 고객이 모두 존재하면 주문이 성공적으로 취소된다.")
 		void cancelOrderSuccess(){
 			//given
-			Long orderId = 1L;
+			String orderId = "aaa";
 
-			given(orderService.getOrderById(anyLong())).willReturn(order);
+			given(orderService.getOrderById(any())).willReturn(order);
 
 			given(order.getProduct()).willReturn(product);
 
@@ -136,9 +140,9 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 		@DisplayName("주문 상태가 배달 시작 이상이면 주문을 취소할 수 없다.")
 		void cannotCancelOrderByOrderStatus(){
 			//given
-			Long orderId = 1L;
+			String orderId = "aaa";
 
-			given(orderService.getOrderById(anyLong())).willReturn(order);
+			given(orderService.getOrderById(any())).willReturn(order);
 
 			given(order.getProduct()).willReturn(product);
 
@@ -146,7 +150,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 
 			//when
 			assertThatThrownBy(() -> consumerOrderService.cancelOrder(orderId, consumer))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(CANNOT_CANCLED_ORDER.getMessage());
 
 		}
@@ -158,11 +162,12 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 		@Test
 		@DisplayName("주문, 고객, 판매자가 모두 존재하며 주문 상태가 \"배송 완료\" 이면 성공한다.")
 		void orderConfirmedSuccess(){
-			Long orderId = 1L;
-			given(orderService.getOrderById(anyLong())).willReturn(order);
-			given(order.getSeller()).willReturn(seller);
+			String orderId = "67ea40df5aeb2844f05b84e8";
+			given(orderService.getOrderById(any())).willReturn(order);
+			given(order.getSellerId()).willReturn(new ObjectId(orderId));
 
 			given(order.isDeliveryCompleted()).willReturn(true);
+			given(sellerService.findById(any())).willReturn(seller);
 
 			assertThatNoException()
 				.isThrownBy(() -> consumerOrderService.orderConfirmed(orderId, consumer));
@@ -175,12 +180,12 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 		@Test
 		@DisplayName("주문, 고객, 판매자가 모두 존재하지만 주문 상태가 \"배송 완료\"가 아니면 오류가 발생한다.")
 		void orderConfirmedFailByOrderStatus(){
-			Long orderId = 1L;
-			given(orderService.getOrderById(anyLong())).willReturn(order);
+			String orderId = "67ea40df5aeb2844f05b84e8";
+			given(orderService.getOrderById(any())).willReturn(order);
 			given(order.isDeliveryCompleted()).willReturn(false);
 
 			assertThatThrownBy(() -> consumerOrderService.orderConfirmed(orderId, consumer))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(CustomException.class)
 				.hasMessage(CANNOT_CONFIRM_ORDER.getMessage());
 		}
 	}

@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.*;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -41,10 +42,10 @@ class SellerOrderServiceTest extends ServiceTestMock {
 	@DisplayName("order가 유효한 값이면 orderStatus를 변경할 수 있다.")
 	void updateOrderStatusTest() {
 		Long orderId = 1L;
-		given(orderService.getOrderById(anyLong())).willReturn(order);
+		given(orderService.getOrderById(any())).willReturn(order);
 
 		assertThatNoException()
-			.isThrownBy(() -> sellerOrderService.updateOrderStatus(orderId, DELIVERY_START.getStatus()));
+			.isThrownBy(() -> sellerOrderService.updateOrderStatus(order.getId(), DELIVERY_START.getStatus()));
 
 		then(order)
 			.should(times(1))
@@ -58,21 +59,18 @@ class SellerOrderServiceTest extends ServiceTestMock {
 	@Test
 	@DisplayName("order, product, consumer가 모두 유효하면 주문을 취소할 수 있다.")
 	void cancelOrderTest() {
-		Long orderId = 1L;
-		given(orderService.getOrderById(anyLong())).willReturn(order);
+		ObjectId orderId = new ObjectId("67ec1324da973979b3723d17");
+		given(orderService.getOrderById(any())).willReturn(order);
 
-		Long productId = 213L;
+		ObjectId productId = new ObjectId("67ecf53ea1bbd10495c3ef12");
 		given(order.getProduct()).willReturn(product);
 		given(product.getId()).willReturn(productId);
-		given(productService.getProductById(anyLong())).willReturn(product);
+		given(productService.getProductById(any())).willReturn(product);
 
-		Long consumerId = 16L;
-		given(order.getConsumer()).willReturn(consumer);
-		given(consumer.getId()).willReturn(consumerId);
-		given(consumerService.getConsumerById(anyLong())).willReturn(consumer);
+		given(consumerService.getConsumerById(any())).willReturn(consumer);
 
 		assertThatNoException()
-			.isThrownBy(() -> sellerOrderService.cancelOrder(orderId));
+			.isThrownBy(() -> sellerOrderService.cancelOrder(orderId.toHexString()));
 
 		then(orderService)
 			.should(times(1))
@@ -96,7 +94,7 @@ class SellerOrderServiceTest extends ServiceTestMock {
 
 		List<Order> mockOrders = Arrays.asList(order1, order2);
 
-		given(seller.getId()).willReturn(1L);
+		given(seller.getId()).willReturn(new ObjectId("67ea40df5aeb2844f05b84e8"));
 		when(orderRepository.findOrdersBySellerId(any())).thenReturn(mockOrders);
 
 		// when
@@ -104,8 +102,8 @@ class SellerOrderServiceTest extends ServiceTestMock {
 
 		// then
 		assertEquals(2, result.size());
-		assertEquals(order1.getSeller(), result.get(0).order().getSeller());
-		assertEquals(order2.getSeller(), result.get(0).order().getSeller());
+		assertEquals(order1.getSellerId(), result.get(0).order().getSellerId());
+		assertEquals(order2.getSellerId(), result.get(0).order().getSellerId());
 
 		verify(orderRepository, times(1)).findOrdersBySellerId(seller.getId());
 	}
@@ -115,7 +113,7 @@ class SellerOrderServiceTest extends ServiceTestMock {
 	@DisplayName("판매자 주문이 없는 경우 findOrdersBySellerId는 빈 리스트를 return한다.")
 	void findOrdersBySeller_noOrdersFound() {
 
-		given(seller.getId()).willReturn(1L);
+		given(seller.getId()).willReturn(new ObjectId("67ea40df5aeb2844f05b84e8"));
 		when(orderRepository.findOrdersBySellerId(any())).thenReturn(List.of());
 
 		List<OrderResponseDto> result = sellerOrderService.findOrdersBySeller(seller);
