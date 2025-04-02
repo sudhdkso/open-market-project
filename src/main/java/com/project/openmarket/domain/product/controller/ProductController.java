@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.project.openmarket.domain.auth.SellerThreadLocal;
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
+import com.project.openmarket.domain.product.dto.response.ProductCreateResponseDto;
 import com.project.openmarket.domain.product.dto.response.ProductResponseDto;
 import com.project.openmarket.domain.product.service.ProductService;
 
@@ -30,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductController {
 	private final ProductService productService;
 	@GetMapping("/product/{productId}")
-	public <T>ResponseEntity<ProductResponseDto> getProductById(@PathVariable("productId")Long productId) {
+	public <T>ResponseEntity<ProductResponseDto> getProductById(@PathVariable("productId")String productId) {
 		ProductResponseDto responseDto = productService.findById(productId);
 		return ResponseEntity.ok().body(responseDto);
 	}
@@ -45,8 +46,8 @@ public class ProductController {
 	}
 
 	@PostMapping("/seller/product")
-	public <T>ResponseEntity<ProductResponseDto> create(@RequestBody ProductRequestDto requestDto) {
-		ProductResponseDto responseDto = productService.create(requestDto, SellerThreadLocal.get());
+	public <T>ResponseEntity<ProductCreateResponseDto> create(@RequestBody ProductRequestDto requestDto) {
+		ProductCreateResponseDto responseDto = productService.create(requestDto, SellerThreadLocal.get());
 		//TODO seller용 response 만들기
 		return ResponseEntity.ok().body(responseDto);
 	}

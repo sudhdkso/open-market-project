@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.repository.OrderRepository;
+import com.project.openmarket.domain.user.entity.Consumer;
+import com.project.openmarket.domain.user.entity.Seller;
+import com.project.openmarket.domain.user.service.ConsumerService;
+import com.project.openmarket.domain.user.service.SellerService;
 
 import lombok.AllArgsConstructor;
 
@@ -16,16 +20,19 @@ import lombok.AllArgsConstructor;
 public class PurchaseConfirmationService {
 	private final OrderRepository orderRepository;
 	private final OrderService orderService;
+	private final ConsumerService consumerService;
+	private final SellerService sellerService;
 
 	// 배송 완료 후 일정 시간이 지난 주문을 자동으로 구매 확정 처리
 	@Scheduled(fixedDelay = 24 * 60 * 60 * 1000)
 	public void autoConfirmPurchase() {
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime cutoffTime = now.minusDays(1);
-		List<Order> orders = orderRepository.findOrdersWithDeliveryCompleteTimeExceedingThreshold(cutoffTime);
-
+		List<Order> orders = orderRepository.findByStatusAndDeliveryCompleteTimeBefore(cutoffTime);
 		for (Order order : orders) {
-			orderService.processConfirmedOrder(order, order.getSeller(), order.getConsumer());
+			Consumer consumer = consumerService.getConsumerById(order.getConsumerId());
+			Seller seller = sellerService.findById(order.getSellerId());
+			orderService.processConfirmedOrder(order, seller, consumer);
 		}
 	}
 }

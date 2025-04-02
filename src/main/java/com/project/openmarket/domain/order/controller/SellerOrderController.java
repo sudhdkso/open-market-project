@@ -29,7 +29,7 @@ public class SellerOrderController {
 	}
 
 	@DeleteMapping("/order")
-	public ResponseEntity<?> deleteOrderBySeller(@RequestParam("orderId") Long orderId) {
+	public ResponseEntity<?> deleteOrderBySeller(@RequestParam("orderId") String orderId) {
 		sellerOrderService.cancelOrder(orderId);
 		return ResponseEntity.ok().body("success");
 	}

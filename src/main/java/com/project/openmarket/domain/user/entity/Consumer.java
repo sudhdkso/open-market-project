@@ -1,21 +1,20 @@
 package com.project.openmarket.domain.user.entity;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+
+@Getter
 @NoArgsConstructor
-@Table(name = "consumers")
+@Document("consumer")
 public class Consumer extends User {
-	@Column(name = "address")
 	private String address;
 
-	@Column(name = "point")
 	private Long point;
 
 	public Consumer(String email, String name, String phoneNumber, String address, String password){
@@ -26,14 +25,6 @@ public class Consumer extends User {
 
 	public static Consumer of(ConsumerCreateReqestDto dto){
 		return new Consumer(dto.email(), dto.name(), dto.phoneNumber(), dto.address(), dto.password());
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public Long getPoint() {
-		return point;
 	}
 
 	public boolean canBuy(Amount amount){

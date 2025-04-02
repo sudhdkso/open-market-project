@@ -1,17 +1,16 @@
 package com.project.openmarket.domain.order.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Embeddable
 @NoArgsConstructor
+@Document
 public class Amount {
-	@Column(name = "cache", nullable = false)
 	private Long cache;
-	@Column(name = "point")
+
 	private Long point;
 
 	public Amount(Long cache, Long point){

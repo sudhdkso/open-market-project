@@ -16,6 +16,8 @@ import com.project.openmarket.domain.auth.enums.SessionConst;
 import com.project.openmarket.domain.user.dto.reposne.UserResponseDto;
 import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.service.ConsumerService;
+import com.project.openmarket.global.exception.CustomException;
+import com.project.openmarket.global.exception.enums.ExceptionConstants;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -39,7 +41,7 @@ public class UserController {
 		switch (Role.findRoleByKey(role)){
 			case CONSUMER ->  responseDto = processConsumerCreateRequestDto(requestDto);
 			case SELLER -> responseDto = convertSellerCreateRequestDto(requestDto);
-			default -> throw new IllegalArgumentException();
+			default -> throw new CustomException(ExceptionConstants.INVALID_DATA_INPUT);
 		}
 
 		return ResponseEntity.ok().body(responseDto);
@@ -55,7 +57,7 @@ public class UserController {
 		switch (Role.findRoleByKey(role)){
 			case CONSUMER -> responseDto = consumerService.login(requestDto);
 			case SELLER -> responseDto = sellerService.login(requestDto);
-			default -> throw new IllegalArgumentException();
+			default -> throw new CustomException(ExceptionConstants.INVALID_DATA_INPUT);
 		}
 
 		if(responseDto != null && responseDto.email() != null){

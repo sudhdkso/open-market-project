@@ -29,7 +29,7 @@ public class OrderService {
 
 	//2. 주문 확인
 	//2-1 개별 주문 확인 (order id)
-	public Order getOrderById(Long id) {
+	public Order getOrderById(String id) {
 		return orderRepository.findById(id)
 			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
 	}

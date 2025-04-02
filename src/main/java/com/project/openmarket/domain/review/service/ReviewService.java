@@ -2,6 +2,7 @@ package com.project.openmarket.domain.review.service;
 
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +30,14 @@ public class ReviewService {
 		Review review = reviewRepository.save(Review.of(response, consumer));
 
 		//2. 평균 리뷰 평점 테이블 업데이트
-		double avgScore = getAvgScore(product);
+		double avgScore = 0.0; //getAvgScore(product);
 		productService.updateProductAvgScore(avgScore, product);
 		return review;
 	}
 
 	//productId에 따른 상품 리뷰 모두 조회
-	public List<Review> getReviewByProductId(Long productId){
-		Product product = productService.getProductById(productId);
+	public List<Review> getReviewByProductId(String productId){
+		Product product = productService.getProductById(new ObjectId(productId));
 		return reviewRepository.findByProduct(product);
 	}
 
@@ -46,7 +47,7 @@ public class ReviewService {
 	}
 
 	//리뷰 평균 점수
-	public double getAvgScore(Product product){
-		return reviewRepository.getAvgScoreByProduct(product);
-	}
+	// public double getAvgScore(Product product){
+	// 	return reviewRepository.getAvgScoreByProduct(product);
+	// }
 }

@@ -34,7 +34,7 @@ public class ConsumerOrderController {
 	}
 
 	@GetMapping("/order/{orderId}")
-	public ResponseEntity<OrderResponseDto> getOrderOne(@PathVariable("orderId")Long orderId){
+	public ResponseEntity<OrderResponseDto> getOrderOne(@PathVariable("orderId")String orderId){
 		OrderResponseDto responseDto = consumerOrderService.findOrderOne(orderId);
 		return ResponseEntity.ok().body(responseDto);
 	}
@@ -46,13 +46,13 @@ public class ConsumerOrderController {
 	}
 
 	@DeleteMapping("/order")
-	public ResponseEntity<?> deleteOrderByConsumer(@RequestParam("orderId") Long orderId) {
+	public ResponseEntity<?> deleteOrderByConsumer(@RequestParam("orderId") String orderId) {
 		consumerOrderService.cancelOrder(orderId, ConsumerThreadLocal.get());
 		return ResponseEntity.ok().body("success");
 	}
 
 	@GetMapping("/consumer/order")
-	public ResponseEntity<?> confirmedOrder(@RequestParam("orderId") Long orderId){
+	public ResponseEntity<?> confirmedOrder(@RequestParam("orderId") String orderId){
 		consumerOrderService.orderConfirmed(orderId, ConsumerThreadLocal.get());
 		return ResponseEntity.ok().body("success");
 	}
