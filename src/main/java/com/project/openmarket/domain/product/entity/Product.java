@@ -1,47 +1,37 @@
 package com.project.openmarket.domain.product.entity;
 
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
 import com.project.openmarket.domain.base.entity.BaseTime;
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.user.entity.Seller;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+
 @Getter
 @NoArgsConstructor
-@Table(name = "products")
+@Document(collection = "products")
 public class Product extends BaseTime {
 	@Id
-	@Column(name = "id", unique = true, nullable = false, updatable = false, columnDefinition = "BIGINT")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private ObjectId id;
 
-	@Column(name = "name")
 	private String name;
 
-	@Column(name = "price")
 	private int price;
 
-	@Column(name = "stock")
 	private int stock;
 
-	@Column(name = "avg_score")
 	private double avgScore;
 
-	@ManyToOne
-	@JoinColumn(name = "seller_id")
+	@DocumentReference
 	private Seller seller;
-
 	//TODO: 2024.05.10 구매수 컬럼 추가하기
 
 	private Product(String name, int price, int stock, Seller seller){
@@ -86,5 +76,9 @@ public class Product extends BaseTime {
 
 	public boolean isSameName(String another){
 		return this.name.equals(another);
+	}
+
+	public ObjectId getSellerId(){
+		return this.seller.getId();
 	}
 }

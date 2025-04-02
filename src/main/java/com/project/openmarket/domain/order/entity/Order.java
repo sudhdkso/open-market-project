@@ -2,59 +2,43 @@ package com.project.openmarket.domain.order.entity;
 
 import java.time.LocalDateTime;
 
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import com.project.openmarket.domain.base.entity.BaseTime;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.user.entity.Consumer;
-import com.project.openmarket.domain.user.entity.Seller;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
-@Entity
-@Table(name = "orders")
+@Document(collection = "order")
 public class Order extends BaseTime {
 	@Id
-	@Column(name = "id", unique = true, nullable = false, updatable = false, columnDefinition = "BIGINT")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 
-	@ManyToOne
-	@JoinColumn(name = "product_id")
+	@DocumentReference
 	private Product product;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "status", nullable = false)
+	@Field("status")
 	private OrderStatus status;
 
-	@Column(name = "count", nullable = false)
 	private int count;
 
-	@Column(name = "ordered_price", nullable = false)
 	private int orderedPrice;
 
-	@Embedded
 	private Amount amount;
 
-	@ManyToOne
-	@JoinColumn(name = "consumer_id")
+	@DocumentReference
 	private Consumer consumer;
 
-	@Column(name = "delivery_complete_time")
-	private LocalDateTime deliveryCompleteTime;
+	private LocalDateTime deliveryCompletedAt;
 
 	@Builder
 	public Order(Product product, OrderStatus status, Amount amount, int count, Consumer consumer){
@@ -90,10 +74,13 @@ public class Order extends BaseTime {
 		return this.status.equals(OrderStatus.PURCHASE_CONFIRMATION);
 	}
 
-	public Seller getSeller(){
-		return this.getProduct().getSeller();
+	public ObjectId getSellerId(){
+		return this.product.getSellerId();
 	}
 
+	public ObjectId getConsumerId(){
+		return this.consumer.getId();
+	}
 	public void completeOrderDelivery(){
 		completeOrderDelivery(LocalDateTime.now());
 	}
@@ -103,7 +90,7 @@ public class Order extends BaseTime {
 	}
 
 	public void completeOrderDelivery(LocalDateTime dateTime){
-		this.deliveryCompleteTime = dateTime;
+		this.deliveryCompletedAt = dateTime;
 		updateOrderStatus(OrderStatus.DELIVERT_COMPLETED);
 	}
 }

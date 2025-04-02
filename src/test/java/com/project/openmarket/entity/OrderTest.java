@@ -18,6 +18,7 @@ import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.user.entity.Consumer;
+import com.project.openmarket.global.exception.CustomException;
 
 class OrderTest {
 	@Mock
@@ -40,7 +41,7 @@ class OrderTest {
 	@ValueSource(ints = {-1,-5,-100})
 	void createOrderWithNegativeCount(int count){
 		assertThatThrownBy(() -> createOrder(count))
-			.isInstanceOf(IllegalArgumentException.class)
+			.isInstanceOf(CustomException.class)
 			.hasMessage(NOT_POSITIVE_NUMBER.getMessage());
 	}
 
@@ -145,8 +146,8 @@ class OrderTest {
 			order.completeOrderDelivery();
 
 			assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERT_COMPLETED);
-			assertThat(order.getDeliveryCompleteTime()).isNotNull();
-			assertThat(order.getDeliveryCompleteTime()).isBefore(LocalDateTime.now().plusSeconds(1));
+			assertThat(order.getDeliveryCompletedAt()).isNotNull();
+			assertThat(order.getDeliveryCompletedAt()).isBefore(LocalDateTime.now().plusSeconds(1));
 		}
 
 		@Test
@@ -158,7 +159,7 @@ class OrderTest {
 			order.completeOrderDelivery(deliveryTime);
 
 			assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERT_COMPLETED);
-			assertThat(order.getDeliveryCompleteTime()).isEqualTo(deliveryTime);
+			assertThat(order.getDeliveryCompletedAt()).isEqualTo(deliveryTime);
 		}
 	}
 

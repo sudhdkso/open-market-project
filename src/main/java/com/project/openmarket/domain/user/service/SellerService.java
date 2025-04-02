@@ -4,6 +4,7 @@ import static com.project.openmarket.global.exception.enums.ExceptionConstants.*
 
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +24,13 @@ public class SellerService {
 
 	@Transactional
 	public UserResponseDto save(SellerCreateRequestDto request){
+		duplicatedEmail(request.email());
 		Seller seller = request.toEntity();
-		duplicatedEmail(seller.getEmail());
 		return UserResponseDto.of(sellerRepository.save(seller));
 	}
 
-	public Seller findById(Long sellerId){
-		return sellerRepository.findById(sellerId)
-			.orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+	public Seller findById(ObjectId id){
+		return sellerRepository.getById((id));
 	}
 
 	private void duplicatedEmail(final String email){

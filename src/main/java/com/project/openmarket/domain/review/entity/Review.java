@@ -1,50 +1,42 @@
 package com.project.openmarket.domain.review.entity;
 
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import com.project.openmarket.domain.base.entity.BaseTime;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.review.dto.request.ReviewCreateResponseDto;
 import com.project.openmarket.domain.review.entity.enums.Score;
 import com.project.openmarket.domain.user.entity.Consumer;
-import com.project.openmarket.global.util.Converter.ScoreConverter;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-@Entity
+
 @NoArgsConstructor
-@Table(name = "review")
+@Document(collection = "review")
 public class Review extends BaseTime {
 	@Id
-	@Column(name = "id", unique = true, nullable = false, updatable = false, columnDefinition = "BIGINT")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 
-	@Convert(converter = ScoreConverter.class)
-	@Column(name = "score")
+	@Field("score")
 	private Score score;
 
-	@ManyToOne
-	@JoinColumn(name = "consumer_id")
+	@DocumentReference
 	private Consumer consumer;
 
-	@ManyToOne
-	@JoinColumn(name = "product_id")
+	@DocumentReference
 	private Product product;
 
-	@OneToOne
-	@JoinColumn(name = "order_id")
+	@DocumentReference
 	private Order order;
 
+	@Builder
 	private Review(Score score, Consumer consumer, Product product, Order order){
 		this.score = score;
 		this.consumer = consumer;

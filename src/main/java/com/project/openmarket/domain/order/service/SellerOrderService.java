@@ -25,17 +25,17 @@ public class SellerOrderService {
 	private final ConsumerService consumerService;
 
 	//1. 주문 상태 변경
-	public void updateOrderStatus(Long id, String status){
+	public void updateOrderStatus(String id, String status){
 		Order order = orderService.getOrderById(id);
 		order.updateOrderStatus(OrderStatus.getOrderStatus(status));
 		orderRepository.save(order);
 	}
 
 	//2. 판매자가 주문 취소하는 함수
-	public void cancelOrder(Long id){
+	public void cancelOrder(String id){
 		Order order = orderService.getOrderById(id);
 		Product product = productSerivce.getProductById(order.getProduct().getId());
-		Consumer consumer = consumerService.getConsumerById(order.getConsumer().getId());
+		Consumer consumer = consumerService.getConsumerById(order.getConsumerId());
 
 		orderService.processOrderCancel(order, product, consumer);
 	}
@@ -43,7 +43,7 @@ public class SellerOrderService {
 	public List<OrderResponseDto> findOrdersBySeller(Seller seller) {
 		return orderRepository.findOrdersBySellerId(seller.getId())
 			.stream()
-			.map(order -> new OrderResponseDto(order))
+			.map(OrderResponseDto::new)
 			.toList();
 	}
 
