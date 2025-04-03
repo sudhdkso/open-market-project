@@ -28,11 +28,11 @@ public class Consumer extends User {
 	}
 
 	public boolean canBuy(Amount amount){
-		return this.getCache() >= amount.getCache() && this.point >= amount.getPoint();
+		return this.getCash() >= amount.getCash() && this.point >= amount.getPoint();
 	}
 
 	public void increaseAmount(Amount amount){
-		increaseCache(amount.getCache());
+		increaseCash(amount.getCash());
 		increasePoint(amount.getPoint());
 	}
 	
@@ -41,7 +41,7 @@ public class Consumer extends User {
 	}
 
 	public void decreaseAmount(Amount amount){
-		decreaseCache(amount.getCache());
+		decreaseCash(amount.getCash());
 		decreasePoint(amount.getPoint());
 	}
 

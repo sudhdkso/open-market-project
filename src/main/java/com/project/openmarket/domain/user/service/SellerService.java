@@ -2,8 +2,6 @@ package com.project.openmarket.domain.user.service;
 
 import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 
-import java.util.Optional;
-
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,19 +43,18 @@ public class SellerService {
 	}
 
 	public Seller login(String email, String password){
-		Optional<Seller> seller = sellerRepository.findByEmail(email);
-		if(!seller.isPresent()){
-			throw new CustomException(NOT_FOUND_USER);
+		Seller seller = sellerRepository.getByEmail(email);
+
+		if(!seller.isSamePassword(password)){
+			throw new CustomException(NOT_MATCH_PASSWORD);
 		}
 
-		return seller
-			.filter(m -> m.isSamePassword(password))
-			.orElseThrow(() -> new CustomException(NOT_MATCH_PASSWORD));
+		return seller;
 	}
 
 
 	public void processPayment(Long amount, Seller seller){
-		seller.increaseCache(amount);
+		seller.increaseCash(amount);
 		sellerRepository.save(seller);
 	}
 }

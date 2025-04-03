@@ -20,7 +20,7 @@ public abstract class User extends BaseTime {
 
 	private String name;
 
-	private Long cache;
+	private Long cash;
 
 	private String phoneNumber;
 
@@ -29,7 +29,7 @@ public abstract class User extends BaseTime {
 	protected User(String email, String name, String phoneNumber, String password) {
 		this.email = email;
 		this.name = name;
-		this.cache = 0L;
+		this.cash = 0L;
 		this.phoneNumber = phoneNumber;
 		this.password = password;
 	}
@@ -38,11 +38,11 @@ public abstract class User extends BaseTime {
 		return password.equals(another);
 	}
 
-	public void increaseCache(Long amount){
-		this.cache += amount;
+	public void increaseCash(Long amount){
+		this.cash += amount;
 	}
 
-	public void decreaseCache(Long amount){
-		this.cache -= amount;
+	public void decreaseCash(Long amount){
+		this.cash -= amount;
 	}
 }

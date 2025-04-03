@@ -9,16 +9,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Document
 public class Amount {
-	private Long cache;
+	private Long cash;
 
 	private Long point;
 
-	public Amount(Long cache, Long point){
-		this.cache = cache;
+	public Amount(Long cash, Long point){
+		this.cash = cash;
 		this.point = point;
 	}
 
 	public Long getTotalAmount(){
-		return this.cache + this.point;
+		return this.cash + this.point;
 	}
 }
