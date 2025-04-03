@@ -19,9 +19,9 @@ class ConsumerTests {
 		Consumer consumer = Consumer.of(request);
 		Long expected = 1000L;
 		//when
-		consumer.increaseCache(1000L);
+		consumer.increaseCash(1000L);
 		//then
-		assertThat(consumer.getCache()).isEqualTo(expected);
+		assertThat(consumer.getCash()).isEqualTo(expected);
 	}
 
 	@Test
@@ -33,10 +33,10 @@ class ConsumerTests {
 
 		Long expected = 500L;
 		//when
-		consumer.increaseCache(1000L);
-		consumer.decreaseCache(500L);
+		consumer.increaseCash(1000L);
+		consumer.decreaseCash(500L);
 		//then
-		assertThat(consumer.getCache()).isEqualTo(expected);
+		assertThat(consumer.getCash()).isEqualTo(expected);
 	}
 
 	@Test
@@ -53,7 +53,7 @@ class ConsumerTests {
 		//when
 		consumer.increaseAmount(amount);
 		//then
-		assertThat(consumer.getCache()).isEqualTo(cacheExpected);
+		assertThat(consumer.getCash()).isEqualTo(cacheExpected);
 		assertThat(consumer.getPoint()).isEqualTo(pointExpected);
 	}
 
@@ -67,13 +67,13 @@ class ConsumerTests {
 		Amount iamount = new Amount(1000L, 500L);
 		Amount damount = new Amount(100L, 400L);
 
-		Long cacheExpected = iamount.getCache()-damount.getCache();
+		Long cacheExpected = iamount.getCash()-damount.getCash();
 		Long pointExpected = iamount.getPoint()-damount.getPoint();
 		//when
 		consumer.increaseAmount(iamount);
 		consumer.decreaseAmount(damount);
 		//then
-		assertThat(consumer.getCache()).isEqualTo(cacheExpected);
+		assertThat(consumer.getCash()).isEqualTo(cacheExpected);
 		assertThat(consumer.getPoint()).isEqualTo(pointExpected);
 	}
 

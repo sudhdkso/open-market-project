@@ -7,6 +7,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.project.openmarket.domain.user.entity.Seller;
+import com.project.openmarket.domain.user.repository.ConsumerRepository;
 import com.project.openmarket.domain.user.repository.SellerRepository;
 import com.project.openmarket.domain.auth.SellerThreadLocal;
 import com.project.openmarket.domain.auth.enums.SessionConst;
@@ -25,12 +26,11 @@ public class SellerInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		HttpSession session = request.getSession(true);
-
 		String email = (String) session.getAttribute(SessionConst.SESSION_KEY);
 
 		Optional<Seller> seller = sellerRepository.findByEmail(email);
 
-		if (!seller.isPresent()) {
+		if(seller.isEmpty()){
 			return false;
 		}
 

@@ -202,7 +202,7 @@ class SellerServiceTest  extends ServiceTestMock {
 	@DisplayName("증가시킬 금액과 판매자가 들어오면 성공한다.")
 	void SuccessProcessPaymentTest(){
 
-		doNothing().when(seller).increaseCache(anyLong());
+		doNothing().when(seller).increaseCash(anyLong());
 
 		assertThatNoException()
 			.isThrownBy(() -> sellerService.processPayment(anyLong(), seller));
