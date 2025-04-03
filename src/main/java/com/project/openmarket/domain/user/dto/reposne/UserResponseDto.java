@@ -6,5 +6,4 @@ public record UserResponseDto(String email, String name, String phoneNumber) {
 	public static UserResponseDto of(User user){
 		return new UserResponseDto(user.getEmail(), user.getName(), user.getPhoneNumber());
 	}
-
 }
