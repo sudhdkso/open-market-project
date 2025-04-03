@@ -20,6 +20,7 @@ import com.project.openmarket.domain.auth.SellerThreadLocal;
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.product.dto.response.ProductCreateResponseDto;
+import com.project.openmarket.domain.product.dto.response.ProductListResponsesDto;
 import com.project.openmarket.domain.product.dto.response.ProductResponseDto;
 import com.project.openmarket.domain.product.service.ProductService;
 
@@ -33,6 +34,12 @@ public class ProductController {
 	@GetMapping("/product/{productId}")
 	public <T>ResponseEntity<ProductResponseDto> getProductById(@PathVariable("productId")String productId) {
 		ProductResponseDto responseDto = productService.findById(productId);
+		return ResponseEntity.ok().body(responseDto);
+	}
+
+	@GetMapping("/products")
+	public <T>ResponseEntity<ProductListResponsesDto> getAllProduct(){
+		ProductListResponsesDto responseDto = productService.findAllProduct();
 		return ResponseEntity.ok().body(responseDto);
 	}
 

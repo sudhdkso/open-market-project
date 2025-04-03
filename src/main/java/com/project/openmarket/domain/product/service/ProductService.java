@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.product.dto.response.ProductCreateResponseDto;
+import com.project.openmarket.domain.product.dto.response.ProductListResponsesDto;
 import com.project.openmarket.domain.product.dto.response.ProductResponseDto;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.repository.ProductRepository;
@@ -82,6 +83,11 @@ public class ProductService {
 		return productRepository.findByName(name)
 			.stream().map(ProductResponseDto::of)
 			.toList();
+	}
+
+	public ProductListResponsesDto findAllProduct(){
+		List<Product> products = productRepository.findAll();
+		return ProductListResponsesDto.of(products);
 	}
 
 	/**
