@@ -29,6 +29,7 @@ dependencies {
 	implementation 'org.jetbrains:annotations:24.0.0'
 	implementation 'com.google.guava:guava:31.1-jre'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 
 	compileOnly 'org.projectlombok:lombok'
 //	runtimeOnly 'com.h2database:h2:1.4.200'

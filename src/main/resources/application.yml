@@ -16,3 +16,5 @@ spring:
   data:
     mongodb:
       uri: mongodb://rootuser:rootpass@localhost:27017/open-market?authSource=admin
+  config:
+    import: "optional:classpath:/application-secret.yml"
