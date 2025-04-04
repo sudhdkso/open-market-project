@@ -17,10 +17,10 @@ import com.project.openmarket.domain.user.service.SellerService;
 import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.global.util.Calculator;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrderService {
 	private final OrderRepository orderRepository;
 	private final ProductService productService;
@@ -34,7 +34,7 @@ public class OrderService {
 			.orElseThrow(() -> new CustomException(NOT_FOUND_ORDER));
 	}
 
-	private void cancelOrderStatus(Order order){
+	private void cancelOrderStatus(Order order) {
 		order.updateOrderStatus(OrderStatus.CANCEL);
 		orderRepository.save(order);
 	}
@@ -50,7 +50,7 @@ public class OrderService {
 		cancelOrderStatus(order);
 	}
 
-	private void orderConfirmed(Order order){
+	private void orderConfirmed(Order order) {
 		order.confirmPurchase();
 		orderRepository.save(order);
 	}

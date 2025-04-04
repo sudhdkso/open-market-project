@@ -28,15 +28,16 @@ import com.project.openmarket.domain.user.service.ConsumerService;
 import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.global.exception.enums.ExceptionConstants;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class TossPaymentService {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Value("{secrets.api-secret-key}")
-	private String API_SECRET_KEY;
+	@Value("${secrets.api-secret-key}")
+	private String apiSecretKey;
+
 	private CashHistoryRepository cashHistoryRepository;
 	private ConsumerService consumerService;
 
@@ -49,9 +50,8 @@ public class TossPaymentService {
 		//저장된 가격과 요청 가격 검증
 		validatePaymentAmount(amount, cashHistory.getAmount());
 
-		JSONObject response = sendRequest(payment, API_SECRET_KEY, "https://api.tosspayments.com/v1/payments/confirm");
+		JSONObject response = sendRequest(payment, apiSecretKey, "https://api.tosspayments.com/v1/payments/confirm");
 		int statusCode = response.containsKey("error") ? 400 : 200;
-
 
 		if (statusCode == 400) {
 			throw new RuntimeException("Payment confirmation failed with error: " + response.get("error"));
@@ -71,14 +71,13 @@ public class TossPaymentService {
 		consumerService.increaseCash(amount, consumer);
 	}
 
-
-	private void validatePaymentAmount(Long amount, Long savedAmount){
-		if(!amount.equals(savedAmount)){
+	private void validatePaymentAmount(Long amount, Long savedAmount) {
+		if (!amount.equals(savedAmount)) {
 			throw new CustomException(ExceptionConstants.INVALID_DATA_INPUT);
 		}
 	}
 
-	public PaymentSuccessResponseDto savedTempCashHistory(Consumer consumer, PaymentRequestDto requestDto){
+	public PaymentSuccessResponseDto savedTempCashHistory(Consumer consumer, PaymentRequestDto requestDto) {
 		CashHistory cashHistory = cashHistoryRepository.save(requestDto.toEntity(consumer));
 		return PaymentSuccessResponseDto.of(cashHistory);
 
@@ -90,9 +89,10 @@ public class TossPaymentService {
 			os.write(requestData.toString().getBytes(StandardCharsets.UTF_8));
 		}
 
-		try (InputStream responseStream = connection.getResponseCode() == 200 ? connection.getInputStream() : connection.getErrorStream();
+		try (InputStream responseStream = connection.getResponseCode() == 200 ? connection.getInputStream() :
+			connection.getErrorStream();
 			 Reader reader = new InputStreamReader(responseStream, StandardCharsets.UTF_8)) {
-			return (JSONObject) new JSONParser().parse(reader);
+			return (JSONObject)new JSONParser().parse(reader);
 		} catch (Exception e) {
 			logger.error("Error reading response", e);
 			JSONObject errorResponse = new JSONObject();
@@ -103,9 +103,10 @@ public class TossPaymentService {
 
 	private HttpURLConnection createConnection(String secretKey, String urlString) throws IOException {
 		URL url = new URL(urlString);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((secretKey + ":").getBytes(
-			StandardCharsets.UTF_8)));
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestProperty("Authorization",
+			"Basic " + Base64.getEncoder().encodeToString((secretKey + ":").getBytes(
+				StandardCharsets.UTF_8)));
 		connection.setRequestProperty("Content-Type", "application/json");
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
