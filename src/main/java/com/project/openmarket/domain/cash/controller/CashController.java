@@ -1,4 +1,4 @@
-package com.project.openmarket.domain.cache.controller;
+package com.project.openmarket.domain.cash.controller;
 
 import java.io.IOException;
 
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.project.openmarket.domain.auth.ConsumerThreadLocal;
-import com.project.openmarket.domain.cache.dto.request.PaymentRequestDto;
-import com.project.openmarket.domain.cache.dto.response.PaymentFailResponseDto;
-import com.project.openmarket.domain.cache.dto.response.PaymentSuccessResponseDto;
-import com.project.openmarket.domain.cache.service.TossPaymentService;
+import com.project.openmarket.domain.cash.dto.request.PaymentRequestDto;
+import com.project.openmarket.domain.cash.dto.response.PaymentFailResponseDto;
+import com.project.openmarket.domain.cash.dto.response.PaymentSuccessResponseDto;
+import com.project.openmarket.domain.cash.service.TossPaymentService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -33,27 +33,32 @@ public class CashController {
 	private final TossPaymentService tossPaymentService;
 
 	@PostMapping("/success")
-	public ResponseEntity<PaymentSuccessResponseDto> tossConfirmPayment(HttpServletRequest request, @RequestBody String jsonBody) throws
+	public ResponseEntity<PaymentSuccessResponseDto> tossConfirmPayment(HttpServletRequest request,
+		@RequestBody String jsonBody) throws
 		IOException {
-		PaymentSuccessResponseDto response = tossPaymentService.confirmPayment(ConsumerThreadLocal.get(), parseRequestData(jsonBody));
+		PaymentSuccessResponseDto response = tossPaymentService.confirmPayment(ConsumerThreadLocal.get(),
+			parseRequestData(jsonBody));
 		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/fail")
-	public ResponseEntity<PaymentFailResponseDto> tossPaymentFail(@RequestParam("message")String message, @RequestParam("code") String code, @RequestParam("orderId")String orderId){
+	public ResponseEntity<PaymentFailResponseDto> tossPaymentFail(@RequestParam("message") String message,
+		@RequestParam("code") String code, @RequestParam("orderId") String orderId) {
 		PaymentFailResponseDto response = new PaymentFailResponseDto(code, message, orderId);
 		return ResponseEntity.ok(response);
 	}
 
 	@PostMapping("/verify")
-	public ResponseEntity<PaymentSuccessResponseDto> tossPaymentVerification(@RequestBody PaymentRequestDto requestDto) {
-		PaymentSuccessResponseDto response = tossPaymentService.savedTempCashHistory(ConsumerThreadLocal.get(), requestDto);
+	public ResponseEntity<PaymentSuccessResponseDto> tossPaymentVerification(
+		@RequestBody PaymentRequestDto requestDto) {
+		PaymentSuccessResponseDto response = tossPaymentService.savedTempCashHistory(ConsumerThreadLocal.get(),
+			requestDto);
 		return ResponseEntity.ok(response);
 	}
 
 	private JSONObject parseRequestData(String jsonBody) {
 		try {
-			return (JSONObject) new JSONParser().parse(jsonBody);
+			return (JSONObject)new JSONParser().parse(jsonBody);
 		} catch (ParseException e) {
 			logger.error("JSON Parsing Error", e);
 			return new JSONObject();

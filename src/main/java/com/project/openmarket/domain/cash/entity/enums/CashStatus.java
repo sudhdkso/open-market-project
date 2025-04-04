@@ -1,4 +1,4 @@
-package com.project.openmarket.domain.cache.entity.enums;
+package com.project.openmarket.domain.cash.entity.enums;
 
 import lombok.Getter;
 
@@ -10,7 +10,7 @@ public enum CashStatus {
 
 	private String value;
 
-	CashStatus(String value){
+	CashStatus(String value) {
 		this.value = value;
 	}
 
