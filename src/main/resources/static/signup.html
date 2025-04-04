@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            padding: 20px 0;
+        }
+
+        .container {
+            width: 350px;
+            padding: 25px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .container h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .login-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .role-selector {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+
+        .role-option {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        .role-option.active {
+            background-color: #e6f2ff;
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+        .address-field {
+            display: none;
+        }
+
+        .address-field.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>회원가입</h2>
+    <input type="text" id="name" placeholder="이름" required>
+    <input type="email" id="email" placeholder="이메일" required>
+    <input type="password" id="password" placeholder="비밀번호" required>
+    <input type="password" id="confirm-password" placeholder="비밀번호 확인" required>
+    <input type="tel" id="phone" placeholder="전화번호 (예: 010-1234-5678)" required>
+
+    <div class="role-selector">
+        <div class="role-option active" id="consumer-option" onclick="selectRole('consumer')">구매자</div>
+        <div class="role-option" id="seller-option" onclick="selectRole('seller')">판매자</div>
+    </div>
+
+    <div class="address-field show" id="address-field">
+        <input type="text" id="address" placeholder="주소" required>
+    </div>
+
+    <button onclick="signup()">회원가입</button>
+    <p id="error-message" class="error"></p>
+
+    <div class="login-link">
+        <p>이미 회원이신가요? <a href="login.html">로그인</a></p>
+    </div>
+</div>
+
+<script>
+    let currentRole = 'consumer';
+
+    function selectRole(role) {
+        currentRole = role;
+        const consumerOption = document.getElementById('consumer-option');
+        const sellerOption = document.getElementById('seller-option');
+        const addressField = document.getElementById('address-field');
+
+        if (role === 'consumer') {
+            consumerOption.classList.add('active');
+            sellerOption.classList.remove('active');
+            addressField.classList.add('show');
+        } else {
+            sellerOption.classList.add('active');
+            consumerOption.classList.remove('active');
+            addressField.classList.remove('show');
+        }
+    }
+
+    async function signup() {
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm-password").value;
+        const phone = document.getElementById("phone").value;
+        const errorMessage = document.getElementById("error-message");
+
+        // 입력값 검증
+        if (!name || !email || !password || !confirmPassword || !phone) {
+            errorMessage.innerText = "모든 필드를 입력해주세요.";
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            errorMessage.innerText = "비밀번호가 일치하지 않습니다.";
+            return;
+        }
+
+        // 전화번호 형식 검증 (간단한 예시)
+        const phoneRegex = /^\d{3}-\d{3,4}-\d{4}$/;
+        if (!phoneRegex.test(phone)) {
+            errorMessage.innerText = "전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678)";
+            return;
+        }
+
+        // 주소 검증 (구매자인 경우)
+        let address = '';
+        if (currentRole === 'consumer') {
+            address = document.getElementById("address").value;
+            if (!address) {
+                errorMessage.innerText = "주소를 입력해주세요.";
+                return;
+            }
+        }
+
+        // 회원가입 데이터 준비
+        const userData = {
+            name,
+            email,
+            password,
+            phoneNumber: phone
+        };
+
+        // 구매자인 경우 주소 추가
+        if (currentRole === 'consumer') {
+            userData.address = address;
+        }
+
+        try {
+            const response = await fetch(`/api/v1/signup?role=${currentRole}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userData),
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                // 회원가입 성공 시 로그인 페이지로 이동
+                window.location.href = "login.html";
+            } else {
+                const data = await response.json();
+                errorMessage.innerText = data.message || "회원가입에 실패했습니다.";
+            }
+        } catch (error) {
+            errorMessage.innerText = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+            console.error("회원가입 오류:", error);
+        }
+    }
+</script>
+</body>
+</html>

@@ -13,10 +13,10 @@ import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.service.ConsumerService;
 import com.project.openmarket.domain.user.service.SellerService;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PurchaseConfirmationService {
 	private final OrderRepository orderRepository;
 	private final OrderService orderService;

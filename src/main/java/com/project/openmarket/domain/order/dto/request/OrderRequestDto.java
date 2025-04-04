@@ -10,7 +10,7 @@ import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.global.validator.NumberValidator;
 
-public record OrderRequestDto(Long productId, int orderedPrice, Long cache, Long point, int count) {
+public record OrderRequestDto(String productId, int orderedPrice, Long cache, Long point, int count) {
 	public OrderRequestDto{
 		if(!NumberValidator.isPositive(count)){
 			throw new CustomException(NOT_POSITIVE_NUMBER);

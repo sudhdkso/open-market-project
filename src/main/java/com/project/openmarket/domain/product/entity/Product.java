@@ -11,6 +11,7 @@ import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.user.entity.Seller;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,7 +35,8 @@ public class Product extends BaseTime {
 	private Seller seller;
 	//TODO: 2024.05.10 구매수 컬럼 추가하기
 
-	private Product(String name, int price, int stock, Seller seller){
+	@Builder
+	public Product(String name, int price, int stock, Seller seller){
 		this.name = name;
 		this.price = price;
 		this.stock = stock;

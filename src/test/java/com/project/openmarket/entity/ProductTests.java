@@ -1,6 +1,7 @@
 package com.project.openmarket.entity;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
+import static org.awaitility.Awaitility.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
+import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.user.entity.Seller;
 
@@ -18,7 +20,7 @@ class ProductTests {
 
 	@Test
 	@DisplayName("dto를 이용하여 상품이 성공적으로 생성된다.")
-	void successCreateProduct(){
+	void createProduct_Success(){
 		var request = createProduct("상품테스트");
 
 		assertThatNoException()
@@ -53,7 +55,7 @@ class ProductTests {
 
 	@Test
 	@DisplayName("상품의 메서드를 통해서 재고를 감소시킬 수 있다.")
-	void successDecreaseStock(){
+	void decreaseStock_Success(){
 		//given
 		var request = createProduct("상품테스트");
 		Product product = Product.of(request, seller);
@@ -67,7 +69,7 @@ class ProductTests {
 
 	@Test
 	@DisplayName("상품의 메서드를 통해서 재고를 증가시킬 수 있다.")
-	void successIncreaseStock(){
+	void increaseStock_Success(){
 		//given
 		var request = createProduct("상품테스트");
 		Product product = Product.of(request, seller);
@@ -79,6 +81,21 @@ class ProductTests {
 		assertThat(product.getStock()).isEqualTo(expected);
 	}
 
+	@Test
+	@DisplayName("상품은 이름, 가격, 재고를 업데이트할 수 있다.")
+	void updateProduct_Success(){
+		//given
+		Product product = new Product("Previous Name", 1000, 5, seller);
+		ProductUpdateReqeustDto request = new ProductUpdateReqeustDto("New Name", 5000, 5);
+
+		//when
+		product.update(request);
+
+		//then
+		assertThat(product.getName()).isEqualTo(request.name());
+		assertThat(product.getPrice()).isEqualTo(request.price());
+		assertThat(product.getStock()).isEqualTo(request.stock());
+	}
 	ProductRequestDto createProduct(String name){
 		return new ProductRequestDto(name, 1000, 10);
 	}

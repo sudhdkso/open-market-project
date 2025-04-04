@@ -14,10 +14,10 @@ import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.entity.Seller;
 import com.project.openmarket.domain.user.service.ConsumerService;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SellerOrderService {
 	private final OrderService orderService;
 	private final OrderRepository orderRepository;
@@ -25,14 +25,14 @@ public class SellerOrderService {
 	private final ConsumerService consumerService;
 
 	//1. 주문 상태 변경
-	public void updateOrderStatus(String id, String status){
+	public void updateOrderStatus(String id, String status) {
 		Order order = orderService.getOrderById(id);
 		order.updateOrderStatus(OrderStatus.getOrderStatus(status));
 		orderRepository.save(order);
 	}
 
 	//2. 판매자가 주문 취소하는 함수
-	public void cancelOrder(String id){
+	public void cancelOrder(String id) {
 		Order order = orderService.getOrderById(id);
 		Product product = productSerivce.getProductById(order.getProduct().getId());
 		Consumer consumer = consumerService.getConsumerById(order.getConsumerId());

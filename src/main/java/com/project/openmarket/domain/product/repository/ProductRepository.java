@@ -24,12 +24,12 @@ public interface ProductRepository extends MongoRepository<Product, ObjectId> {
 
 //	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("{ 'id' : ?0 }")
-	Optional<Product> findByIdWithLock(@Param("id")Long id);
+	Optional<Product> findByIdWithLock(@Param("id") ObjectId id);
 
 
 	List<Product> findByNameContainsOrderByAvgScoreDesc(String name);
 
-	List<Product> findByName(String name);
+	Page<Product> findByNameContaining(String name, Pageable pageable);
 
 	@NotNull Page<Product> findAll(@NotNull Pageable pageable);
 

@@ -70,4 +70,9 @@ public class ConsumerService {
 		consumer.increasePoint(amount);
 		consumerRepository.save(consumer);
 	}
+
+	public void increaseCash(Long amount, Consumer consumer){
+		consumer.increaseCash(amount);
+		consumerRepository.save(consumer);
+	}
 }

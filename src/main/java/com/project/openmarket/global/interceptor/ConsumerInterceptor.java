@@ -29,10 +29,9 @@ public class ConsumerInterceptor implements HandlerInterceptor {
 
 		Optional<Consumer> consumer = consumerRepository.findByEmail(email);
 
-		if (!consumer.isPresent()) {
+		if(consumer.isEmpty()){
 			return false;
 		}
-
 		ConsumerThreadLocal.set(consumer.get());
 		return true;
 	}
