@@ -49,7 +49,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			var request = createOrder(1);
 
 			//when
-			given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
+			given(productRepository.findByIdWithLock(any())).willReturn(Optional.of(product));
 			given(product.getPrice()).willReturn(request.orderedPrice());
 			given(product.canBuy(anyInt())).willReturn(true);
 			given(consumer.canBuy(any(Amount.class))).willReturn(true);
@@ -70,7 +70,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			var request = createOrder(1);
 
 			//when
-			given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
+			given(productRepository.findByIdWithLock(any())).willReturn(Optional.of(product));
 			given(product.getPrice()).willReturn(1000);
 			given(product.isSoldOut()).willReturn(false);
 			given(product.canBuy(anyInt())).willReturn(false);
@@ -88,7 +88,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			var request = createOrder(1);
 
 			//when
-			given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
+			given(productRepository.findByIdWithLock(any())).willReturn(Optional.of(product));
 			given(product.getPrice()).willReturn(request.orderedPrice());
 			given(product.canBuy(anyInt())).willReturn(true);
 			given(consumer.canBuy(any(Amount.class))).willReturn(false);
@@ -107,7 +107,7 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 			var request = createOrder(1);
 
 			//when
-			given(productRepository.findByIdWithLock(anyLong())).willThrow(new CustomException(NOT_FOUND_PRODUCT));
+			given(productRepository.findByIdWithLock(any())).willThrow(new CustomException(NOT_FOUND_PRODUCT));
 			assertThatThrownBy(() -> consumerOrderService.create(request, consumer))
 				.isInstanceOf(CustomException.class)
 				.hasMessage(NOT_FOUND_PRODUCT.getMessage());
@@ -191,6 +191,6 @@ class ConsumerOrderServiceTest extends ServiceTestMock {
 	}
 
 	OrderRequestDto createOrder(int count){
-		return new OrderRequestDto(1L,  1000,1000L, 0L, count);
+		return new OrderRequestDto("67ec1324da973979b3723d17", 1000,1000L, 0L, count);
 	}
 }

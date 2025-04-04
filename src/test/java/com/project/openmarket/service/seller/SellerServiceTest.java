@@ -106,7 +106,7 @@ class SellerServiceTest  extends ServiceTestMock {
 			//given
 			final var request = createLoginSeller("seller1@example.com");
 
-			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
+			given(sellerRepository.getByEmail(anyString())).willReturn(seller);
 			given(seller.isSamePassword(anyString())).willReturn(true);
 
 			assertThatNoException().isThrownBy(() -> sellerService.login(request));
@@ -119,7 +119,8 @@ class SellerServiceTest  extends ServiceTestMock {
 		void loginByWrongPassword(){
 			//given
 			final var request = new LoginRequestDto("seller1@example.com","12345");
-			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.of(seller));
+			given(sellerRepository.getByEmail(anyString())).willReturn(seller);
+			given(seller.isSamePassword(any())).willReturn(false);
 
 			assertThatThrownBy(() -> sellerService.login(request))
 				.isInstanceOf(CustomException.class)
@@ -134,8 +135,7 @@ class SellerServiceTest  extends ServiceTestMock {
 			final var request = new LoginRequestDto("test@example.com","1234");
 
 			//when
-			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.empty());
-
+			doThrow(new CustomException(NOT_FOUND_USER)).when(sellerRepository).getByEmail(any());
 			//then
 			assertThatThrownBy(() -> sellerService.login(request))
 				.isInstanceOf(CustomException.class)
@@ -183,7 +183,7 @@ class SellerServiceTest  extends ServiceTestMock {
 	void updateProductByNameAndSeller(){
 		final var request = updateProduct("일품", 900);
 
-		given(productRepository.findByIdWithLock(anyLong())).willReturn(Optional.of(product));
+		given(productRepository.findByIdWithLock(any())).willReturn(Optional.of(product));
 		given(product.isSameName(anyString())).willReturn(false);
 		given(productRepository.existsByNameAndSeller(anyString(), any(Seller.class))).willReturn(false);
 
@@ -191,7 +191,7 @@ class SellerServiceTest  extends ServiceTestMock {
 		given(product.getId()).willReturn(id);
 
 		assertThatNoException()
-			.isThrownBy(() -> productService.update(request, seller));
+			.isThrownBy(() -> productService.update(id.toHexString(), request, seller));
 
 		then(product)
 			.should(times(1))
@@ -235,6 +235,6 @@ class SellerServiceTest  extends ServiceTestMock {
 	}
 
 	ProductUpdateReqeustDto updateProduct(String name, int price){
-		return new ProductUpdateReqeustDto(1L, name, price, 10);
+		return new ProductUpdateReqeustDto(name, price, 10);
 	}
 }

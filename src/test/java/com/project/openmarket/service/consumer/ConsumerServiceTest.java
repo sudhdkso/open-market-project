@@ -133,7 +133,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 	@Test
 	@DisplayName("고객의 id가 존재하는 id이면 고객을 찾을 수 있다.")
-	void successGetConsumerByValidId(){
+	void getConsumerByValidId_Success(){
 
 		given(consumerRepository.getById(any())).willReturn(consumer);
 
@@ -153,7 +153,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 	@Test
 	@DisplayName("Amount클래스를 매개변수로 받아 고객의 Cache와 Point를 증가시키는데 성공한다.")
-	void increaseAmountTest(){
+	void increaseAmountTest_Success(){
 		Amount amount = new Amount(1000L,100L);
 
 		doNothing().when(consumer).increaseAmount(any(Amount.class));
@@ -168,7 +168,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 	@Test
 	@DisplayName("Amount클래스를 매개변수로 받아 고객의 Cache와 Point를 감소시키는데 성공한다.")
-	void decreaseAmountTest(){
+	void decreaseAmountTest_Success(){
 		Amount amount = new Amount(1000L,100L);
 
 		doNothing().when(consumer).decreaseAmount(any(Amount.class));
@@ -183,7 +183,7 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 	@Test
 	@DisplayName("증가 시킬 포인트와 고객이 들어오면 성공한다")
-	void processPointsTest(){
+	void processPointsTest_Success(){
 		doNothing().when(consumer).increasePoint(anyLong());
 
 		assertThatNoException()
@@ -195,12 +195,26 @@ class ConsumerServiceTest extends ServiceTestMock {
 
 	}
 
+	@Test
+	@DisplayName("증가 시킬 캐시와 고객이 들어오면 성공한다.")
+	void increaseCashTest_Success(){
+		//given
+		doNothing().when(consumer).increaseCash(anyLong());
+		//when
+		assertThatNoException()
+			.isThrownBy(() -> consumerService.increaseCash(1000L, consumer));
+		//then
+		then(consumerRepository)
+			.should(times(1))
+			.save(any(Consumer.class));
+	}
+
 	ConsumerCreateReqestDto createConsumer(String email){
 		String name = "김하얀";
 		String phoneNumber = "010-0000-0000";
 		String password = "1234";
 		String address = "어디지";
-		
+
 		return new ConsumerCreateReqestDto(email, name, phoneNumber, password, address);
 	}
 

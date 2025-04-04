@@ -164,6 +164,6 @@ class OrderTest {
 	}
 
 	OrderRequestDto createOrder(int count){
-		return new OrderRequestDto(1L, 1000,1000L, 0L, count);
+		return new OrderRequestDto("67ec1324da973979b3723d17", 1000,1000L, 0L, count);
 	}
 }
