@@ -6,8 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import com.project.openmarket.domain.cache.entity.CashHistory;
-import com.project.openmarket.domain.cache.entity.enums.CashStatus;
+import com.project.openmarket.domain.cash.entity.CashHistory;
+import com.project.openmarket.domain.cash.entity.enums.CashStatus;
 import com.project.openmarket.domain.user.entity.Consumer;
 
 public class CashHistoryTests {
