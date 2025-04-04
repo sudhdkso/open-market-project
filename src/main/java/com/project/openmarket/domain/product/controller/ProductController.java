@@ -1,7 +1,6 @@
 package com.project.openmarket.domain.product.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -31,48 +30,49 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1")
 public class ProductController {
 	private final ProductService productService;
+
 	@GetMapping("/product/{productId}")
-	public <T>ResponseEntity<ProductResponseDto> getProductById(@PathVariable("productId")String productId) {
+	public <T> ResponseEntity<ProductResponseDto> getProductById(@PathVariable("productId") String productId) {
 		ProductResponseDto responseDto = productService.findById(productId);
 		return ResponseEntity.ok().body(responseDto);
 	}
 
 	@GetMapping("/products")
-	public <T>ResponseEntity<ProductListResponsesDto> getAllProduct(){
+	public <T> ResponseEntity<ProductListResponsesDto> getAllProduct() {
 		ProductListResponsesDto responseDto = productService.findAllProduct();
 		return ResponseEntity.ok().body(responseDto);
 	}
 
 	@GetMapping("/product")
-	public <T>ResponseEntity<List<ProductResponseDto>> searchProduct(
+	public <T> ResponseEntity<Page<ProductResponseDto>> searchProduct(
 		@RequestParam("name") String productName,
 		@PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
-	){
-		List<ProductResponseDto> responseDtos = productService.findProductByName(productName, pageable);
+	) {
+		Page<ProductResponseDto> responseDtos = productService.findProductByName(productName, pageable);
 		return ResponseEntity.ok().body(responseDtos);
 	}
 
 	@PostMapping("/seller/product")
-	public <T>ResponseEntity<ProductCreateResponseDto> create(@RequestBody ProductRequestDto requestDto) {
+	public <T> ResponseEntity<ProductCreateResponseDto> create(@RequestBody ProductRequestDto requestDto) {
 		ProductCreateResponseDto responseDto = productService.create(requestDto, SellerThreadLocal.get());
 		//TODO seller용 response 만들기
 		return ResponseEntity.ok().body(responseDto);
 	}
 
-	@PutMapping("/seller/product")
-	public <T>ResponseEntity<ProductResponseDto> update(@RequestBody ProductUpdateReqeustDto requestDto) {
-		ProductResponseDto responseDto = productService.update(requestDto, SellerThreadLocal.get());
+	@PutMapping("/seller/product/{productId}")
+	public <T> ResponseEntity<ProductResponseDto> update(@PathVariable("productId") String productId,
+		@RequestBody ProductUpdateReqeustDto requestDto) {
+		ProductResponseDto responseDto = productService.update(productId, requestDto, SellerThreadLocal.get());
 		return ResponseEntity.ok().body(responseDto);
 	}
 
 	@DeleteMapping("/seller/product/{productId}")
-	public <T>ResponseEntity<?> delete(@PathVariable("productId")Long productId) {
+	public <T> ResponseEntity<?> delete(@PathVariable("productId") String productId) {
 		productService.delete(productId);
 		return ResponseEntity.ok().body("success");
 	}
 
 	//TODO
 	// - 상품 전체 조회
-
 
 }
