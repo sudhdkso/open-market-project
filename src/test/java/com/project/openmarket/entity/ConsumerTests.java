@@ -82,11 +82,10 @@ class ConsumerTests {
 	@DisplayName("캐시랑 포인트가 요구값보다 클 때 true를 return한다.")
 	void whenCashAndPointAreEnough_thenReturnTrue() {
 		//given
-		Consumer consumer = mock(Consumer.class);
+		Consumer consumer = spy(new Consumer("email", "name", "010-0000-0000", "address", "1234"));
 		given(consumer.getCash()).willReturn(10000L);
-		given(consumer.getPoint()).willReturn(10000L);
 
-		Amount amount = new Amount(10000L, 10000L);
+		Amount amount = new Amount(1000L, 0L);
 
 		//when
 		boolean result = consumer.canBuy(amount);
