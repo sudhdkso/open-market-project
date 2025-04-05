@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 등록</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/product-form.css">
+</head>
+<body>
+
+<div id="top-bar">
+    <div id="home-button">
+        <a href="/home.html">Home</a>
+    </div>
+
+    <div id="search-container" style="display: none">
+        <input type="text" id="search-input" placeholder="상품 검색..." aria-label="상품 검색">
+        <button id="search-button">검색</button>
+    </div>
+
+    <div id="auth-buttons">
+        <button onclick="location.href='/login.html'">로그인</button>
+        <button onclick="location.href='/signup.html'">회원가입</button>
+    </div>
+
+    <div id="user-info">
+        <span id="username"></span>
+        <span id="user-cash"></span>
+        <button class="menu-button" id="menu-btn">메뉴</button>
+        <div id="user-menu"></div>
+    </div>
+</div>
+
+<div id="content">
+    <div class="container">
+        <div class="product-image-container" id="image-upload-area">
+            <input type="file" id="product-image-input" accept="image/*">
+            <div class="upload-content">
+                <div class="upload-icon">+</div>
+                <div class="upload-text">클릭하여 상품 이미지 업로드<br>(선택사항)</div>
+            </div>
+        </div>
+        <div class="content">
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="product-name">상품명 *</label>
+                    <input type="text" id="product-name" class="form-control" required>
+                    <div class="error-message" id="name-error">상품명을 입력해주세요.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-price">가격 (원) *</label>
+                    <input type="number" id="product-price" class="form-control" min="0" required>
+                    <div class="error-message" id="price-error">유효한 가격을 입력해주세요.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-stock">재고 수량 *</label>
+                    <input type="number" id="product-stock" class="form-control small-input" min="0" required>
+                    <div class="error-message" id="stock-error">유효한 재고 수량을 입력해주세요.</div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="product-description">상품 설명</label>
+                    <textarea id="product-description" class="form-control"></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="action-button secondary-button" onclick="location.href='/home.html'">
+                        취소
+                    </button>
+                    <button type="button" class="action-button primary-button" id="submit-button"
+                            onclick="registerProduct()">등록하기
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let userData = null;
+    let productImage = null;
+
+    async function loadUserInfo() {
+        const authButtons = document.getElementById("auth-buttons");
+        const userInfo = document.getElementById("user-info");
+        const userMenu = document.getElementById("user-menu");
+        const usernameElem = document.getElementById("username");
+        const userCashElem = document.getElementById("user-cash");
+
+        try {
+            const storedUser = localStorage.getItem('user');
+
+            if (storedUser) {
+                userData = JSON.parse(storedUser);
+            } else {
+                const userResponse = await fetch("/api/v1/user");
+                if (!userResponse.ok) throw new Error("Unauthorized");
+
+                userData = await userResponse.json();
+                localStorage.setItem('user', JSON.stringify(userData));
+            }
+
+            // 판매자 권한 확인
+            if (userData.role !== "seller") {
+                alert("판매자만 상품을 등록할 수 있습니다.");
+                window.location.href = "/home.html";
+                return null;
+            }
+
+            authButtons.style.display = "none";
+            userInfo.style.display = "flex";
+            usernameElem.innerText = userData.name;
+            userCashElem.innerText = `캐시: ${userData.cash.toLocaleString()}원`;
+
+            userMenu.innerHTML = `
+                <a href="/product/register.html">상품 추가</a>
+                <a href="/product/manage.html">상품 관리</a>
+                <a href="/order/manage.html">주문 관리</a>
+                <a href="/profile.html">정보 관리</a>
+                <a href="#" onclick="logout()">로그아웃</a>
+            `;
+
+            return userData;
+        } catch (error) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/login.html";
+            return null;
+        }
+    }
+
+    function setupImageUpload() {
+        const imageUploadArea = document.getElementById("image-upload-area");
+        const imageInput = document.getElementById("product-image-input");
+
+        imageUploadArea.addEventListener("click", () => {
+            imageInput.click();
+        });
+
+        imageInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageUploadArea.style.backgroundImage = `url(${e.target.result})`;
+                    imageUploadArea.style.backgroundSize = "cover";
+                    imageUploadArea.style.backgroundPosition = "center";
+                    imageUploadArea.innerHTML = "";
+                    productImage = file;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    async function registerProduct() {
+        const nameInput = document.getElementById("product-name");
+        const priceInput = document.getElementById("product-price");
+        const stockInput = document.getElementById("product-stock");
+        const descriptionInput = document.getElementById("product-description");
+
+        const nameError = document.getElementById("name-error");
+        const priceError = document.getElementById("price-error");
+        const stockError = document.getElementById("stock-error");
+
+        // 유효성 검사
+        let isValid = true;
+
+        if (!nameInput.value.trim()) {
+            nameError.style.display = "block";
+            isValid = false;
+        } else {
+            nameError.style.display = "none";
+        }
+
+        if (!priceInput.value || parseInt(priceInput.value) < 0) {
+            priceError.style.display = "block";
+            isValid = false;
+        } else {
+            priceError.style.display = "none";
+        }
+
+        if (!stockInput.value || parseInt(stockInput.value) < 0) {
+            stockError.style.display = "block";
+            isValid = false;
+        } else {
+            stockError.style.display = "none";
+        }
+
+        if (!isValid) return;
+
+        // 상품 등록 데이터 준비
+        const productData = {
+            name: nameInput.value.trim(),
+            price: parseInt(priceInput.value),
+            stock: parseInt(stockInput.value),
+            description: descriptionInput.value.trim()
+        };
+
+        try {
+            // 상품 등록 API 호출
+            const response = await fetch("/api/v1/seller/product", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(productData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "상품 등록에 실패했습니다.");
+            }
+
+            const result = await response.json();
+
+            // 이미지 업로드 (이미지가 있는 경우)
+            if (productImage && result.id) {
+                const formData = new FormData();
+                formData.append("image", productImage);
+
+                await fetch(`/api/v1/seller/product/${result.id}/image`, {
+                    method: "POST",
+                    body: formData
+                });
+            }
+
+            alert("상품이 성공적으로 등록되었습니다.");
+
+            // 등록된 상품의 상세 페이지로 이동
+            window.location.href = `/product-detail.html?id=${result.id}`;
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('user');
+        fetch("/api/v1/logout", { method: "POST" })
+            .then(() => window.location.href = "/login.html");
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        // 사용자 정보 로드
+        const user = await loadUserInfo();
+        if (!user) return;
+
+        // 이미지 업로드 설정
+        setupImageUpload();
+
+        // 메뉴 버튼 이벤트
+        document.getElementById("menu-btn").addEventListener("click", (event) => {
+            event.stopPropagation();
+            const menu = document.getElementById("user-menu");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest("#user-info")) {
+                document.getElementById("user-menu").style.display = "none";
+            }
+        });
+    });
+</script>
+</body>
+</html>

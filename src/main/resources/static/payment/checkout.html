@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" />
-    <link rel="stylesheet" type="text/css" href="/style.css" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png"/>
+    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>토스페이먼츠 샘플 프로젝트</title>
     <!-- SDK 추가 -->
     <script src="https://js.tosspayments.com/v2/standard"></script>
@@ -22,8 +22,11 @@
             <button id="TRANSFER" class="button2" onclick="selectPaymentMethod('TRANSFER')">계좌이체</button>
             <button id="VIRTUAL_ACCOUNT" class="button2" onclick="selectPaymentMethod('VIRTUAL_ACCOUNT')">가상계좌</button>
             <button id="MOBILE_PHONE" class="button2" onclick="selectPaymentMethod('MOBILE_PHONE')">휴대폰</button>
-            <button id="CULTURE_GIFT_CERTIFICATE" class="button2" onclick="selectPaymentMethod('CULTURE_GIFT_CERTIFICATE')">문화상품권</button>
-            <button id="FOREIGN_EASY_PAY" class="button2" onclick="selectPaymentMethod('FOREIGN_EASY_PAY')">해외간편결제</button>
+            <button id="CULTURE_GIFT_CERTIFICATE" class="button2"
+                    onclick="selectPaymentMethod('CULTURE_GIFT_CERTIFICATE')">문화상품권
+            </button>
+            <button id="FOREIGN_EASY_PAY" class="button2" onclick="selectPaymentMethod('FOREIGN_EASY_PAY')">해외간편결제
+            </button>
         </div>
         <!-- 결제하기 버튼 -->
         <button class="button" style="margin-top: 30px" onclick="requestPayment()">결제하기</button>

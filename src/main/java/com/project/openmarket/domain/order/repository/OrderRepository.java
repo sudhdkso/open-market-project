@@ -13,13 +13,15 @@ import com.project.openmarket.domain.user.entity.Consumer;
 
 public interface OrderRepository extends MongoRepository<Order, String> {
 
-	@Query("{ 'consumer._id : ?#{#consumer.id}'}")
 	List<Order> findByConsumer(Consumer consumer);
 
 	@Query("{'status': ?0, 'deliveryCompleteTime': { $lte: ?1 }}")
-	List<Order> findByStatusAndDeliveryCompleteTimeBefore(@Param("threshold")LocalDateTime threshold);
+	List<Order> findByStatusAndDeliveryCompleteTimeBefore(@Param("threshold") LocalDateTime threshold);
 
-	@Query("{'product.sellerId': ?0}")
-	List<Order> findOrdersBySellerId(@Param("sellerId") ObjectId sellerId);
+	@Query("{ 'product.seller': ?0 }")
+	List<Order> findBySeller(ObjectId sellerId);
+
+	@Query("{ 'product' : { $in: ?0 } }")
+	List<Order> findBySellerProducts(List<ObjectId> productIds);
 
 }

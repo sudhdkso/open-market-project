@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 상세 내역</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/order-form.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+    </style>
+</head>
+<body>
+<div id="top-bar">
+    <div id="home-button">
+        <a href="/home.html">Home</a>
+    </div>
+
+    <div id="search-container" style="display: none">
+        <input type="text" id="search-input" placeholder="상품 검색..." aria-label="상품 검색">
+        <button id="search-button">검색</button>
+    </div>
+
+    <div id="auth-buttons">
+        <button onclick="location.href='/login.html'">로그인</button>
+        <button onclick="location.href='/signup.html'">회원가입</button>
+    </div>
+
+    <div id="user-info">
+        <span id="username"></span>
+        <span id="user-cash"></span>
+        <button class="menu-button" id="menu-btn">메뉴</button>
+        <div id="user-menu"></div>
+    </div>
+</div>
+
+<div id="content">
+    <div class="order-container">
+        <div class="order-header">
+            <h1>주문 상세 내역</h1>
+            <p>주문번호: <span id="order-id">ORDER-12345</span></p>
+        </div>
+
+        <div class="product-summary">
+            <div class="product-image">상품 이미지</div>
+            <div class="product-info">
+                <div class="product-name" id="product-name">상품명</div>
+                <div class="product-price" id="product-price">0원</div>
+            </div>
+        </div>
+
+        <div class="order-details">
+            <div class="detail-section">
+                <h2>주문 정보</h2>
+                <div class="detail-item">
+                    <span>주문 상태:</span>
+                    <span id="order-status">결제 완료 <span id="status-badge"
+                                                        class="status-badge status-completed">결제 완료</span></span>
+                </div>
+                <div class="detail-item">
+                    <span>주문일시:</span>
+                    <span id="order-date">2025-04-04 12:34:56</span>
+                </div>
+                <div class="detail-item" id="delivery-date-container" style="display: none;">
+                    <span>배송 완료일시:</span>
+                    <span id="delivery-date">2025-04-06 15:30:45</span>
+                </div>
+                <div class="detail-item">
+                    <span>구매자:</span>
+                    <span id="buyer-name">홍길동</span>
+                </div>
+                <div class="detail-item">
+                    <span>배송 주소:</span>
+                    <span id="buyer-address">서울시 강남구 테헤란로 123</span>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h2>결제 정보</h2>
+                <div class="detail-item">
+                    <span>상품 가격:</span>
+                    <span id="detail-price">0원</span>
+                </div>
+                <div class="detail-item">
+                    <span>캐시 사용:</span>
+                    <span id="detail-cash">0원</span>
+                </div>
+                <div class="detail-item">
+                    <span>포인트 사용:</span>
+                    <span id="detail-point">0P</span>
+                </div>
+                <div class="detail-item total">
+                    <span>총 결제 금액:</span>
+                    <span id="detail-total">0원</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button id="cancel-button" class="action-button danger-button" onclick="cancelOrder()" disabled>결제 취소
+            </button>
+            <button id="confirm-button" class="action-button success-button" onclick="confirmOrder()" disabled>구매 확정
+            </button>
+            <a href="/order/list.html" class="action-button secondary-button">주문 목록</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let userData = null;
+    let orderData = null;
+
+    async function loadUserInfo() {
+        const authButtons = document.getElementById("auth-buttons");
+        const userInfo = document.getElementById("user-info");
+        const userMenu = document.getElementById("user-menu");
+        const usernameElem = document.getElementById("username");
+        const userCashElem = document.getElementById("user-cash");
+
+        try {
+            // 항상 서버에서 최신 사용자 정보 가져오기
+            const userResponse = await fetch("/api/v1/user");
+            if (!userResponse.ok) {
+                // 로그인 페이지로 리다이렉트
+                alert("로그인이 필요합니다.");
+                window.location.href = "/login.html";
+                return null;
+            }
+
+            userData = await userResponse.json();
+
+            // 최신 정보로 localStorage 업데이트
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            // 사용자 정보 표시
+            authButtons.style.display = "none";
+            userInfo.style.display = "flex";
+            usernameElem.innerText = userData.name;
+            userCashElem.innerText = `캐시: ${userData.cash.toLocaleString()}원`;
+
+            // 사용자 메뉴 설정
+            userMenu.innerHTML = `
+                <a href="/payment/charge.html">캐시 충전</a>
+                <a href="/order/list.html">주문 내역</a>
+                <a href="/profile.html">정보 관리</a>
+                <a href="#" onclick="logout()">로그아웃</a>
+            `;
+
+            return userData;
+        } catch (error) {
+            console.error("사용자 정보 로드 오류:", error);
+            authButtons.style.display = "flex";
+            userInfo.style.display = "none";
+            localStorage.removeItem('user');
+            return null;
+        }
+    }
+
+    async function loadOrderInfo(orderId) {
+        try {
+            const response = await fetch(`/api/v1/consumer/order/${orderId}`);
+            if (!response.ok) throw new Error("주문 정보를 불러오지 못했습니다.");
+
+            orderData = await response.json();
+
+            // 주문 정보 표시
+            document.getElementById("order-id").innerText = orderData.id;
+            document.getElementById("product-name").innerText = orderData.productName;
+            document.getElementById("product-price").innerText = `${orderData.totalAmount.toLocaleString()}원`;
+
+            // 주문 상태에 따른 표시
+            updateOrderStatus(orderData.status);
+
+            // 결제 정보 표시
+            document.getElementById("detail-price").innerText = `${orderData.totalAmount.toLocaleString()}원`;
+            document.getElementById("detail-cash").innerText = `${orderData.cash.toLocaleString()}원`;
+            document.getElementById("detail-point").innerText = `${orderData.point.toLocaleString()}P`;
+            document.getElementById("detail-total").innerText = `${orderData.totalAmount.toLocaleString()}원`;
+
+            // 주문 일시 표시
+            const orderDate = new Date(orderData.createdAt);
+            document.getElementById("order-date").innerText = orderDate.toLocaleString();
+
+            // 구매자 정보 표시
+            document.getElementById("buyer-name").innerText = orderData.consumer.name;
+            document.getElementById("buyer-address").innerText = orderData.address || "주소 정보 없음";
+
+            // 배송 완료일 표시 (배송 완료 상태인 경우)
+            if (orderData.status === "DELIVERED" || orderData.status === "CONFIRMED") {
+                document.getElementById("delivery-date-container").style.display = "flex";
+                const deliveryDate = new Date(orderData.deliveredAt || orderData.updatedAt);
+                document.getElementById("delivery-date").innerText = deliveryDate.toLocaleString();
+            }
+
+            // 상품 이미지 클릭 시 상품 상세 페이지로 이동
+            document.querySelector(".product-image").onclick = () => {
+                location.href = `/product-detail.html?id=${orderData.product.id}`;
+            };
+
+            // 상품명 클릭 시 상품 상세 페이지로 이동
+            document.getElementById("product-name").onclick = () => {
+                location.href = `/product-detail.html?id=${orderData.product.id}`;
+            };
+
+            return orderData;
+        } catch (error) {
+            console.error("주문 정보 로드 오류:", error);
+            alert(error.message);
+            return null;
+        }
+    }
+
+    function updateOrderStatus(status) {
+        const statusBadge = document.getElementById("status-badge");
+        const cancelButton = document.getElementById("cancel-button");
+        const confirmButton = document.getElementById("confirm-button");
+        let statusText = "";
+        let badgeClass = "";
+
+        switch(status) {
+            case "ORDER_COMPLETED":
+                statusText = "결제 완료";
+                badgeClass = "status-completed";
+                cancelButton.disabled = false;
+                cancelButton.classList.remove("disabled-button");
+                confirmButton.disabled = true;
+                confirmButton.classList.add("disabled-button");
+                break;
+            case "SHIPPING":
+                statusText = "배송중";
+                badgeClass = "status-shipping";
+                cancelButton.disabled = true;
+                cancelButton.classList.add("disabled-button");
+                confirmButton.disabled = true;
+                confirmButton.classList.add("disabled-button");
+                break;
+            case "DELIVERED":
+                statusText = "배송 완료";
+                badgeClass = "status-delivered";
+                cancelButton.disabled = true;
+                cancelButton.classList.add("disabled-button");
+                confirmButton.disabled = false;
+                confirmButton.classList.remove("disabled-button");
+                break;
+            case "CANCELLED":
+                statusText = "결제 취소";
+                badgeClass = "status-cancelled";
+                cancelButton.disabled = true;
+                cancelButton.classList.add("disabled-button");
+                confirmButton.disabled = true;
+                confirmButton.classList.add("disabled-button");
+                break;
+            case "CONFIRMED":
+                statusText = "구매 확정";
+                badgeClass = "status-confirmed";
+                cancelButton.disabled = true;
+                cancelButton.classList.add("disabled-button");
+                confirmButton.disabled = true;
+                confirmButton.classList.add("disabled-button");
+                break;
+            default:
+                statusText = "처리중";
+                badgeClass = "status-completed";
+                cancelButton.disabled = true;
+                cancelButton.classList.add("disabled-button");
+                confirmButton.disabled = true;
+                confirmButton.classList.add("disabled-button");
+        }
+
+        document.getElementById("order-status").innerText = statusText;
+        statusBadge.innerText = statusText;
+        statusBadge.className = `status-badge ${badgeClass}`;
+    }
+
+    async function cancelOrder() {
+        if (!confirm("정말로 이 주문을 취소하시겠습니까?")) return;
+
+        try {
+            const response = await fetch(`/api/v1/consumer/order/${orderData.id}/cancel`, {
+                method: "POST"
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "주문 취소에 실패했습니다.");
+            }
+
+            alert("주문이 취소되었습니다.");
+            // 페이지 새로고침
+            window.location.reload();
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    async function confirmOrder() {
+        if (!confirm("구매를 확정하시겠습니까? 구매 확정 후에는 취소할 수 없습니다.")) return;
+
+        try {
+            const response = await fetch(`/api/v1/consumer/order/${orderData.id}/confirm`, {
+                method: "POST"
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "구매 확정에 실패했습니다.");
+            }
+
+            alert("구매가 확정되었습니다.");
+            // 페이지 새로고침
+            window.location.reload();
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('user');
+        fetch("/api/v1/logout", { method: "POST" })
+            .then(() => window.location.href = "/login.html");
+    }
+
+    // 페이지 로드 시 실행
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            // 사용자 정보 로드
+            const user = await loadUserInfo();
+            if (!user) return;
+
+            // URL에서 주문 ID 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+
+            if (!orderId) {
+                alert("주문 ID가 지정되지 않았습니다.");
+                window.location.href = "/order/list.html";
+                return;
+            }
+
+            // 주문 정보 로드
+            const order = await loadOrderInfo(orderId);
+            if (!order) {
+                window.location.href = "/order/list.html";
+                return;
+            }
+
+            // 메뉴 버튼 이벤트
+            document.getElementById("menu-btn").addEventListener("click", (event) => {
+                event.stopPropagation();
+                const menu = document.getElementById("user-menu");
+                menu.style.display = menu.style.display === "block" ? "none" : "block";
+            });
+
+            document.addEventListener("click", (event) => {
+                if (!event.target.closest("#user-info")) {
+                    document.getElementById("user-menu").style.display = "none";
+                }
+            });
+        } catch (error) {
+            console.error("페이지 로드 오류:", error);
+            alert("페이지 로드 중 오류가 발생했습니다.");
+        }
+    });
+</script>
+</body>
+</html>
+

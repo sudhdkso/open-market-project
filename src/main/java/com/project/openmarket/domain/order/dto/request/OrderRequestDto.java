@@ -10,20 +10,19 @@ import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.global.validator.NumberValidator;
 
-public record OrderRequestDto(String productId, int orderedPrice, Long cache, Long point, int count) {
-	public OrderRequestDto{
-		if(!NumberValidator.isPositive(count)){
+public record OrderRequestDto(int orderedPrice, Long cash, Long point, int count) {
+	public OrderRequestDto {
+		if (!NumberValidator.isPositive(count)) {
 			throw new CustomException(NOT_POSITIVE_NUMBER);
 		}
 	}
-
 
 	public Order toEntity(Product product, Consumer consumer) {
 		return Order.builder()
 			.product(product)
 			.consumer(consumer)
 			.status(OrderStatus.ORDER_COMPLETED)
-			.amount(new Amount(cache(), point()))
+			.amount(new Amount(cash(), point()))
 			.count(count())
 			.build();
 	}

@@ -2,13 +2,13 @@ package com.project.openmarket.domain.order.service;
 
 import static com.project.openmarket.global.exception.enums.ExceptionConstants.*;
 
-import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
+import com.project.openmarket.domain.order.dto.response.OrderDetailResponseDto;
+import com.project.openmarket.domain.order.dto.response.OrderListResponsesDto;
 import com.project.openmarket.domain.order.dto.response.OrderResponseDto;
 import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.order.entity.Order;
@@ -36,22 +36,20 @@ public class ConsumerOrderService {
 
 	//1. 주문 생성
 	@Transactional
-	public OrderResponseDto create(OrderRequestDto request, Consumer consumer) {
-		Product product =
-			productRepository.findByIdWithLock(new ObjectId(request.productId()))
-				.orElseThrow(() -> new CustomException(NOT_FOUND_PRODUCT));
+	public OrderResponseDto create(String productId, OrderRequestDto request, Consumer consumer) {
+		Product product = productRepository.getById(new ObjectId(productId));
 
 		Order order = request.toEntity(product, consumer);
 
 		checkPriceMismatch(order, product.getPrice());
 
 		purchase(request, product, consumer);
-		return new OrderResponseDto(orderRepository.save(order));
+		return OrderResponseDto.of(orderRepository.save(order));
 	}
 
 	private void purchase(OrderRequestDto request, Product product, Consumer consumer) {
 
-		Amount amount = new Amount(request.cache(), request.point());
+		Amount amount = new Amount(request.cash(), request.point());
 		int count = request.count();
 
 		checkEnoughStock(product, count);
@@ -106,14 +104,11 @@ public class ConsumerOrderService {
 		orderService.processConfirmedOrder(order, seller, consumer);
 	}
 
-	public OrderResponseDto findOrderOne(String id) {
-		return new OrderResponseDto(orderService.getOrderById(id));
+	public OrderDetailResponseDto findOrderOne(String id) {
+		return OrderDetailResponseDto.of(orderService.getOrderById(id));
 	}
 
-	public List<OrderResponseDto> findOrderListByConsumer(Consumer consumer) {
-		return orderRepository.findByConsumer(consumer)
-			.stream()
-			.map(OrderResponseDto::new)
-			.toList();
+	public OrderListResponsesDto findOrderListByConsumer(Consumer consumer) {
+		return OrderListResponsesDto.of(orderRepository.findByConsumer(consumer));
 	}
 }

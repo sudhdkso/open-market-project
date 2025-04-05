@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>홈 - 상품 목록</title>
+    <title>검색 결과</title>
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/product-list.css">
     <style>
@@ -11,6 +11,13 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
+        }
+
+        .no-results {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -39,14 +46,14 @@
 </div>
 
 <div id="content">
-    <h1>상품 목록</h1>
+    <h1 id="search-title">검색 결과</h1>
 
     <div id="sorting-options">
         <span id="sort-by-name">이름순</span>
         <span id="sort-by-price">가격순</span>
     </div>
 
-    <div id="product-list"></div>
+    <div id="search-results"></div>
 </div>
 
 <script>
@@ -59,15 +66,22 @@
 
         try {
             // 로컬 스토리지에서 사용자 정보 확인
-            console.log("local storage저장 완료")
-            // 로컬 스토리지에 사용자 정보가 없는 경우 API 호출
-            const userResponse = await fetch("/api/v1/user");
-            if (!userResponse.ok) throw new Error("Unauthorized");
+            const storedUser = localStorage.getItem('user');
+            let user;
 
-            user = await userResponse.json();
+            if (storedUser) {
+                // 로컬 스토리지에 사용자 정보가 있는 경우
+                user = JSON.parse(storedUser);
+            } else {
+                // 로컬 스토리지에 사용자 정보가 없는 경우 API 호출
+                const userResponse = await fetch("/api/v1/user");
+                if (!userResponse.ok) throw new Error("Unauthorized");
 
-            // 사용자 정보를 로컬 스토리지에 저장
-            localStorage.setItem('user', JSON.stringify(user));
+                user = await userResponse.json();
+
+                // 사용자 정보를 로컬 스토리지에 저장
+                localStorage.setItem('user', JSON.stringify(user));
+            }
 
             // 사용자 정보 표시
             authButtons.style.display = "none";
@@ -95,14 +109,28 @@
         }
     }
 
-    async function loadProducts() {
+    async function searchProducts(searchTerm) {
         try {
-            const productResponse = await fetch("/api/v1/products");
-            if (!productResponse.ok) throw new Error("상품을 불러오지 못했습니다.");
+            const url = `/api/v1/search/products?name=${encodeURIComponent(searchTerm)}`;
+            const productResponse = await fetch(url);
+
+            if (!productResponse.ok) throw new Error("상품을 검색하지 못했습니다.");
+
             const productData = await productResponse.json();
-            const productList = document.getElementById("product-list");
-            productList.innerHTML = "";
-            productData.products.forEach(product => {
+            const searchResults = document.getElementById("search-results");
+            searchResults.innerHTML = "";
+
+            document.getElementById("search-title").innerText = `"${searchTerm}" 검색 결과`;
+
+            if (productData.content.length === 0) {
+                searchResults.innerHTML = `<div class="no-results">
+                    <p>검색 결과가 없습니다.</p>
+                    <p>다른 검색어로 다시 시도해보세요.</p>
+                </div>`;
+                return;
+            }
+
+            productData.content.forEach(product => {
                 const item = document.createElement("div");
                 item.className = "product-item";
                 item.innerHTML = `
@@ -113,38 +141,58 @@
                     </div>
                 `;
                 item.onclick = () => location.href = `/product-detail.html?id=${encodeURIComponent(product.id)}`;
-                productList.appendChild(item);
+                searchResults.appendChild(item);
             });
         } catch (error) {
             alert(error.message);
         }
     }
 
-    function searchProducts() {
+    function performSearch() {
         const searchTerm = document.getElementById("search-input").value.trim();
         if (searchTerm) {
-            window.location.href = `/search.html?q=${encodeURIComponent(searchTerm)}`;
+            // URL 업데이트
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('q', searchTerm);
+            window.history.pushState({}, '', newUrl);
+
+            // 검색 실행
+            searchProducts(searchTerm);
         }
     }
 
     function logout() {
+        localStorage.removeItem('user');
         fetch("/api/v1/logout", { method: "POST" })
             .then(() => window.location.href = "/login.html");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
         loadUserInfo();
-        loadProducts();
 
         // 검색 버튼 클릭 이벤트
-        document.getElementById("search-button").addEventListener("click", searchProducts);
+        document.getElementById("search-button").addEventListener("click", performSearch);
 
         // 엔터 키 검색 이벤트
         document.getElementById("search-input").addEventListener("keypress", (event) => {
             if (event.key === "Enter") {
-                searchProducts();
+                performSearch();
             }
         });
+
+        // URL에서 검색어 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchTerm = urlParams.get('q');
+
+        if (searchTerm) {
+            // 검색창에 검색어 표시
+            document.getElementById("search-input").value = searchTerm;
+            // 검색 실행
+            searchProducts(searchTerm);
+        } else {
+            // 검색어가 없으면 홈으로
+            window.location.href = "/";
+        }
 
         document.getElementById("menu-btn").addEventListener("click", (event) => {
             event.stopPropagation();
@@ -160,27 +208,27 @@
 
         // 정렬 버튼 이벤트
         document.getElementById('sort-by-name').addEventListener('click', () => {
-            const productList = document.getElementById('product-list');
-            const items = Array.from(productList.children);
+            const searchResults = document.getElementById('search-results');
+            const items = Array.from(searchResults.children);
             items.sort((a, b) => {
                 const nameA = a.querySelector('.product-name').innerText;
                 const nameB = b.querySelector('.product-name').innerText;
                 return nameA.localeCompare(nameB);
             });
-            productList.innerHTML = '';
-            items.forEach(item => productList.appendChild(item));
+            searchResults.innerHTML = '';
+            items.forEach(item => searchResults.appendChild(item));
         });
 
         document.getElementById('sort-by-price').addEventListener('click', () => {
-            const productList = document.getElementById('product-list');
-            const items = Array.from(productList.children);
+            const searchResults = document.getElementById('search-results');
+            const items = Array.from(searchResults.children);
             items.sort((a, b) => {
                 const priceA = parseInt(a.querySelector('.product-price').innerText.replace(/[^0-9]/g, ''));
                 const priceB = parseInt(b.querySelector('.product-price').innerText.replace(/[^0-9]/g, ''));
                 return priceA - priceB;
             });
-            productList.innerHTML = '';
-            items.forEach(item => productList.appendChild(item));
+            searchResults.innerHTML = '';
+            items.forEach(item => searchResults.appendChild(item));
         });
     });
 </script>
