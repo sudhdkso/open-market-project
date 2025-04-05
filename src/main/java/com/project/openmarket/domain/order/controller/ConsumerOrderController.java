@@ -1,7 +1,7 @@
 package com.project.openmarket.domain.order.controller;
 
-import java.util.List;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.project.openmarket.domain.auth.ConsumerThreadLocal;
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
+import com.project.openmarket.domain.order.dto.response.OrderDetailResponseDto;
+import com.project.openmarket.domain.order.dto.response.OrderListResponsesDto;
 import com.project.openmarket.domain.order.dto.response.OrderResponseDto;
 import com.project.openmarket.domain.order.service.ConsumerOrderService;
 import com.project.openmarket.domain.order.service.OrderService;
@@ -24,24 +26,27 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/consumer")
 public class ConsumerOrderController {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final ConsumerOrderService consumerOrderService;
 	private final OrderService orderService;
 
-	@GetMapping("/order")
-	public ResponseEntity<List<OrderResponseDto>> getOrderList(){
-		List<OrderResponseDto> responseDto = consumerOrderService.findOrderListByConsumer(ConsumerThreadLocal.get());
+	@GetMapping("/orders")
+	public ResponseEntity<OrderListResponsesDto> getOrderList() {
+		OrderListResponsesDto responseDto = consumerOrderService.findOrderListByConsumer(ConsumerThreadLocal.get());
 		return ResponseEntity.ok().body(responseDto);
 	}
 
 	@GetMapping("/order/{orderId}")
-	public ResponseEntity<OrderResponseDto> getOrderOne(@PathVariable("orderId")String orderId){
-		OrderResponseDto responseDto = consumerOrderService.findOrderOne(orderId);
+	public ResponseEntity<OrderDetailResponseDto> getOrderOne(@PathVariable("orderId") String orderId) {
+		OrderDetailResponseDto responseDto = consumerOrderService.findOrderOne(orderId);
 		return ResponseEntity.ok().body(responseDto);
 	}
 
-	@PostMapping("/order")
-	public ResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequestDto requestDto) {
-		OrderResponseDto responseDto = consumerOrderService.create(requestDto, ConsumerThreadLocal.get());
+	@PostMapping("/purchase/{productId}")
+	public ResponseEntity<OrderResponseDto> createOrder(@PathVariable("productId") String productId,
+		@RequestBody OrderRequestDto requestDto) {
+		logger.info("물건 주문!");
+		OrderResponseDto responseDto = consumerOrderService.create(productId, requestDto, ConsumerThreadLocal.get());
 		return ResponseEntity.ok().body(responseDto);
 	}
 
@@ -52,7 +57,7 @@ public class ConsumerOrderController {
 	}
 
 	@GetMapping("/consumer/order")
-	public ResponseEntity<?> confirmedOrder(@RequestParam("orderId") String orderId){
+	public ResponseEntity<?> confirmedOrder(@RequestParam("orderId") String orderId) {
 		consumerOrderService.orderConfirmed(orderId, ConsumerThreadLocal.get());
 		return ResponseEntity.ok().body("success");
 	}

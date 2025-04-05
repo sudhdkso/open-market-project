@@ -35,7 +35,7 @@ public class OrderService {
 	}
 
 	private void cancelOrderStatus(Order order) {
-		order.updateOrderStatus(OrderStatus.CANCEL);
+		order.updateOrderStatus(OrderStatus.CANCELLED);
 		orderRepository.save(order);
 	}
 
