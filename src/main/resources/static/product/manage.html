@@ -122,20 +122,27 @@
     </style>
 </head>
 <body>
-<div id="home-button">
-    <a href="/home.html">Home</a>
-</div>
+<div id="top-bar">
+    <div id="home-button">
+        <a href="/home.html">Home</a>
+    </div>
 
-<div id="auth-buttons">
-    <button onclick="location.href='/login.html'">로그인</button>
-    <button onclick="location.href='/signup.html'">회원가입</button>
-</div>
+    <div id="search-container" style="display: none">
+        <input type="text" id="search-input" placeholder="상품 검색..." aria-label="상품 검색">
+        <button id="search-button">검색</button>
+    </div>
 
-<div id="user-info">
-    <span id="username"></span>
-    <span id="user-cash"></span>
-    <button class="menu-button" id="menu-btn">메뉴</button>
-    <div id="user-menu"></div>
+    <div id="auth-buttons">
+        <button onclick="location.href='/login.html'">로그인</button>
+        <button onclick="location.href='/signup.html'">회원가입</button>
+    </div>
+
+    <div id="user-info">
+        <span id="username"></span>
+        <span id="user-cash"></span>
+        <button class="menu-button" id="menu-btn">메뉴</button>
+        <div id="user-menu"></div>
+    </div>
 </div>
 
 <div id="content">
