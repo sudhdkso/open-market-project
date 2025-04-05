@@ -13,12 +13,12 @@ public class Amount {
 
 	private Long point;
 
-	public Amount(Long cash, Long point){
+	public Amount(Long cash, Long point) {
 		this.cash = cash;
 		this.point = point;
 	}
 
-	public Long getTotalAmount(){
+	public Long getTotalAmount() {
 		return this.cash + this.point;
 	}
 }

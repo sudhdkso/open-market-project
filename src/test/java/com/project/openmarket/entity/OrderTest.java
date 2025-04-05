@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
+import com.project.openmarket.domain.order.entity.Amount;
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.order.entity.eums.OrderStatus;
 import com.project.openmarket.domain.product.entity.Product;
@@ -28,18 +29,17 @@ class OrderTest {
 
 	@ParameterizedTest
 	@DisplayName("주문 수량이 양수이면 성공적으로 주문이 생성된다.")
-	@ValueSource(ints = {1,5,100})
-	void createOrderWithPositiveCount(int count){
+	@ValueSource(ints = {1, 5, 100})
+	void createOrderWithPositiveCount(int count) {
 
 		assertThatNoException()
 			.isThrownBy(() -> createOrder(count));
 	}
 
-
 	@ParameterizedTest
 	@DisplayName("주문 수량이 음수이면 오류가 발생한다.")
-	@ValueSource(ints = {-1,-5,-100})
-	void createOrderWithNegativeCount(int count){
+	@ValueSource(ints = {-1, -5, -100})
+	void createOrderWithNegativeCount(int count) {
 		assertThatThrownBy(() -> createOrder(count))
 			.isInstanceOf(CustomException.class)
 			.hasMessage(NOT_POSITIVE_NUMBER.getMessage());
@@ -47,14 +47,15 @@ class OrderTest {
 
 	@Test
 	@DisplayName("주문 상태를 메서드를 통해 업데이트할 수 있다.")
-	void updateOrderStatus(){
+	void updateOrderStatus() {
 		//given
-		var request = createOrder(1);
-		Order order = request.toEntity(product, consumer);
+		Consumer consumer1 = mock(Consumer.class);
+		given(consumer1.getAddress()).willReturn("주소");
+		Order order = new Order(product, OrderStatus.ORDER_COMPLETED, new Amount(10000L, 0L), 1, consumer1);
 		//when
-		order.updateOrderStatus(OrderStatus.CANCEL);
+		order.updateOrderStatus(OrderStatus.CANCELLED);
 		//then
-		assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCEL);
+		assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
 	}
 
 	@Test
@@ -72,7 +73,7 @@ class OrderTest {
 
 	@Nested
 	@DisplayName("Order의 status가 ")
-	class orderStatus{
+	class orderStatus {
 		@Test
 		@DisplayName("배송 완료가 아니면 false를 반환하고 배송 완료이면 true를 반환한다.")
 		void isDeliveryCompletedTest() {
@@ -83,13 +84,12 @@ class OrderTest {
 
 			assertThat(orderDeliveryCompletedBefore.isDeliveryCompleted()).isFalse();
 			//배송 완료
-			OrderStatus statusDeliveryCompleted = OrderStatus.DELIVERT_COMPLETED;
+			OrderStatus statusDeliveryCompleted = OrderStatus.DELIVERED;
 			Order orderDeliveryCompleted = new Order();
 			orderDeliveryCompleted.updateOrderStatus(statusDeliveryCompleted);
 
 			assertThat(orderDeliveryCompleted.isDeliveryCompleted()).isTrue();
 		}
-
 
 		@Test
 		@DisplayName("배송 시작전이면 true를 반환하고 배송시작 이후면 false를 반환한다.")
@@ -102,14 +102,14 @@ class OrderTest {
 			assertThat(orderDeliveryStartBefore.isBeforeDeliveryStart()).isTrue();
 
 			//배송 시작
-			OrderStatus statusDeliveryStart= OrderStatus.DELIVERY_START;
+			OrderStatus statusDeliveryStart = OrderStatus.SHIPPING;
 			Order orderDeliveryStart = new Order();
 			orderDeliveryStart.updateOrderStatus(statusDeliveryStart);
 
 			assertThat(orderDeliveryStart.isBeforeDeliveryStart()).isFalse();
 
 			//배송 시작 이후
-			OrderStatus statusDeliveryStartAfter = OrderStatus.DELIVERT_COMPLETED;
+			OrderStatus statusDeliveryStartAfter = OrderStatus.DELIVERED;
 			Order orderDeliveryStartAfter = new Order();
 			orderDeliveryStartAfter.updateOrderStatus(statusDeliveryStartAfter);
 
@@ -120,7 +120,7 @@ class OrderTest {
 		@DisplayName("구매 확정이 아니면 false 반환하고 구매 확정 상태이면 true를 반환한다.")
 		void isPurchaseConfirmedTest() {
 			//구매 확정 전
-			OrderStatus statusPurchaseConfirmedBefore = OrderStatus.DELIVERY_START;
+			OrderStatus statusPurchaseConfirmedBefore = OrderStatus.SHIPPING;
 			Order orderPurchaseConfirmedBefore = new Order();
 			orderPurchaseConfirmedBefore.updateOrderStatus(statusPurchaseConfirmedBefore);
 
@@ -137,7 +137,7 @@ class OrderTest {
 
 	@Nested
 	@DisplayName("배송 완료 메서드를 호출할 때 ")
-	class completeOrderDelivery{
+	class completeOrderDelivery {
 		@Test
 		@DisplayName("배송 완료 시각을 매개변수로 받지 않으면 현재 시각을 배송 완료 시각으로 지정한다.")
 		void testWithoutParam() {
@@ -145,7 +145,7 @@ class OrderTest {
 
 			order.completeOrderDelivery();
 
-			assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERT_COMPLETED);
+			assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERED);
 			assertThat(order.getDeliveryCompletedAt()).isNotNull();
 			assertThat(order.getDeliveryCompletedAt()).isBefore(LocalDateTime.now().plusSeconds(1));
 		}
@@ -158,12 +158,12 @@ class OrderTest {
 			LocalDateTime deliveryTime = LocalDateTime.now().minusDays(1);
 			order.completeOrderDelivery(deliveryTime);
 
-			assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERT_COMPLETED);
+			assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERED);
 			assertThat(order.getDeliveryCompletedAt()).isEqualTo(deliveryTime);
 		}
 	}
 
-	OrderRequestDto createOrder(int count){
-		return new OrderRequestDto("67ec1324da973979b3723d17", 1000,1000L, 0L, count);
+	OrderRequestDto createOrder(int count) {
+		return new OrderRequestDto(1000, 1000L, 0L, count);
 	}
 }
