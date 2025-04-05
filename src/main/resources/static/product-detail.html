@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 상세 정보</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .product-detail {
+          max-width: 800px;
+          width: 100%; /* 너비 100% 추가 */
+          margin: 0 auto;
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+        }
+        .product-image {
+            width: 100%;
+            height: 400px;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+            font-size: 18px;
+        }
+        .product-content {
+            padding: 20px;
+        }
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .product-title-area {
+            flex-grow: 1;
+        }
+        .product-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        .product-price {
+            font-size: 22px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .buy-button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 20px;
+        }
+        .buy-button:hover {
+            background-color: #0056b3;
+        }
+        .product-info {
+            margin-bottom: 20px;
+        }
+        .product-info p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        .seller-info {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .seller-info h3 {
+            margin-top: 0;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+        .error {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #dc3545;
+        }
+        .rating {
+            display: inline-flex;
+            margin-left: 10px;
+            font-size: 18px;
+            color: #ffc107;
+            cursor: pointer;
+            position: relative;
+        }
+        .rating:hover .rating-tooltip {
+            display: block;
+        }
+        .rating-tooltip {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+        .rating-tooltip:after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+    </style>
+</head>
+<body>
+<div id="home-button">
+    <a href="/home.html">Home</a>
+</div>
+
+<div id="search-container">
+    <input type="text" id="search-input" placeholder="상품 검색..." aria-label="상품 검색">
+    <button id="search-button">검색</button>
+</div>
+
+<div id="auth-buttons">
+    <button onclick="location.href='/login.html'">로그인</button>
+    <button onclick="location.href='/signup.html'">회원가입</button>
+</div>
+
+<div id="user-info">
+    <span id="username"></span>
+    <span id="user-cash"></span>
+    <button class="menu-button" id="menu-btn">메뉴</button>
+    <div id="user-menu"></div>
+</div>
+
+<div id="content">
+    <div id="loading" class="loading">상품 정보를 불러오는 중입니다...</div>
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="product-detail" class="product-detail" style="display: none;">
+        <div class="product-image">상품 이미지</div>
+        <div class="product-content">
+            <div class="product-header">
+                <div class="product-title-area">
+                    <h1 class="product-title">
+                        <span id="product-name"></span>
+                        <div class="rating" id="product-rating">
+                            <span class="stars"></span>
+                            <div class="rating-tooltip">정확한 평점: <span id="exact-rating"></span></div>
+                        </div>
+                    </h1>
+                    <div class="product-price" id="product-price"></div>
+                </div>
+                <button id="buy-button" class="buy-button">구매하기</button>
+            </div>
+
+            <div class="product-info">
+                <p id="product-description"></p>
+            </div>
+
+            <div class="seller-info">
+                <h3>판매자 정보</h3>
+                <p><strong>판매자:</strong> <span id="seller-name"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadUserInfo() {
+        const authButtons = document.getElementById("auth-buttons");
+        const userInfo = document.getElementById("user-info");
+        const userMenu = document.getElementById("user-menu");
+        const usernameElem = document.getElementById("username");
+        const userCashElem = document.getElementById("user-cash");
+
+        try {
+            // 로컬 스토리지에서 사용자 정보 확인
+            const storedUser = localStorage.getItem('user');
+            let user;
+
+            if (storedUser) {
+                // 로컬 스토리지에 사용자 정보가 있는 경우
+                user = JSON.parse(storedUser);
+            } else {
+                // 로컬 스토리지에 사용자 정보가 없는 경우 API 호출
+                const userResponse = await fetch("/api/v1/user");
+                if (!userResponse.ok) throw new Error("Unauthorized");
+
+                user = await userResponse.json();
+
+                // 사용자 정보를 로컬 스토리지에 저장
+                localStorage.setItem('user', JSON.stringify(user));
+            }
+
+            // 사용자 정보 표시
+            authButtons.style.display = "none";
+            userInfo.style.display = "flex";
+            usernameElem.innerText = user.name;
+            userCashElem.innerText = `캐시: ${user.cash.toLocaleString()}원`;
+
+            userMenu.innerHTML = user.role === "seller" ? `
+                <a href="/product/register.html">상품 추가</a>
+                <a href="/product/manage.html">상품 관리</a>
+                <a href="/order/manage.html">주문 관리</a>
+                <a href="/profile.html">정보 관리</a>
+                <a href="#" onclick="logout()">로그아웃</a>
+            ` : `
+                <a href="/payment/charge.html">캐시 충전</a>
+                <a href="/order/list.html">주문 내역</a>
+                <a href="/profile.html">정보 관리</a>
+                <a href="#" onclick="logout()">로그아웃</a>
+            `;
+
+            return user;
+        } catch (error) {
+            authButtons.style.display = "flex";
+            userInfo.style.display = "none";
+            // 오류 발생 시 로컬 스토리지에서 사용자 정보 제거
+            localStorage.removeItem('user');
+            return null;
+        }
+    }
+
+    // 별점을 텍스트로 변환하는 함수
+    function getStarRating(score) {
+        // 소수점은 반올림하여 정수로 변환
+        const roundedScore = Math.round(score);
+        const filledStar = '★'; // 채워진 별
+        const emptyStar = '☆'; // 빈 별
+
+        // 5점 만점 기준으로 별 표시
+        let stars = '';
+        for (let i = 0; i < 5; i++) {
+            stars += (i < roundedScore) ? filledStar : emptyStar;
+        }
+
+        return stars;
+    }
+
+    async function loadProductDetail(productId) {
+        const loadingElem = document.getElementById("loading");
+        const errorElem = document.getElementById("error");
+        const productDetailElem = document.getElementById("product-detail");
+        const buyButton = document.getElementById("buy-button");
+
+        try {
+            const productResponse = await fetch(`/api/v1/product/${productId}`);
+            if (!productResponse.ok) throw new Error("상품 정보를 불러오지 못했습니다.");
+
+            const product = await productResponse.json();
+
+            // 상품 정보 표시
+            document.getElementById("product-name").innerText = product.name;
+            document.getElementById("product-price").innerText = `${product.price.toLocaleString()}원`;
+
+            // 별점 표시
+            const ratingElem = document.getElementById("product-rating");
+            const starsElem = ratingElem.querySelector(".stars");
+            const exactRatingElem = document.getElementById("exact-rating");
+
+            // 평점이 있는 경우에만 표시
+            if (product.avgScore !== undefined && product.avgScore !== null) {
+                starsElem.innerText = getStarRating(product.avgScore);
+                exactRatingElem.innerText = product.avgScore.toFixed(1) + ' / 5.0';
+
+                // 별점 클릭 시 리뷰 목록으로 이동
+                ratingElem.onclick = () => location.href = `/reviews.html?productId=${productId}`;
+            } else {
+                starsElem.innerText = '☆☆☆☆☆';
+                exactRatingElem.innerText = '평가 없음';
+            }
+
+            // 상품 설명이 있는 경우 표시
+            if (product.description) {
+                document.getElementById("product-description").innerText = product.description;
+            } else {
+                document.getElementById("product-description").innerText = "상품 설명이 없습니다.";
+            }
+
+            document.getElementById("seller-name").innerText = product.seller.name;
+
+            // 사용자 정보 로드
+            const user = await loadUserInfo();
+
+            // 구매 버튼 설정
+            if (user) {
+                if (user.role === "consumer") {
+                    // 구매자인 경우 구매 버튼 활성화
+                    buyButton.onclick = () => purchaseProduct(productId);
+                    buyButton.style.display = "block";
+                } else if (user.role === "seller" && product.seller.id === user.id) {
+                    // 판매자이면서 자신의 상품인 경우 수정 버튼으로 변경
+                    buyButton.innerText = "상품 수정";
+                    buyButton.onclick = () => location.href = `/product/edit.html?id=${productId}`;
+                    buyButton.style.display = "block";
+                } else {
+                    // 다른 판매자의 상품인 경우 버튼 숨김
+                    buyButton.style.display = "none";
+                }
+            } else {
+                // 로그인하지 않은 경우 로그인 버튼으로 변경
+                buyButton.innerText = "로그인하고 구매하기";
+                buyButton.onclick = () => location.href = "/login.html";
+                buyButton.style.display = "block";
+            }
+
+            // 로딩 완료 후 화면 전환
+            loadingElem.style.display = "none";
+            errorElem.style.display = "none";
+            productDetailElem.style.display = "block";
+
+        } catch (error) {
+            loadingElem.style.display = "none";
+            errorElem.style.display = "block";
+            errorElem.innerText = error.message;
+            productDetailElem.style.display = "none";
+        }
+    }
+
+    async function purchaseProduct(productId) {
+        window.location.href = `/order/checkout.html?id=${encodeURIComponent(productId)}`;
+    }
+
+    function searchProducts() {
+        const searchTerm = document.getElementById("search-input").value.trim();
+        if (searchTerm) {
+            window.location.href = `/search.html?q=${encodeURIComponent(searchTerm)}`;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('user');
+        fetch("/api/v1/logout", { method: "POST" })
+            .then(() => window.location.href = "/login.html");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // 검색 버튼 클릭 이벤트
+        document.getElementById("search-button").addEventListener("click", searchProducts);
+
+        // 엔터 키 검색 이벤트
+        document.getElementById("search-input").addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                searchProducts();
+            }
+        });
+
+        document.getElementById("menu-btn").addEventListener("click", (event) => {
+            event.stopPropagation();
+            const menu = document.getElementById("user-menu");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest("#user-info")) {
+                document.getElementById("user-menu").style.display = "none";
+            }
+        });
+
+        // URL에서 상품 ID 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        if (productId) {
+            loadProductDetail(productId);
+        } else {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("error").style.display = "block";
+            document.getElementById("error").innerText = "상품 ID가 지정되지 않았습니다.";
+        }
+    });
+</script>
+</body>
+</html>
