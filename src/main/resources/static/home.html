@@ -4,93 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>홈 - 상품 목록</title>
+    <link rel="stylesheet" href="/css/common.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 40px;
-        }
-        #home-button {
-            position: fixed;
-            top: 0;
-            left: 40px;
-            background-color: white;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            border-bottom: 2px solid #ddd;
-            z-index: 1000;
-            height: 24px;
-        }
-        #home-button a {
-            text-decoration: none;
-            color: #007bff;
-            font-size: 16px;
-        }
-        #home-button a:hover {
-            text-decoration: underline;
-        }
-        #auth-buttons {
-            position: fixed;
-            top: 0;
-            right: 40px;
-            background-color: white;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-bottom: 2px solid #ddd;
-            z-index: 1000;
-            height: 24px; /* 명시적 높이 설정 */
-        }
-        #auth-buttons button {
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 5px 10px;
-        }
-        #user-info {
-            position: fixed;
-            top: 0;
-            right: 40px;
-            background-color: white;
-            padding: 10px 20px;
-            display: none;
-            align-items: center;
-            gap: 15px;
-            border-bottom: 2px solid #ddd;
-            z-index: 1000;
-        }
-        .menu-button {
-            cursor: pointer;
-            font-size: 16px;
-            padding: 5px 10px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        #user-menu {
-            display: none;
-            position: absolute;
-            top: 40px;
-            right: 0;
-            background: white;
-            border: 1px solid #ccc;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            width: 150px;
-        }
-        #user-menu a {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
-            color: black;
-        }
-        #user-menu a:hover { background: #f0f0f0; }
-        #content {
-            margin-top: 60px;
-            padding: 40px;
-        }
         #product-list {
             margin-top: 10px;
         }
@@ -102,12 +17,19 @@
             justify-content: space-between;
             font-size: 14px;
         }
-        .product-item:hover { background-color: #f0f0f0; }
+        .product-item:hover {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
 <div id="home-button">
-    <a href="/">Home</a>
+    <a href="/home.html">Home</a>
+</div>
+
+<div id="search-container">
+    <input type="text" id="search-input" placeholder="상품 검색..." aria-label="상품 검색">
+    <button id="search-button">검색</button>
 </div>
 
 <div id="auth-buttons">
@@ -136,29 +58,42 @@
         const userCashElem = document.getElementById("user-cash");
 
         try {
+            // 로컬 스토리지에서 사용자 정보 확인
+
+            console.log("local storage저장 완료")
+            // 로컬 스토리지에 사용자 정보가 없는 경우 API 호출
             const userResponse = await fetch("/api/v1/user");
             if (!userResponse.ok) throw new Error("Unauthorized");
 
-            const user = await userResponse.json();
+            user = await userResponse.json();
+
+            // 사용자 정보를 로컬 스토리지에 저장
+            localStorage.setItem('user', JSON.stringify(user));
+
+
+            // 사용자 정보 표시
             authButtons.style.display = "none";
             userInfo.style.display = "flex";
             usernameElem.innerText = user.name;
             userCashElem.innerText = `캐시: ${user.cash.toLocaleString()}원`;
 
             userMenu.innerHTML = user.role === "seller" ? `
-                <a href="/register-product.html">상품 추가</a>
-                <a href="/manage-products.html">상품 관리</a>
+                <a href="/product/register.html">상품 추가</a>
+                <a href="/product/manage.html">상품 관리</a>
+                <a href="/order/manage.html">주문 관리</a>
                 <a href="/profile.html">정보 관리</a>
                 <a href="#" onclick="logout()">로그아웃</a>
             ` : `
-                <a href="/charge.html">캐시 충전</a>
-                <a href="/orders.html">주문 내역</a>
+                <a href="/payment/charge.html">캐시 충전</a>
+                <a href="/order/list.html">주문 내역</a>
                 <a href="/profile.html">정보 관리</a>
                 <a href="#" onclick="logout()">로그아웃</a>
             `;
         } catch (error) {
             authButtons.style.display = "flex";
             userInfo.style.display = "none";
+            // 오류 발생 시 로컬 스토리지에서 사용자 정보 제거
+            localStorage.removeItem('user');
         }
     }
 
@@ -173,11 +108,18 @@
                 const item = document.createElement("div");
                 item.className = "product-item";
                 item.innerHTML = `<span>${product.name}</span><span>${product.price.toLocaleString()}원</span>`;
-                item.onclick = () => location.href = `/product-detail.html?name=${encodeURIComponent(product.name)}`;
+                item.onclick = () => location.href = `/product-detail.html?id=${encodeURIComponent(product.id)}`;
                 productList.appendChild(item);
             });
         } catch (error) {
             alert(error.message);
+        }
+    }
+
+    function searchProducts() {
+        const searchTerm = document.getElementById("search-input").value.trim();
+        if (searchTerm) {
+            window.location.href = `/search.html?q=${encodeURIComponent(searchTerm)}`;
         }
     }
 
@@ -189,11 +131,23 @@
     document.addEventListener("DOMContentLoaded", () => {
         loadUserInfo();
         loadProducts();
+
+        // 검색 버튼 클릭 이벤트
+        document.getElementById("search-button").addEventListener("click", searchProducts);
+
+        // 엔터 키 검색 이벤트
+        document.getElementById("search-input").addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                searchProducts();
+            }
+        });
+
         document.getElementById("menu-btn").addEventListener("click", (event) => {
             event.stopPropagation();
             const menu = document.getElementById("user-menu");
             menu.style.display = menu.style.display === "block" ? "none" : "block";
         });
+
         document.addEventListener("click", (event) => {
             if (!event.target.closest("#user-info")) {
                 document.getElementById("user-menu").style.display = "none";
