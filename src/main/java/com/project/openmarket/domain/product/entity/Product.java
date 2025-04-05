@@ -2,7 +2,6 @@ package com.project.openmarket.domain.product.entity;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -15,7 +14,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 @Getter
 @NoArgsConstructor
 @Document(collection = "products")
@@ -24,6 +22,8 @@ public class Product extends BaseTime {
 	private ObjectId id;
 
 	private String name;
+
+	private String description;
 
 	private int price;
 
@@ -36,51 +36,52 @@ public class Product extends BaseTime {
 	//TODO: 2024.05.10 구매수 컬럼 추가하기
 
 	@Builder
-	public Product(String name, int price, int stock, Seller seller){
+	public Product(String name, String description, int price, int stock, Seller seller) {
 		this.name = name;
+		this.description = description;
 		this.price = price;
 		this.stock = stock;
 		this.seller = seller;
 		this.avgScore = 0.0;
 	}
 
-	public static Product of(ProductRequestDto dto, Seller seller){
-		return new Product(dto.name(), dto.price(), dto.stock(), seller);
+	public static Product of(ProductRequestDto dto, Seller seller) {
+		return new Product(dto.name(), dto.description(), dto.price(), dto.stock(), seller);
 	}
 
-	public void update(ProductUpdateReqeustDto dto){
-		if(dto.name() != null) {
+	public void update(ProductUpdateReqeustDto dto) {
+		if (dto.name() != null) {
 			this.name = dto.name();
 		}
 		this.price = dto.price();
 		this.stock = dto.stock();
 	}
 
-	public void updateAvgScore(double avgScore){
+	public void updateAvgScore(double avgScore) {
 		this.avgScore = avgScore;
 	}
 
-	public void increaseStock(int count){
+	public void increaseStock(int count) {
 		this.stock += count;
 	}
 
-	public void decreaseStock(int count){
+	public void decreaseStock(int count) {
 		this.stock -= count;
 	}
 
-	public boolean canBuy(int count){
+	public boolean canBuy(int count) {
 		return this.stock >= count;
 	}
 
-	public boolean isSoldOut(){
+	public boolean isSoldOut() {
 		return this.stock <= 0;
 	}
 
-	public boolean isSameName(String another){
+	public boolean isSameName(String another) {
 		return this.name.equals(another);
 	}
 
-	public ObjectId getSellerId(){
+	public ObjectId getSellerId() {
 		return this.seller.getId();
 	}
 }

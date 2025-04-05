@@ -7,7 +7,6 @@ import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,10 +21,11 @@ public interface ProductRepository extends MongoRepository<Product, ObjectId> {
 	@Query(value = "{ 'name': ?0, 'seller._id': ?#{#seller.id} }", count = true)
 	Long countByNameAndSeller(String name, @Param("seller") Seller seller);
 
-//	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	//	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("{ 'id' : ?0 }")
 	Optional<Product> findByIdWithLock(@Param("id") ObjectId id);
 
+	List<Product> findBySeller(Seller seller);
 
 	List<Product> findByNameContainsOrderByAvgScoreDesc(String name);
 
@@ -33,7 +33,7 @@ public interface ProductRepository extends MongoRepository<Product, ObjectId> {
 
 	@NotNull Page<Product> findAll(@NotNull Pageable pageable);
 
-	default Product getById(ObjectId id){
+	default Product getById(ObjectId id) {
 		return findById(id)
 			.orElseThrow(() -> new CustomException(ExceptionConstants.NOT_FOUND_PRODUCT));
 
@@ -41,7 +41,6 @@ public interface ProductRepository extends MongoRepository<Product, ObjectId> {
 
 	default boolean existsByNameAndSeller(String name, Seller seller) {
 		Long count = countByNameAndSeller(name, seller);
-		System.out.println(count);
-		return  count != null && count > 0 ;
+		return count != null && count > 0;
 	}
 }
