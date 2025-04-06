@@ -53,8 +53,4 @@ public class ReviewService {
 		return reviewRepository.findByConsumer(consumer);
 	}
 
-	//리뷰 평균 점수
-	// public double getAvgScore(Product product){
-	// 	return
-	// }
 }

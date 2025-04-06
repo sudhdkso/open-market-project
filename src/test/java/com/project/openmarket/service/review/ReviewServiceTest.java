@@ -10,7 +10,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.context.ApplicationEventPublisher;
 
+import com.project.openmarket.domain.order.entity.Order;
+import com.project.openmarket.domain.order.service.OrderService;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.review.dto.request.ReviewCreateRequestDto;
@@ -25,38 +28,42 @@ class ReviewServiceTest extends ServiceTestMock {
 	ReviewService reviewService;
 	@Mock
 	ProductService productService;
+	@Mock
+	OrderService orderService;
+	@Mock
+	ApplicationEventPublisher applicationEventPublisher;
 
-	@Test
 	@DisplayName("리뷰를 등록할 때 점수가 유효한 범위내의 값이면 성공한다.")
-	void createdReviewWithInScore() {
-		var response = createReview(4);
+	@Test
+	void whenValidScore_thenCreateReview() {
+		//given
+		var request = createReview(4);
 
 		given(order.getProduct()).willReturn(product);
+		doNothing().when(orderService).markAsReviewed(any(Order.class));
+		doNothing().when(applicationEventPublisher).publishEvent(any());
+		given(reviewRepository.save(any(Review.class))).willReturn(request.toEntity(product, consumer));
 
+		//when
 		assertThatNoException()
-			.isThrownBy(() -> reviewService.create(order, response, consumer));
+			.isThrownBy(() -> reviewService.create(order, request, consumer));
 
-		then(reviewRepository)
-			.should(times(1))
-			.save(any(Review.class));
-
-		then(productService)
-			.should(times(1))
-			.updateProductAvgScore(anyDouble(), any(Product.class));
+		//then
+		verify(reviewRepository, times(1)).save(any(Review.class));
 	}
 
-	@DisplayName("범위 밖의 점수를 가지고 리뷰를 등록하려하면 실패한다.")
+	@DisplayName("범위 밖의 점수로 리뷰 등록 시 실패한다.")
 	@ParameterizedTest
 	@ValueSource(ints = {-1, 0, 6, 10})
-	void createReviewNotWithInScore(int score) {
+	void whenInvalidScore_thenFailToCreateReview(int score) {
 		assertThatThrownBy(() -> createReview(score))
 			.isInstanceOf(CustomException.class)
 			.hasMessage(SCORE_OUT_OF_RANGE.getMessage());
 	}
 
+	@DisplayName("유효한 상품의 리뷰를 조회한다.")
 	@Test
-	@DisplayName("유효한 상품으로 리뷰를 조회할 수 있다.")
-	void getValidReviewListByProductTest() {
+	void whenValidProduct_thenReturnReviewList() {
 		given(productService.getProductById(any())).willReturn(product);
 
 		assertThatNoException()
@@ -67,9 +74,9 @@ class ReviewServiceTest extends ServiceTestMock {
 			.findByProduct(any(Product.class));
 	}
 
+	@DisplayName("유효한 고객의 리뷰를 조회한다.")
 	@Test
-	@DisplayName("유효한 고객으로 리뷰를 조회할 수 있다.")
-	void getValidReviewListByConsumer() {
+	void whenValidConsumer_thenReturnReviewList() {
 		assertThatNoException()
 			.isThrownBy(() -> reviewService.getReviewByConsumer(consumer));
 
@@ -79,6 +86,6 @@ class ReviewServiceTest extends ServiceTestMock {
 	}
 
 	ReviewCreateRequestDto createReview(int score) {
-		return new ReviewCreateRequestDto(5, "review");
+		return new ReviewCreateRequestDto(score, "review");
 	}
 }

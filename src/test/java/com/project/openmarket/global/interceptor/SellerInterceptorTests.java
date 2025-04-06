@@ -20,6 +20,8 @@ import com.project.openmarket.domain.user.repository.SellerRepository;
 import com.project.openmarket.global.context.ConsumerThreadLocal;
 import com.project.openmarket.global.context.SellerThreadLocal;
 import com.project.openmarket.global.context.enums.SessionConst;
+import com.project.openmarket.global.exception.CustomException;
+import com.project.openmarket.global.exception.enums.ExceptionConstants;
 
 class SellerInterceptorTests extends InterceptorTestMock {
 	@InjectMocks
@@ -62,7 +64,10 @@ class SellerInterceptorTests extends InterceptorTestMock {
 			given(request.getSession(true)).willReturn(session);
 			given(sellerRepository.findByEmail(anyString())).willReturn(Optional.empty());
 
-			assertThat(sellerInterceptor.preHandle(request, response, handler)).isFalse();
+			//when & then
+			assertThatThrownBy(() -> sellerInterceptor.preHandle(request, response, handler))
+				.isInstanceOf(CustomException.class)
+				.hasMessage(ExceptionConstants.SECURITY.getMessage());
 		}
 
 		@DisplayName("세션이 존재하지 않으면 false를 반환한다.")
@@ -71,7 +76,10 @@ class SellerInterceptorTests extends InterceptorTestMock {
 			given(request.getSession(true)).willReturn(new MockHttpSession());
 			given(sellerRepository.findByEmail(any())).willReturn(Optional.empty());
 
-			assertThat(sellerInterceptor.preHandle(request, response, handler)).isFalse();
+			//when & then
+			assertThatThrownBy(() -> sellerInterceptor.preHandle(request, response, handler))
+				.isInstanceOf(CustomException.class)
+				.hasMessage(ExceptionConstants.SECURITY.getMessage());
 		}
 	}
 
