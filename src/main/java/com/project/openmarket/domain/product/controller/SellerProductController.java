@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.openmarket.domain.auth.SellerThreadLocal;
 import com.project.openmarket.domain.product.dto.request.ProductRequestDto;
 import com.project.openmarket.domain.product.dto.request.ProductUpdateReqeustDto;
 import com.project.openmarket.domain.product.dto.response.ProductCreateResponseDto;
 import com.project.openmarket.domain.product.dto.response.ProductResponseDto;
 import com.project.openmarket.domain.product.dto.response.SellerProductResponsesDto;
 import com.project.openmarket.domain.product.service.SellerProductService;
+import com.project.openmarket.global.context.SellerThreadLocal;
 
 import lombok.RequiredArgsConstructor;
 

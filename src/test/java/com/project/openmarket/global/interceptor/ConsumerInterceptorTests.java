@@ -17,8 +17,8 @@ import org.springframework.mock.web.MockHttpSession;
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.repository.ConsumerRepository;
-import com.project.openmarket.domain.auth.ConsumerThreadLocal;
-import com.project.openmarket.domain.auth.enums.SessionConst;
+import com.project.openmarket.global.context.ConsumerThreadLocal;
+import com.project.openmarket.global.context.enums.SessionConst;
 
 class ConsumerInterceptorTests extends InterceptorTestMock {
 	@InjectMocks
@@ -44,14 +44,13 @@ class ConsumerInterceptorTests extends InterceptorTestMock {
 
 	@DisplayName("prehandle에서 ")
 	@Nested
-	class Prehandle{
+	class Prehandle {
 		@DisplayName("세션에 이메일이 존재하면서, 이메일에 해당하는 consumer를 조회할 수 있으면 true를 반환한다.")
 		@Test
 		void preHandleTestByValidEmail() throws Exception {
 
 			given(request.getSession(true)).willReturn(session);
 			given(consumerRepository.findByEmail(anyString())).willReturn(Optional.of(consumer));
-
 
 			assertThat(consumerInterceptor.preHandle(request, response, handler)).isTrue();
 		}
@@ -67,7 +66,7 @@ class ConsumerInterceptorTests extends InterceptorTestMock {
 
 		@DisplayName("세션에 이메일이 존재하지 않으면 false를 반환한다.")
 		@Test
-		void preHandleTestByEmptyEmail() throws Exception{
+		void preHandleTestByEmptyEmail() throws Exception {
 			given(request.getSession(true)).willReturn(new MockHttpSession());
 			given(consumerRepository.findByEmail(any())).willReturn(Optional.empty());
 
@@ -77,16 +76,16 @@ class ConsumerInterceptorTests extends InterceptorTestMock {
 
 	@DisplayName("postHandle에서 ConsumerThreadLocal이 삭제되어 null을 반환한다.")
 	@Test
-	void postHandelClearConsumerThreadLocal() throws Exception{
+	void postHandelClearConsumerThreadLocal() throws Exception {
 		ConsumerThreadLocal.set(consumer);
 
 		given(request.getSession(true)).willReturn(session);
-		consumerInterceptor.postHandle(request,response,handler,modelAndView);
+		consumerInterceptor.postHandle(request, response, handler, modelAndView);
 
 		assertThat(ConsumerThreadLocal.get()).isNull();
 	}
 
-	Consumer createConsumer(){
-		return Consumer.of(new ConsumerCreateReqestDto("consumer1@example.com","1111","010-0000-0000","1234","dd"));
+	Consumer createConsumer() {
+		return Consumer.of(new ConsumerCreateReqestDto("consumer1@example.com", "1111", "010-0000-0000", "1234", "dd"));
 	}
 }

@@ -1,14 +1,14 @@
-package com.project.openmarket.domain.auth;
-
+package com.project.openmarket.global.context;
 
 import com.project.openmarket.domain.user.entity.Seller;
 
 public class SellerThreadLocal {
 	private static final ThreadLocal<Seller> SELLER_THREAD_LOCAL = new ThreadLocal<>();
 
-	private SellerThreadLocal(){
+	private SellerThreadLocal() {
 
 	}
+
 	public static void set(Seller seller) {
 		SELLER_THREAD_LOCAL.set(seller);
 	}

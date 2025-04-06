@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.openmarket.domain.auth.SellerThreadLocal;
 import com.project.openmarket.domain.order.dto.response.OrderListResponsesDto;
 import com.project.openmarket.domain.order.service.SellerOrderService;
+import com.project.openmarket.global.context.SellerThreadLocal;
 
 import lombok.RequiredArgsConstructor;
 

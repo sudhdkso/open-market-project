@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.openmarket.domain.auth.ConsumerThreadLocal;
 import com.project.openmarket.domain.cash.dto.request.PaymentRequestDto;
 import com.project.openmarket.domain.cash.dto.response.PaymentFailResponseDto;
 import com.project.openmarket.domain.cash.dto.response.PaymentSuccessResponseDto;
 import com.project.openmarket.domain.cash.service.TossPaymentService;
+import com.project.openmarket.global.context.ConsumerThreadLocal;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
