@@ -189,7 +189,7 @@
             document.getElementById("buyer-address").innerText = orderData.address || "주소 정보 없음";
 
             // 배송 완료일 표시 (배송 완료 상태인 경우)
-            if (orderData.status === "DELIVERED" || orderData.status === "CONFIRMED") {
+            if (orderData.status === "DELIVERED" || orderData.status === "PURCHASE_CONFIRMATION") {
                 document.getElementById("delivery-date-container").style.display = "flex";
                 const deliveryDate = new Date(orderData.deliveredAt || orderData.updatedAt);
                 document.getElementById("delivery-date").innerText = deliveryDate.toLocaleString();
@@ -253,7 +253,7 @@
                 confirmButton.disabled = true;
                 confirmButton.classList.add("disabled-button");
                 break;
-            case "CONFIRMED":
+            case "PURCHASE_CONFIRMATION":
                 statusText = "구매 확정";
                 badgeClass = "status-confirmed";
                 cancelButton.disabled = true;
