@@ -50,12 +50,12 @@ class ProductServiceTest extends ServiceTestMock {
 		@DisplayName("존재하는 상품명으로 리뷰순으로 상품을 조회할 수 있다.")
 		@Test
 		void whenSearchByName_thenFindProductByScore() {
-			given(productRepository.findByNameContainsOrderByAvgScoreDesc(anyString()))
+			given(productRepository.findByNameContainsOrderByAvgRatingDesc(anyString()))
 				.willReturn(List.of(product));
 			assertThatNoException()
 				.isThrownBy(() -> productService.findByScoreDesc("상품1"));
 
-			verify(productRepository, times(1)).findByNameContainsOrderByAvgScoreDesc(anyString());
+			verify(productRepository, times(1)).findByNameContainsOrderByAvgRatingDesc(anyString());
 		}
 	}
 
@@ -91,7 +91,7 @@ class ProductServiceTest extends ServiceTestMock {
 		assertThatNoException()
 			.isThrownBy(() -> productService.updateProductAvgScore(4.0, product));
 
-		verify(product, times(1)).updateAvgScore(anyDouble());
+		verify(product, times(1)).updateAvgRating(anyDouble());
 		verify(productRepository, times(1)).save(any(Product.class));
 	}
 

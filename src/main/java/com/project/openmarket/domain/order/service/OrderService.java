@@ -68,4 +68,10 @@ public class OrderService {
 		//고객에게 2% 포인트 제공
 		consumerService.processPoints(points, consumer);
 	}
+
+	@Transactional
+	public void markAsReviewed(Order order) {
+		orderRepository.updateIsReviewed(order.getId());
+	}
+
 }

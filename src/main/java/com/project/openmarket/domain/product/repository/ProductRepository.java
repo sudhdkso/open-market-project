@@ -27,7 +27,7 @@ public interface ProductRepository extends MongoRepository<Product, ObjectId> {
 
 	List<Product> findBySeller(Seller seller);
 
-	List<Product> findByNameContainsOrderByAvgScoreDesc(String name);
+	List<Product> findByNameContainsOrderByAvgRatingDesc(String name);
 
 	Page<Product> findByNameContaining(String name, Pageable pageable);
 

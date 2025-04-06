@@ -29,7 +29,7 @@ public class Product extends BaseTime {
 
 	private int stock;
 
-	private double avgScore;
+	private double avgRating;
 
 	@DocumentReference
 	private Seller seller;
@@ -42,7 +42,7 @@ public class Product extends BaseTime {
 		this.price = price;
 		this.stock = stock;
 		this.seller = seller;
-		this.avgScore = 0.0;
+		this.avgRating = 0.0;
 	}
 
 	public static Product of(ProductRequestDto dto, Seller seller) {
@@ -57,8 +57,8 @@ public class Product extends BaseTime {
 		this.stock = dto.stock();
 	}
 
-	public void updateAvgScore(double avgScore) {
-		this.avgScore = avgScore;
+	public void updateAvgRating(double avgRating) {
+		this.avgRating = avgRating;
 	}
 
 	public void increaseStock(int count) {

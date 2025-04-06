@@ -4,7 +4,6 @@ import static com.project.openmarket.global.exception.enums.ExceptionConstants.*
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,7 +13,7 @@ import org.mockito.Mock;
 
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
-import com.project.openmarket.domain.review.dto.request.ReviewCreateResponseDto;
+import com.project.openmarket.domain.review.dto.request.ReviewCreateRequestDto;
 import com.project.openmarket.domain.review.entity.Review;
 import com.project.openmarket.domain.review.service.ReviewService;
 import com.project.openmarket.domain.user.entity.Consumer;
@@ -35,7 +34,7 @@ class ReviewServiceTest extends ServiceTestMock {
 		given(order.getProduct()).willReturn(product);
 
 		assertThatNoException()
-			.isThrownBy(() -> reviewService.create(response, consumer));
+			.isThrownBy(() -> reviewService.create(order, response, consumer));
 
 		then(reviewRepository)
 			.should(times(1))
@@ -43,12 +42,12 @@ class ReviewServiceTest extends ServiceTestMock {
 
 		then(productService)
 			.should(times(1))
-			.updateProductAvgScore(anyDouble(),any(Product.class));
+			.updateProductAvgScore(anyDouble(), any(Product.class));
 	}
 
 	@DisplayName("범위 밖의 점수를 가지고 리뷰를 등록하려하면 실패한다.")
 	@ParameterizedTest
-	@ValueSource(ints = {-1,0,6,10})
+	@ValueSource(ints = {-1, 0, 6, 10})
 	void createReviewNotWithInScore(int score) {
 		assertThatThrownBy(() -> createReview(score))
 			.isInstanceOf(CustomException.class)
@@ -57,7 +56,7 @@ class ReviewServiceTest extends ServiceTestMock {
 
 	@Test
 	@DisplayName("유효한 상품으로 리뷰를 조회할 수 있다.")
-	void getValidReviewListByProductTest(){
+	void getValidReviewListByProductTest() {
 		given(productService.getProductById(any())).willReturn(product);
 
 		assertThatNoException()
@@ -79,7 +78,7 @@ class ReviewServiceTest extends ServiceTestMock {
 			.findByConsumer(any(Consumer.class));
 	}
 
-	ReviewCreateResponseDto createReview(int score){
-		return new ReviewCreateResponseDto(order, score);
+	ReviewCreateRequestDto createReview(int score) {
+		return new ReviewCreateRequestDto(5, "review");
 	}
 }
