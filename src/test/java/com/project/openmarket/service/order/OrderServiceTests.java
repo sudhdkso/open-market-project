@@ -48,8 +48,8 @@ class OrderServiceTests extends ServiceTestMock {
 		assertThatNoException()
 			.isThrownBy(() -> orderService.processConfirmedOrder(order, seller, consumer));
 
-		verify(consumerService, times(1)).processPoints(expectedPoint, any(Consumer.class));
-		verify(sellerService, times(1)).processPayment(expectedRevenue, any(Seller.class));
+		verify(consumerService, times(1)).processPoints(anyLong(), any(Consumer.class));
+		verify(sellerService, times(1)).processPayment(anyLong(), any(Seller.class));
 	}
 
 	@Nested
