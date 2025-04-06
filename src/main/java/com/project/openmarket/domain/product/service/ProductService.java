@@ -31,7 +31,7 @@ public class ProductService {
 	}
 
 	public List<Product> findByScoreDesc(String name) {
-		return productRepository.findByNameContainsOrderByAvgScoreDesc(name);
+		return productRepository.findByNameContainsOrderByAvgRatingDesc(name);
 	}
 
 	public Page<ProductResponseDto> findProductByName(String name, Pageable pageable) {
@@ -44,7 +44,7 @@ public class ProductService {
 	}
 
 	public void updateProductAvgScore(double avgScore, Product product) {
-		product.updateAvgScore(avgScore);
+		product.updateAvgRating(avgScore);
 		productRepository.save(product);
 	}
 

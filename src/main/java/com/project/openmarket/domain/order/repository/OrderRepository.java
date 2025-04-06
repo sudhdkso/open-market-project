@@ -10,8 +10,10 @@ import org.springframework.data.repository.query.Param;
 
 import com.project.openmarket.domain.order.entity.Order;
 import com.project.openmarket.domain.user.entity.Consumer;
+import com.project.openmarket.global.exception.CustomException;
+import com.project.openmarket.global.exception.enums.ExceptionConstants;
 
-public interface OrderRepository extends MongoRepository<Order, String> {
+public interface OrderRepository extends MongoRepository<Order, String>, CustomOrderRepository {
 
 	List<Order> findByConsumer(Consumer consumer);
 
@@ -24,4 +26,8 @@ public interface OrderRepository extends MongoRepository<Order, String> {
 	@Query("{ 'product' : { $in: ?0 } }")
 	List<Order> findBySellerProducts(List<ObjectId> productIds);
 
+	default Order getById(String id) {
+		return findById(id)
+			.orElseThrow(() -> new CustomException(ExceptionConstants.NOT_FOUND_ORDER));
+	}
 }

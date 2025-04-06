@@ -12,13 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.openmarket.domain.auth.ConsumerThreadLocal;
 import com.project.openmarket.domain.order.dto.request.OrderRequestDto;
 import com.project.openmarket.domain.order.dto.response.OrderDetailResponseDto;
 import com.project.openmarket.domain.order.dto.response.OrderListResponsesDto;
 import com.project.openmarket.domain.order.dto.response.OrderResponseDto;
 import com.project.openmarket.domain.order.service.ConsumerOrderService;
-import com.project.openmarket.domain.order.service.OrderService;
+import com.project.openmarket.global.context.ConsumerThreadLocal;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 public class ConsumerOrderController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final ConsumerOrderService consumerOrderService;
-	private final OrderService orderService;
 
 	@GetMapping("/orders")
 	public ResponseEntity<OrderListResponsesDto> getOrderList() {

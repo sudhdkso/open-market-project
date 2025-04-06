@@ -8,8 +8,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.repository.ConsumerRepository;
-import com.project.openmarket.domain.auth.ConsumerThreadLocal;
-import com.project.openmarket.domain.auth.enums.SessionConst;
+import com.project.openmarket.global.context.ConsumerThreadLocal;
+import com.project.openmarket.global.context.enums.SessionConst;
+import com.project.openmarket.global.exception.CustomException;
+import com.project.openmarket.global.exception.enums.ExceptionConstants;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,15 +24,16 @@ public class ConsumerInterceptor implements HandlerInterceptor {
 	private final ConsumerRepository consumerRepository;
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
+		Exception {
 		HttpSession session = request.getSession(true);
 
-		String email = (String) session.getAttribute(SessionConst.SESSION_KEY);
+		String email = (String)session.getAttribute(SessionConst.SESSION_KEY);
 
 		Optional<Consumer> consumer = consumerRepository.findByEmail(email);
 
-		if(consumer.isEmpty()){
-			return false;
+		if (consumer.isEmpty()) {
+			throw new CustomException(ExceptionConstants.SECURITY);
 		}
 		ConsumerThreadLocal.set(consumer.get());
 		return true;

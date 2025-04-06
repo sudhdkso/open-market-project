@@ -98,14 +98,14 @@ class ProductTests {
 
 	@DisplayName("평점이 주어지면 평균 평점이 수정된다.")
 	@Test
-	void whenAvgScoreGiven_thenUpdateAvgScore() {
+	void whenAvgScoreGiven_thenUpdateAvgRating() {
 		//given
 		Product product = new Product("product1", "description", 1000, 1, seller);
 		double newAvgScore = 4.0;
 		//when
-		product.updateAvgScore(newAvgScore);
+		product.updateAvgRating(newAvgScore);
 		//then
-		assertThat(product.getAvgScore()).isEqualTo(newAvgScore);
+		assertThat(product.getAvgRating()).isEqualTo(newAvgScore);
 	}
 
 	@DisplayName("상품 이름이 동일하면 true를 반환한다.")

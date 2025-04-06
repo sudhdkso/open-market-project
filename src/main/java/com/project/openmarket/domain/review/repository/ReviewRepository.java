@@ -2,16 +2,14 @@ package com.project.openmarket.domain.review.repository;
 
 import java.util.List;
 
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.review.entity.Review;
 import com.project.openmarket.domain.user.entity.Consumer;
 
-public interface ReviewRepository extends MongoRepository<Review, String> {
+public interface ReviewRepository extends MongoRepository<Review, String>, CustomReviewRepository {
 
 	@Query(" 'product._id' : ?#{#product.id} ")
 	List<Review> findByProduct(Product product);

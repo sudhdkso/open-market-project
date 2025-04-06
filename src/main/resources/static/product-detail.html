@@ -282,9 +282,9 @@
             const exactRatingElem = document.getElementById("exact-rating");
 
             // 평점이 있는 경우에만 표시
-            if (product.avgScore !== undefined && product.avgScore !== null) {
-                starsElem.innerText = getStarRating(product.avgScore);
-                exactRatingElem.innerText = product.avgScore.toFixed(1) + ' / 5.0';
+            if (product.avgRating !== undefined && product.avgRating !== null) {
+                starsElem.innerText = getStarRating(product.avgRating);
+                exactRatingElem.innerText = product.avgRating.toFixed(1) + ' / 5.0';
 
                 // 별점 클릭 시 리뷰 목록으로 이동
                 ratingElem.onclick = () => location.href = `/reviews.html?productId=${productId}`;

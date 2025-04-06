@@ -12,20 +12,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.openmarket.domain.auth.ConsumerThreadLocal;
-import com.project.openmarket.domain.auth.SellerThreadLocal;
 import com.project.openmarket.domain.user.dto.reposne.CurrentUserResponseDto;
+import com.project.openmarket.domain.user.dto.reposne.UserResponseDto;
 import com.project.openmarket.domain.user.dto.request.ConsumerCreateReqestDto;
+import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.dto.request.SellerCreateRequestDto;
 import com.project.openmarket.domain.user.entity.Consumer;
 import com.project.openmarket.domain.user.entity.Seller;
-import com.project.openmarket.domain.user.entity.User;
-import com.project.openmarket.domain.user.service.SellerService;
-import com.project.openmarket.domain.auth.enums.Role;
-import com.project.openmarket.domain.auth.enums.SessionConst;
-import com.project.openmarket.domain.user.dto.reposne.UserResponseDto;
-import com.project.openmarket.domain.user.dto.request.LoginRequestDto;
 import com.project.openmarket.domain.user.service.ConsumerService;
+import com.project.openmarket.domain.user.service.SellerService;
+import com.project.openmarket.global.context.ConsumerThreadLocal;
+import com.project.openmarket.global.context.SellerThreadLocal;
+import com.project.openmarket.global.context.enums.Role;
+import com.project.openmarket.global.context.enums.SessionConst;
 import com.project.openmarket.global.exception.CustomException;
 import com.project.openmarket.global.exception.enums.ExceptionConstants;
 
@@ -44,34 +43,35 @@ public class UserController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@PostMapping("/signup")
-	public <T>ResponseEntity<UserResponseDto> signup(
+	public <T> ResponseEntity<UserResponseDto> signup(
 		@RequestParam("role") String role,
-		@RequestBody @Valid T requestDto){
+		@RequestBody @Valid T requestDto) {
 		UserResponseDto responseDto = null;
 
-		switch (Role.findRoleByKey(role)){
-			case CONSUMER ->  responseDto = processConsumerCreateRequestDto(requestDto);
+		switch (Role.findRoleByKey(role)) {
+			case CONSUMER -> responseDto = processConsumerCreateRequestDto(requestDto);
 			case SELLER -> responseDto = convertSellerCreateRequestDto(requestDto);
 			default -> throw new CustomException(ExceptionConstants.INVALID_DATA_INPUT);
 		}
 
 		return ResponseEntity.ok().body(responseDto);
 	}
+
 	@PostMapping("/login")
 	public ResponseEntity<UserResponseDto> login(
 		@RequestParam("role") String role,
 		@RequestBody LoginRequestDto requestDto,
-		HttpServletRequest request){
+		HttpServletRequest request) {
 
 		UserResponseDto responseDto = null;
 
-		switch (Role.findRoleByKey(role)){
+		switch (Role.findRoleByKey(role)) {
 			case CONSUMER -> responseDto = consumerService.login(requestDto);
 			case SELLER -> responseDto = sellerService.login(requestDto);
 			default -> throw new CustomException(ExceptionConstants.INVALID_DATA_INPUT);
 		}
 
-		if(responseDto != null && responseDto.email() != null){
+		if (responseDto != null && responseDto.email() != null) {
 			HttpSession session = request.getSession();
 			session.setAttribute(SessionConst.SESSION_KEY, responseDto.email());
 			session.setAttribute("role", role);
@@ -85,7 +85,7 @@ public class UserController {
 	public ResponseEntity<CurrentUserResponseDto> getCurrentUser(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 
-		String role = (String) session.getAttribute("role"); // 세션에서 역할 가져오기
+		String role = (String)session.getAttribute("role"); // 세션에서 역할 가져오기
 		if (role == null) {
 			logger.info("세션에 역할 정보 없음!");
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -109,12 +109,12 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
-	private <T>UserResponseDto processConsumerCreateRequestDto(T requestDto){
+	private <T> UserResponseDto processConsumerCreateRequestDto(T requestDto) {
 		ConsumerCreateReqestDto convertDto = objectMapper.convertValue(requestDto, ConsumerCreateReqestDto.class);
 		return consumerService.save(convertDto);
 	}
 
-	private <T>UserResponseDto convertSellerCreateRequestDto(T requestDto){
+	private <T> UserResponseDto convertSellerCreateRequestDto(T requestDto) {
 		SellerCreateRequestDto convertDto = objectMapper.convertValue(requestDto, SellerCreateRequestDto.class);
 		return sellerService.save(convertDto);
 	}
