@@ -1,7 +1,5 @@
 package com.project.openmarket.domain.review.entity.enums;
 
-import java.util.Arrays;
-
 import lombok.Getter;
 
 @Getter
@@ -21,19 +19,4 @@ public enum Score {
 		this.value = value;
 	}
 
-	public static Score getScoreByValue(int value) {
-		return Arrays.stream(values())
-			.filter(v -> v.getValue() == value)
-			.findFirst()
-			.orElse(EMTPY);
-	}
-
-	public static Score fromString(String score) {
-		for (Score s : Score.values()) {
-			if (s.name().equalsIgnoreCase(score)) {
-				return s;
-			}
-		}
-		throw new IllegalArgumentException("Unknown enum value: " + score);
-	}
 }
