@@ -12,6 +12,10 @@
             padding: 0;
             font-family: Arial, sans-serif;
         }
+        #sorting-options span.active {
+            color: #007bff;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -42,7 +46,7 @@
     <h1>상품 목록</h1>
 
     <div id="sorting-options">
-        <span id="sort-by-name">이름순</span>
+        <span id="sort-by-name" class="active">이름순</span>
         <span id="sort-by-price">가격순</span>
     </div>
 
@@ -162,6 +166,11 @@
         document.getElementById('sort-by-name').addEventListener('click', () => {
             const productList = document.getElementById('product-list');
             const items = Array.from(productList.children);
+
+            // 활성화 상태 변경
+            document.getElementById('sort-by-name').classList.add('active');
+            document.getElementById('sort-by-price').classList.remove('active');
+
             items.sort((a, b) => {
                 const nameA = a.querySelector('.product-name').innerText;
                 const nameB = b.querySelector('.product-name').innerText;
@@ -174,6 +183,11 @@
         document.getElementById('sort-by-price').addEventListener('click', () => {
             const productList = document.getElementById('product-list');
             const items = Array.from(productList.children);
+
+            // 활성화 상태 변경
+            document.getElementById('sort-by-price').classList.add('active');
+            document.getElementById('sort-by-name').classList.remove('active');
+
             items.sort((a, b) => {
                 const priceA = parseInt(a.querySelector('.product-price').innerText.replace(/[^0-9]/g, ''));
                 const priceB = parseInt(b.querySelector('.product-price').innerText.replace(/[^0-9]/g, ''));
