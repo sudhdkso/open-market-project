@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/seller")
+@RequestMapping("/seller")
 public class SellerOrderController {
 	private final SellerOrderService sellerOrderService;
 

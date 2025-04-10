@@ -18,7 +18,7 @@ import com.project.openmarket.global.exception.enums.ExceptionConstants;
 
 public interface ProductRepository extends MongoRepository<Product, ObjectId> {
 
-	@Query(value = "{ 'name': ?0, 'seller._id': ?#{#seller.id} }", count = true)
+	@Query(value = "{ 'name': ?0, 'seller': ?1 }", count = true)
 	Long countByNameAndSeller(String name, @Param("seller") Seller seller);
 
 	//	@Lock(LockModeType.PESSIMISTIC_WRITE)

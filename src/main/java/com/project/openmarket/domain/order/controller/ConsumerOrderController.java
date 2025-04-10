@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/consumer")
+@RequestMapping("/consumer")
 public class ConsumerOrderController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final ConsumerOrderService consumerOrderService;
