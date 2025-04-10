@@ -71,7 +71,7 @@ class ReviewServiceTest extends ServiceTestMock {
 
 		then(reviewRepository)
 			.should(times(1))
-			.findByProduct(any(Product.class));
+			.findByProductId(any(Product.class));
 	}
 
 	@DisplayName("유효한 고객의 리뷰를 조회한다.")
