@@ -287,7 +287,7 @@
                 exactRatingElem.innerText = product.avgRating.toFixed(1) + ' / 5.0';
 
                 // 별점 클릭 시 리뷰 목록으로 이동
-                ratingElem.onclick = () => location.href = `/reviews.html?productId=${productId}`;
+                ratingElem.onclick = () => location.href = `/review/list.html?id=${productId}`;
             } else {
                 starsElem.innerText = '☆☆☆☆☆';
                 exactRatingElem.innerText = '평가 없음';

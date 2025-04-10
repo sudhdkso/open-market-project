@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 리뷰</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #content {
+            max-width: 800px;
+            margin: 80px auto 0; /* 상단 여백 추가 */
+            padding: 20px;
+            position: relative; /* 정렬 옵션의 절대 위치 기준 */
+        }
+
+        h1 {
+            font-size: 24px; /* 제목 크기 조정 */
+            margin-bottom: 20px;
+        }
+
+        #sorting-options {
+            position: absolute;
+            top: 25px;
+            right: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        #sorting-options span {
+            cursor: pointer;
+            padding: 0 8px;
+        }
+
+        #sorting-options span:hover {
+            color: #007bff;
+        }
+
+        #sorting-options span:first-child {
+            border-right: 1px solid #ddd;
+        }
+
+        #sorting-options span.active {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        #review-list {
+            margin-top: 30px;
+        }
+
+        .review-item {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .reviewer-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reviewer-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .reviewer-id {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .review-date {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .star-rating {
+            color: #ffc107;
+            font-size: 18px;
+        }
+
+        .review-content {
+            line-height: 1.6;
+            color: #333;
+            overflow: hidden;
+            max-height: 100px;
+            position: relative;
+            transition: max-height 0.3s ease;
+        }
+
+        .review-content.expanded {
+            max-height: 1000px;
+        }
+
+        .review-content.has-toggle::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(transparent, #fff);
+            pointer-events: none;
+        }
+
+        .review-content.expanded.has-toggle::after {
+            display: none;
+        }
+
+        .toggle-button {
+            color: #007bff;
+            background: none;
+            border: none;
+            padding: 5px 0;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+        }
+
+        .toggle-button:hover {
+            text-decoration: underline;
+        }
+
+        .no-reviews {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+<div id="top-bar">
+    <div id="home-button">
+        <a href="/home.html">Home</a>
+    </div>
+
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="상품 검색..." aria-label="상품 검색">
+        <button id="search-button">검색</button>
+    </div>
+
+    <div id="auth-buttons">
+        <button onclick="location.href='/login.html'">로그인</button>
+        <button onclick="location.href='/signup.html'">회원가입</button>
+    </div>
+
+    <div id="user-info">
+        <span id="username"></span>
+        <span id="user-cash"></span>
+        <button class="menu-button" id="menu-btn">메뉴</button>
+        <div id="user-menu"></div>
+    </div>
+</div>
+
+<div id="content">
+    <h1 id="product-name">상품명 리뷰</h1>
+
+    <div id="sorting-options">
+        <span id="sort-by-recent" class="active">최신순</span>
+        <span id="sort-by-rating">별점순</span>
+    </div>
+
+    <div id="review-list"></div>
+</div>
+
+<script>
+    let reviewData = [];
+    let productData = null;
+
+    async function loadUserInfo() {
+        const authButtons = document.getElementById("auth-buttons");
+        const userInfo = document.getElementById("user-info");
+        const userMenu = document.getElementById("user-menu");
+        const usernameElem = document.getElementById("username");
+        const userCashElem = document.getElementById("user-cash");
+
+        try {
+            // 로컬 스토리지에서 사용자 정보 확인
+            const storedUser = localStorage.getItem('user');
+            let user;
+
+            if (storedUser) {
+                // 로컬 스토리지에 사용자 정보가 있는 경우
+                user = JSON.parse(storedUser);
+            } else {
+                // 로컬 스토리지에 사용자 정보가 없는 경우 API 호출
+                const userResponse = await fetch("/api/v1/user");
+                if (!userResponse.ok) throw new Error("Unauthorized");
+
+                user = await userResponse.json();
+
+                // 사용자 정보를 로컬 스토리지에 저장
+                localStorage.setItem('user', JSON.stringify(user));
+            }
+
+            // 사용자 정보 표시
+            authButtons.style.display = "none";
+            userInfo.style.display = "flex";
+            usernameElem.innerText = user.name;
+            userCashElem.innerText = `캐시: ${user.cash.toLocaleString()}원`;
+
+            userMenu.innerHTML = user.role === "seller" ? `
+                <a href="/product/register.html">상품 추가</a>
+                <a href="/product/manage.html">상품 관리</a>
+                <a href="/order/manage.html">주문 관리</a>
+                <a href="/profile.html">정보 관리</a>
+                <a href="#" onclick="logout()">로그아웃</a>
+            ` : `
+                <a href="/payment/charge.html">캐시 충전</a>
+                <a href="/order/list.html">주문 내역</a>
+                <a href="/profile.html">정보 관리</a>
+                <a href="#" onclick="logout()">로그아웃</a>
+            `;
+        } catch (error) {
+            authButtons.style.display = "flex";
+            userInfo.style.display = "none";
+            // 오류 발생 시 로컬 스토리지에서 사용자 정보 제거
+            localStorage.removeItem('user');
+        }
+    }
+
+    async function loadProductInfo(productId) {
+        try {
+            const response = await fetch(`/api/v1/product/${productId}`);
+            if (!response.ok) throw new Error("상품 정보를 불러오지 못했습니다.");
+
+            productData = await response.json();
+            document.getElementById("product-name").innerText = `${productData.name} 리뷰`;
+
+            return productData;
+        } catch (error) {
+            console.error("상품 정보 로드 오류:", error);
+            alert(error.message);
+            return null;
+        }
+    }
+
+    async function loadReviews(productId) {
+        try {
+            const response = await fetch(`/api/v1/products/${productId}/reviews`);
+            if (!response.ok) throw new Error("리뷰를 불러오지 못했습니다.");
+
+            const data = await response.json();
+            reviewData = data.reviews || [];
+
+            displayReviews();
+
+            return reviewData;
+        } catch (error) {
+            console.error("리뷰 로드 오류:", error);
+            alert(error.message);
+            return [];
+        }
+    }
+
+    function displayReviews() {
+        const reviewList = document.getElementById("review-list");
+        reviewList.innerHTML = "";
+
+        if (reviewData.length === 0) {
+            reviewList.innerHTML = `<div class="no-reviews">
+                <p>아직 리뷰가 없습니다.</p>
+            </div>`;
+            return;
+        }
+
+        reviewData.forEach(review => {
+            const reviewItem = document.createElement("div");
+            reviewItem.className = "review-item";
+
+            // 별점 표시 생성
+            let starsHtml = '';
+            const roundedRating = Math.round(review.rating);
+            for (let i = 1; i <= 5; i++) {
+                if (i <= roundedRating) {
+                    starsHtml += '<i class="fas fa-star"></i>';
+                } else {
+                    starsHtml += '<i class="far fa-star"></i>';
+                }
+            }
+
+            // 날짜 포맷팅
+            const reviewDate = new Date(review.createdAt);
+            const formattedDate = reviewDate.toLocaleDateString();
+
+            reviewItem.innerHTML = `
+                <div class="review-header">
+                    <div class="reviewer-info">
+                        <div class="reviewer-name">${review.reviewer.name}</div>
+                        <div class="reviewer-id">ID: ${review.reviewer.id}</div>
+                        <div class="review-date">${formattedDate}</div>
+                    </div>
+                    <div class="star-rating">${starsHtml}</div>
+                </div>
+                <div class="review-content" id="content-${review.id}">${review.content}</div>
+                <button class="toggle-button" id="toggle-${review.id}">더 보기</button>
+            `;
+
+            reviewList.appendChild(reviewItem);
+
+            // 내용이 길면 토글 버튼 표시
+            setTimeout(() => {
+                const content = document.getElementById(`content-${review.id}`);
+                const toggle = document.getElementById(`toggle-${review.id}`);
+
+                if (content.scrollHeight > content.clientHeight) {
+                    content.classList.add('has-toggle');
+                    toggle.style.display = 'block';
+
+                    toggle.addEventListener('click', () => {
+                        if (content.classList.contains('expanded')) {
+                            content.classList.remove('expanded');
+                            toggle.textContent = '더 보기';
+                        } else {
+                            content.classList.add('expanded');
+                            toggle.textContent = '접기';
+                        }
+                    });
+                }
+            }, 10);
+        });
+    }
+
+    function searchProducts() {
+        const searchTerm = document.getElementById("search-input").value.trim();
+        if (searchTerm) {
+            window.location.href = `/search.html?q=${encodeURIComponent(searchTerm)}`;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('user');
+        fetch("/api/v1/logout", { method: "POST" })
+            .then(() => window.location.href = "/login.html");
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        await loadUserInfo();
+
+        // URL에서 상품 ID 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        if (!productId) {
+            alert("상품 ID가 지정되지 않았습니다.");
+            window.location.href = "/home.html";
+            return;
+        }
+
+        // 상품 정보 로드
+        await loadProductInfo(productId);
+
+        // 리뷰 로드
+        await loadReviews(productId);
+
+        // 검색 버튼 클릭 이벤트
+        document.getElementById("search-button").addEventListener("click", searchProducts);
+
+        // 엔터 키 검색 이벤트
+        document.getElementById("search-input").addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                searchProducts();
+            }
+        });
+
+        document.getElementById("menu-btn").addEventListener("click", (event) => {
+            event.stopPropagation();
+            const menu = document.getElementById("user-menu");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest("#user-info")) {
+                document.getElementById("user-menu").style.display = "none";
+            }
+        });
+
+        // 정렬 버튼 이벤트
+        document.getElementById('sort-by-recent').addEventListener('click', () => {
+            // 활성화 상태 변경
+            document.getElementById('sort-by-recent').classList.add('active');
+            document.getElementById('sort-by-rating').classList.remove('active');
+
+            // 최신순 정렬
+            reviewData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            displayReviews();
+        });
+
+        document.getElementById('sort-by-rating').addEventListener('click', () => {
+            // 활성화 상태 변경
+            document.getElementById('sort-by-rating').classList.add('active');
+            document.getElementById('sort-by-recent').classList.remove('active');
+
+            // 별점순 정렬 (높은 순)
+            reviewData.sort((a, b) => b.rating - a.rating);
+            displayReviews();
+        });
+    });
+</script>
+</body>
+</html>

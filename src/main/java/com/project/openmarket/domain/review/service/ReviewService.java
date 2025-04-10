@@ -1,7 +1,5 @@
 package com.project.openmarket.domain.review.service;
 
-import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -12,6 +10,7 @@ import com.project.openmarket.domain.order.service.OrderService;
 import com.project.openmarket.domain.product.entity.Product;
 import com.project.openmarket.domain.product.service.ProductService;
 import com.project.openmarket.domain.review.dto.request.ReviewCreateRequestDto;
+import com.project.openmarket.domain.review.dto.response.ReviewListResponsesDto;
 import com.project.openmarket.domain.review.dto.response.ReviewResponseDto;
 import com.project.openmarket.domain.review.entity.Review;
 import com.project.openmarket.domain.review.event.ReviewCreatedEvent;
@@ -43,14 +42,14 @@ public class ReviewService {
 	}
 
 	//productId에 따른 상품 리뷰 모두 조회
-	public List<Review> getReviewByProductId(String productId) {
+	public ReviewListResponsesDto getReviewByProductId(String productId) {
 		Product product = productService.getProductById(new ObjectId(productId));
-		return reviewRepository.findByProduct(product);
+		return ReviewListResponsesDto.of(reviewRepository.findByProduct(product));
 	}
 
 	//고객 별 리뷰 모두 조회
-	public List<Review> getReviewByConsumer(Consumer consumer) {
-		return reviewRepository.findByConsumer(consumer);
+	public ReviewListResponsesDto getReviewByConsumer(Consumer consumer) {
+		return ReviewListResponsesDto.of(reviewRepository.findByConsumer(consumer));
 	}
 
 }
