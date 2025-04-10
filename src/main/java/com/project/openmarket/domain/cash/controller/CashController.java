@@ -26,7 +26,7 @@ import lombok.AllArgsConstructor;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/consumer/payment")
+@RequestMapping("/api/v1/consumer/payment")
 public class CashController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
