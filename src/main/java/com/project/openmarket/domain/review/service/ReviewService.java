@@ -44,7 +44,7 @@ public class ReviewService {
 	//productId에 따른 상품 리뷰 모두 조회
 	public ReviewListResponsesDto getReviewByProductId(String productId) {
 		Product product = productService.getProductById(new ObjectId(productId));
-		return ReviewListResponsesDto.of(reviewRepository.findByProductId(product.getId()));
+		return ReviewListResponsesDto.of(reviewRepository.findByProduct(product));
 	}
 
 	//고객 별 리뷰 모두 조회
